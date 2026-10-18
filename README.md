@@ -36,7 +36,8 @@ Die Kamera funktioniert nur über `https://` (bei GitHub Pages automatisch).
 - Anzahl der Sachen (1–5), nur gerade / nur ungerade Beträge, Höchstbetrag, Aufgaben pro Runde
 - **1-€-Münzen begrenzen** (Bündeln üben: „Ab jetzt hast du nur noch zwei 1-€-Stücke.“)
 - **Preis-Schild wählen** als 2. Schritt: 4 Schilder zur Auswahl oder alle bis zum Höchstbetrag
-- Hilfen: Preise anzeigen, gleiche Sachen mehrmals, Hinweis „zu viel / zu wenig“, Vorlesen und Töne
+- Hilfen: Preise anzeigen, gleiche Sachen mehrmals, Vorlesen und Töne
+- Bei falschem Betrag sagt die App absichtlich nicht „zu viel“ oder „zu wenig“, damit nicht geraten wird (Münze weg, neues Foto …). Sie bittet nur, noch einmal zu rechnen und zu zählen.
 - **Link mit diesen Einstellungen**: für TaskCards oder einen QR-Code. Beispiel:
   `…/kirmes-kiosk/?anzahl=4&betrag=ungerade&max=15&runde=10&einer=2&schild=4`
   Der Name kommt absichtlich nicht in den Link. Er wird auf jedem Gerät einmal im Lehrkraft-Bereich eingetragen.

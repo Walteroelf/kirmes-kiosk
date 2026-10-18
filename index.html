@@ -414,7 +414,6 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
         <span class="label">Weitere Hilfen</span>
         <label class="schalter"><input type="checkbox" id="e-preise"> Preise unter den Sachen zeigen</label>
         <label class="schalter"><input type="checkbox" id="e-doppelt"> Gleiche Sachen mehrmals erlauben</label>
-        <label class="schalter"><input type="checkbox" id="e-hinweis"> Bei Fehler sagen: zu viel / zu wenig</label>
         <label class="schalter"><input type="checkbox" id="e-betragzeigen"> Erkanntes Geld als Betrag zeigen (nicht, wenn Preis-Schild wählen an ist)</label>
         <label class="schalter"><input type="checkbox" id="e-ton"> Töne und Vorlesen</label>
         <label class="schalter"><input type="checkbox" id="e-fotos"> Vorschaubilder im Protokoll speichern</label>
@@ -497,7 +496,7 @@ const bild = p => `bilder/${p.id}.png`;
 // Einstellungen: Standard < gespeichert < Link-Parameter
 // ---------------------------------------------------------------------------
 const STANDARD = { name: '', anzahl: 3, betrag: 'alle', max: 15, runde: 10, einer: 0, schild: 'aus',
-                   preise: false, doppelt: true, hinweis: true, betragzeigen: true, ton: true, fotos: false };
+                   preise: false, doppelt: true, betragzeigen: true, ton: true, fotos: false };
 const speicher = {
   lesen(k, f) { try { const v = localStorage.getItem('kirmes-' + k); return v ? JSON.parse(v) : f; } catch (e) { return f; } },
   schreiben(k, v) { try { localStorage.setItem('kirmes-' + k, JSON.stringify(v)); } catch (e) { /* kein Speicher */ } },
@@ -510,7 +509,7 @@ function ausLink() {
   if (q.has('runde')) e.runde = clamp(+q.get('runde'), 1, 50);
   if (q.has('einer')) e.einer = clamp(+q.get('einer'), 0, 9);
   if (q.has('schild') && ['aus', '4', 'alle'].includes(q.get('schild'))) e.schild = q.get('schild');
-  for (const k of ['preise', 'doppelt', 'hinweis', 'betragzeigen', 'ton', 'fotos']) if (q.has(k)) e[k] = q.get(k) === '1';
+  for (const k of ['preise', 'doppelt', 'betragzeigen', 'ton', 'fotos']) if (q.has(k)) e[k] = q.get(k) === '1';
   return e;
 }
 function clamp(v, a, b) { return Math.max(a, Math.min(b, isNaN(v) ? a : Math.round(v))); }
@@ -707,8 +706,8 @@ function pruefeGeld(neu) {
     html = `<div class="meldung gut huepfen">${SYMBOL_GUT}<div><strong>Super${name}!</strong>${satz}</div></div>`;
     sprich = `Super${name}! ${verdeckt ? 'Dein Geld passt genau.' : `Das sind genau ${soll} Euro.`}`;
   } else {
-    let zusatz = 'Rechne noch einmal und zähle dein Geld.';
-    if (E.hinweis) zusatz = summe < soll ? 'Das ist zu wenig Geld. Es kostet mehr.' : 'Das ist zu viel Geld. Es kostet weniger.';
+    // Bewusst kein "zu viel / zu wenig": sonst wird geraten (Münze weg, neues Foto …).
+    const zusatz = 'Rechne noch einmal und zähle dein Geld.';
     const betrag = betragZeigen ? `Ich sehe ${summe} €. ` : '';
     html = `<div class="meldung hm">${SYMBOL_HM}<div><strong>Das passt noch nicht.</strong>${betrag}${zusatz}</div></div>`;
     sprich = `Das passt noch nicht. ${betragZeigen ? `Ich sehe ${summe} Euro. ` : ''}${zusatz}`;
@@ -947,7 +946,7 @@ function oeffneLehrkraft() {
   $('e-name').value = E.name; $('e-anzahl').value = E.anzahl; $('e-betrag').value = E.betrag;
   setzeAuswahl($('e-max'), E.max); setzeAuswahl($('e-runde'), E.runde); setzeAuswahl($('e-einer'), E.einer);
   $('e-schild').value = E.schild;
-  for (const k of ['preise', 'doppelt', 'hinweis', 'betragzeigen', 'ton', 'fotos']) $('e-' + k).checked = !!E[k];
+  for (const k of ['preise', 'doppelt', 'betragzeigen', 'ton', 'fotos']) $('e-' + k).checked = !!E[k];
   aktualisiereLink(); zeigeProtokoll(); $('loeschen-frage').hidden = true; $('alles-frage').hidden = true;
   $('dlg-lehrkraft').showModal();
 }
@@ -959,7 +958,7 @@ function leseFormular() {
   return {
     name: $('e-name').value.trim().slice(0, 30), anzahl: +$('e-anzahl').value, betrag: $('e-betrag').value,
     max: +$('e-max').value, runde: +$('e-runde').value, einer: +$('e-einer').value, schild: $('e-schild').value,
-    preise: $('e-preise').checked, doppelt: $('e-doppelt').checked, hinweis: $('e-hinweis').checked,
+    preise: $('e-preise').checked, doppelt: $('e-doppelt').checked,
     betragzeigen: $('e-betragzeigen').checked, ton: $('e-ton').checked, fotos: $('e-fotos').checked,
   };
 }
@@ -968,7 +967,7 @@ function aktualisiereLink() {
   q.set('anzahl', f.anzahl); q.set('betrag', f.betrag); q.set('max', f.max); q.set('runde', f.runde);
   if (f.einer) q.set('einer', f.einer);
   if (f.schild !== 'aus') q.set('schild', f.schild);
-  for (const k of ['preise', 'doppelt', 'hinweis', 'betragzeigen', 'ton', 'fotos']) if (f[k] !== STANDARD[k]) q.set(k, f[k] ? '1' : '0');
+  for (const k of ['preise', 'doppelt', 'betragzeigen', 'ton', 'fotos']) if (f[k] !== STANDARD[k]) q.set(k, f[k] ? '1' : '0');
   const basis = location.protocol.startsWith('http') ? location.origin + location.pathname : 'https://DEIN-NAME.github.io/kirmes-kiosk/';
   $('link-text').textContent = basis + '?' + q.toString();
 }
