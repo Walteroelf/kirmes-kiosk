@@ -1,0 +1,982 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kirmes-Kiosk</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Einkaufen am Kirmes-Kiosk: Preise zusammenrechnen, Spielgeld legen, fotografieren – die App prüft den Betrag.">
+<style>
+/* Schriften liegen in der App selbst (keine Verbindung zu Google & Co.). Lizenz: SIL Open Font License. */
+@font-face { font-family: "Andika"; font-weight: 400; font-display: swap; src: url("schriften/andika-400.woff2") format("woff2"); }
+@font-face { font-family: "Andika"; font-weight: 700; font-display: swap; src: url("schriften/andika-700.woff2") format("woff2"); }
+@font-face { font-family: "Grandstander"; font-weight: 700 900; font-display: swap; src: url("schriften/grandstander.woff2") format("woff2"); }
+/* Layout: eine Bude – gestreifte Markise oben, darunter die Ware auf dem Tresen, darunter der Arbeitsschritt. */
+:root {
+  --himmel: #e8f1f6;        /* Seitenhintergrund */
+  --tresen: #ffffff;        /* Karten / Tresen */
+  --holz: #6b3f22;          /* Text, Rahmen */
+  --holz-hell: #a8774f;
+  --markise: #c9362c;       /* Akzent: Markisenrot */
+  --markise-text: #ffffff;
+  --senf: #f2b531;          /* zweiter Akzent: Senfgelb */
+  --gut: #2f8f3a;
+  --gut-hell: #dff3dd;
+  --hm: #c76a12;
+  --hm-hell: #fdeccd;
+  --linie: #d9cbbd;
+  --teller: #ffffff;        /* Produktbilder haben weißen Grund */
+  --teller-text: #5a3419;
+  --schatten: 0 3px 0 #d9cbbd;
+  --schrift: "Andika", "Comic Sans MS", system-ui, sans-serif;
+  --anzeige: "Grandstander", "Andika", "Comic Sans MS", system-ui, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --himmel: #17202c; --tresen: #222d3b; --holz: #f4e6d6; --holz-hell: #c9a888;
+    --markise: #e0483d; --markise-text: #ffffff; --senf: #f5c04d;
+    --gut: #6fd07a; --gut-hell: #1f3a26; --hm: #f3a24a; --hm-hell: #3d2c17;
+    --linie: #3a4859; --schatten: 0 3px 0 #0f151d; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --himmel: #17202c; --tresen: #222d3b; --holz: #f4e6d6; --holz-hell: #c9a888;
+  --markise: #e0483d; --markise-text: #ffffff; --senf: #f5c04d;
+  --gut: #6fd07a; --gut-hell: #1f3a26; --hm: #f3a24a; --hm-hell: #3d2c17;
+  --linie: #3a4859; --schatten: 0 3px 0 #0f151d; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--himmel); color: var(--holz);
+  font-family: var(--schrift); font-size: 20px; line-height: 1.4;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 32px;
+}
+[hidden] { display: none !important; }
+img { max-width: 100%; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 4px solid var(--senf); outline-offset: 3px; }
+
+/* Markise */
+.markise {
+  margin-left: calc(-1 * max(16px, env(safe-area-inset-left, 0px)));
+  margin-right: calc(-1 * max(16px, env(safe-area-inset-right, 0px)));
+  padding-top: env(safe-area-inset-top, 0px);
+  background: repeating-linear-gradient(90deg, var(--markise) 0 56px, #fff 56px 112px);
+  position: relative;
+}
+.markise::after { /* Bogenkante */
+  content: ""; position: absolute; left: 0; right: 0; bottom: -18px; height: 18px;
+  background: radial-gradient(circle at 28px 0, var(--markise) 27px, transparent 28px) 0 0 / 112px 18px repeat-x,
+              radial-gradient(circle at 84px 0, #fff 27px, transparent 28px) 0 0 / 112px 18px repeat-x;
+}
+.kopf {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 14px max(16px, env(safe-area-inset-right, 0px)) 14px max(16px, env(safe-area-inset-left, 0px));
+}
+.schild-titel {
+  font-family: var(--anzeige); font-weight: 900; font-size: clamp(26px, 5vw, 40px); letter-spacing: .02em;
+  background: var(--tresen); color: var(--holz); border: 4px solid var(--holz); border-radius: 14px;
+  padding: 2px 18px; box-shadow: 0 4px 0 var(--holz); margin: 0; line-height: 1.2;
+}
+.kopf .platz { flex: 1; }
+.rundknopf {
+  width: 58px; height: 58px; border-radius: 50%; border: 3px solid var(--holz);
+  background: var(--tresen); display: grid; place-items: center; box-shadow: 0 3px 0 var(--holz);
+}
+.rundknopf svg { width: 30px; height: 30px; }
+.rundknopf:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--holz); }
+
+main { max-width: 980px; margin: 36px auto 0; display: grid; gap: 22px; }
+
+/* Fortschritt */
+.fortschritt { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 18px; }
+.punkte { display: flex; gap: 6px; flex-wrap: wrap; }
+.punkt { width: 20px; height: 20px; border-radius: 50%; border: 3px solid var(--holz-hell); background: var(--tresen); }
+.punkt.jetzt { border-color: var(--holz); background: var(--senf); }
+.punkt.fertig { border-color: var(--gut); background: var(--gut); }
+.gruss { font-family: var(--anzeige); font-weight: 700; font-size: 24px; margin: 0; text-wrap: balance; }
+
+/* Ware auf dem Tresen */
+.tresen {
+  background: var(--tresen); border: 4px solid var(--holz); border-radius: 22px;
+  padding: 18px; display: grid; gap: 14px; box-shadow: 0 6px 0 var(--holz);
+}
+.tresen-kopf { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.tresen-kopf h2 { margin: 0; font-size: 24px; font-family: var(--anzeige); flex: 1; min-width: 0; }
+.ware { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
+.produkt {
+  display: grid; grid-template-rows: 150px auto; justify-items: center; align-items: center;
+  border: 3px dashed var(--linie); border-radius: 16px; padding: 10px 8px 12px; background: var(--teller); color: var(--teller-text);
+}
+.produkt img { max-height: 140px; width: auto; object-fit: contain; }
+.produkt .name { font-weight: 700; font-size: 18px; text-align: center; }
+.preis {
+  display: inline-block; margin-top: 4px; font-family: var(--anzeige); font-weight: 900; font-size: 24px;
+  background: var(--teller); color: var(--teller-text); border: 3px solid var(--teller-text); border-radius: 8px; padding: 0 10px;
+}
+
+/* Schritte */
+.schritt {
+  background: var(--tresen); border: 3px solid var(--linie); border-radius: 20px; padding: 18px;
+  display: grid; gap: 14px;
+}
+.schritt h3 { margin: 0; font-family: var(--anzeige); font-size: 24px; display: flex; gap: 12px; align-items: center; }
+.nr {
+  flex: none; width: 42px; height: 42px; border-radius: 50%; background: var(--senf); color: #3a2410;
+  display: grid; place-items: center; font-family: var(--anzeige); font-weight: 900; font-size: 24px;
+}
+.tipp { margin: 0; font-size: 17px; color: var(--holz-hell); }
+.grossknopf {
+  display: flex; align-items: center; justify-content: center; gap: 14px;
+  min-height: 84px; padding: 14px 26px; border-radius: 20px; border: 4px solid var(--holz);
+  background: var(--senf); color: #3a2410; font-family: var(--anzeige); font-weight: 900; font-size: 28px;
+  box-shadow: 0 6px 0 var(--holz); text-align: center;
+}
+.grossknopf svg { width: 44px; height: 44px; flex: none; }
+.grossknopf:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--holz); }
+.grossknopf.weiter { background: var(--gut); color: #fff; border-color: var(--gut); box-shadow: 0 6px 0 #1d5e25; }
+.grossknopf.leise { background: var(--tresen); color: var(--holz); font-size: 22px; min-height: 68px; }
+.knopfreihe { display: flex; gap: 14px; flex-wrap: wrap; }
+.knopfreihe > * { flex: 1 1 240px; }
+
+/* Ergebnis */
+.ergebnis { display: grid; gap: 14px; }
+.foto-rahmen { position: relative; border-radius: 16px; overflow: hidden; border: 3px solid var(--linie); background: #000; }
+.foto-rahmen canvas { display: block; width: 100%; height: auto; touch-action: manipulation; }
+.foto-rahmen.korrigieren { border-color: var(--senf); }
+.meldung {
+  border-radius: 18px; padding: 16px 18px; display: flex; gap: 14px; align-items: center; font-size: 22px;
+}
+.meldung.gut { background: var(--gut-hell); border: 3px solid var(--gut); }
+.meldung.hm { background: var(--hm-hell); border: 3px solid var(--hm); }
+.meldung strong { font-family: var(--anzeige); font-size: 28px; display: block; line-height: 1.2; }
+.meldung .symbol { flex: none; width: 64px; height: 64px; }
+.erkannt { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 18px; }
+.geld { display: inline-grid; place-items: center; font-weight: 700; font-family: var(--anzeige); }
+.geld.m1, .geld.m2, .geld.m0 { width: 46px; height: 46px; border-radius: 50%; font-size: 15px; }
+.geld.m1 { background: radial-gradient(circle, #d7dade 0 52%, #d9a83a 54%); color: #2b2b2b; box-shadow: inset 0 0 0 2px #9b7a2a; }
+.geld.m2 { background: radial-gradient(circle, #e2b443 0 52%, #c9ccd1 54%); color: #2b2b2b; box-shadow: inset 0 0 0 2px #8d9096; }
+.geld.m0 { background: #d8a24a; color: #2b2b2b; }
+.geld.schein { min-width: 74px; height: 42px; border-radius: 6px; font-size: 17px; padding: 0 8px; color: #222; }
+.geld.s5 { background: #b9c3b4; } .geld.s10 { background: #e79a95; } .geld.s20 { background: #9cc1e6; } .geld.s50 { background: #f1b77a; }
+.kleinlink {
+  background: none; border: none; padding: 6px 0; color: var(--holz-hell); text-decoration: underline;
+  font-size: 16px; justify-self: start;
+}
+.korrektur-hinweis { margin: 0; font-size: 16px; background: var(--hm-hell); border-radius: 10px; padding: 8px 12px; }
+
+/* Preisschilder (wie die Papier-Schilder) */
+.schilder { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+.schilder.alle { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 10px; }
+.preisschild {
+  background: #fff; color: #111; border: 3px solid #111; border-radius: 4px; padding: 8px 6px 4px;
+  display: grid; justify-items: center; min-height: 104px; box-shadow: 2px 3px 0 rgba(0,0,0,.15);
+}
+.preisschild small { font-size: 15px; }
+.preisschild span { font-family: var(--schrift); font-size: 44px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.schilder.alle .preisschild { min-height: 84px; }
+.schilder.alle .preisschild span { font-size: 32px; }
+.preisschild.richtig { background: var(--gut-hell); border-color: var(--gut); color: var(--holz); }
+.preisschild.falsch { opacity: .35; }
+
+/* Ende */
+.ende { text-align: center; display: grid; gap: 16px; justify-items: center; padding: 28px 18px; }
+.ende h2 { font-family: var(--anzeige); font-size: clamp(40px, 9vw, 72px); margin: 0; color: var(--markise); }
+.sterne { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.sterne svg { width: 44px; height: 44px; }
+
+/* Dialoge */
+dialog {
+  border: 4px solid var(--holz); border-radius: 22px; background: var(--tresen); color: var(--holz);
+  width: min(920px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); padding: 0;
+}
+dialog::backdrop { background: rgba(20, 15, 10, .55); }
+.dialog-kopf {
+  position: sticky; top: 0; z-index: 2; display: flex; align-items: center; gap: 12px;
+  background: var(--tresen); border-bottom: 3px solid var(--linie); padding: 14px 18px;
+}
+.dialog-kopf h2 { margin: 0; flex: 1; font-family: var(--anzeige); font-size: 26px; }
+.dialog-inhalt { padding: 18px; display: grid; gap: 18px; }
+.preisliste { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; }
+.preisliste .produkt { grid-template-rows: 96px auto; padding: 8px; }
+.preisliste .produkt img { max-height: 90px; }
+.preisliste .produkt .name { font-size: 15px; }
+
+.einstellungen { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px 22px; }
+.feld { display: grid; gap: 6px; font-size: 17px; }
+.feld label, .feld .label { font-weight: 700; }
+.feld select, .feld input[type="text"] {
+  font: inherit; font-size: 18px; padding: 10px 12px; border-radius: 12px; border: 3px solid var(--linie);
+  background: var(--himmel); color: var(--holz); min-height: 52px; width: 100%;
+}
+.feld .hilfe { font-size: 15px; color: var(--holz-hell); }
+.schalter { display: flex; gap: 10px; align-items: center; font-size: 17px; }
+.schalter input { width: 26px; height: 26px; accent-color: var(--markise); }
+.abschnitt { border-top: 3px solid var(--linie); padding-top: 16px; display: grid; gap: 12px; }
+.abschnitt h3 { margin: 0; font-family: var(--anzeige); font-size: 22px; }
+.linkfeld { display: flex; gap: 10px; flex-wrap: wrap; }
+.linkfeld code {
+  flex: 1 1 280px; min-width: 0; overflow-wrap: anywhere; background: var(--himmel); border: 2px solid var(--linie);
+  border-radius: 10px; padding: 10px 12px; font-size: 15px; user-select: all;
+}
+.mittelknopf {
+  border: 3px solid var(--holz); background: var(--tresen); border-radius: 14px; padding: 10px 16px;
+  font-weight: 700; font-size: 17px; min-height: 52px;
+}
+.mittelknopf.primaer { background: var(--senf); color: #3a2410; }
+.mittelknopf.warnung { border-color: var(--markise); color: var(--markise); }
+.protokoll { display: grid; gap: 10px; }
+.eintrag {
+  display: grid; grid-template-columns: 120px 1fr; gap: 12px; align-items: center;
+  border: 2px solid var(--linie); border-radius: 14px; padding: 8px; font-size: 16px;
+}
+.eintrag img { width: 120px; border-radius: 8px; display: block; }
+.eintrag .status { font-weight: 700; }
+.eintrag .status.ok { color: var(--gut); } .eintrag .status.nein { color: var(--hm); }
+.leer { color: var(--holz-hell); font-size: 17px; margin: 0; }
+.statistik { display: flex; gap: 18px; flex-wrap: wrap; font-size: 17px; font-variant-numeric: tabular-nums; }
+
+.lade { display: flex; align-items: center; gap: 14px; font-size: 22px; padding: 10px 0; }
+.lade::before {
+  content: ""; width: 34px; height: 34px; border-radius: 50%; border: 5px solid var(--linie); border-top-color: var(--markise);
+  animation: drehen .8s linear infinite;
+}
+@keyframes drehen { to { transform: rotate(360deg); } }
+.huepfen { animation: huepfen .6s ease-out; }
+@keyframes huepfen { 0% { transform: scale(.8); } 60% { transform: scale(1.06); } 100% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .huepfen, .lade::before { animation: none; } }
+
+@media (max-width: 520px) {
+  body { font-size: 18px; }
+  .ware { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .produkt { grid-template-rows: 110px auto; }
+  .produkt img { max-height: 104px; }
+  .grossknopf { font-size: 23px; min-height: 76px; }
+  .eintrag { grid-template-columns: 84px 1fr; }
+  .eintrag img { width: 84px; }
+}
+</style>
+</head>
+<body>
+
+<header class="markise">
+  <div class="kopf">
+    <h1 class="schild-titel">Kirmes-Kiosk</h1>
+    <span class="platz"></span>
+    <button class="rundknopf" id="knopf-vorlesen" aria-label="Aufgabe vorlesen" title="Vorlesen">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" fill-opacity=".15"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>
+    </button>
+    <button class="rundknopf" id="knopf-preisliste" aria-label="Preisliste zeigen" title="Preisliste">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12V4h8l10 10-8 8L3 12z" fill="currentColor" fill-opacity=".15"/><circle cx="7.5" cy="7.5" r="1.6" fill="currentColor"/></svg>
+    </button>
+    <button class="rundknopf" id="knopf-lehrkraft" aria-label="Lehrkraft-Bereich (gedrückt halten)" title="Lehrkraft-Bereich: gedrückt halten">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg>
+    </button>
+  </div>
+</header>
+
+<main id="spiel">
+  <div class="fortschritt">
+    <p class="gruss" id="gruss">Hallo!</p>
+    <span class="platz" style="flex:1"></span>
+    <span id="aufgabe-text">Aufgabe 1 von 10</span>
+    <div class="punkte" id="punkte" aria-hidden="true"></div>
+  </div>
+
+  <section class="tresen" aria-labelledby="ware-titel">
+    <div class="tresen-kopf">
+      <h2 id="ware-titel">Das möchte ich kaufen:</h2>
+    </div>
+    <div class="ware" id="ware"></div>
+  </section>
+
+  <section class="schritt" id="schritt-foto">
+    <h3><span class="nr">1</span><span>Rechne aus. Lege das Geld. Mach ein Foto.</span></h3>
+    <label class="grossknopf" for="kamera" id="knopf-foto">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5A1.5 1.5 0 0 1 4.5 7h2.6l1.6-2.2h6.6L16.9 7h2.6A1.5 1.5 0 0 1 21 8.5v9A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5z" fill="currentColor" fill-opacity=".18"/><circle cx="12" cy="12.8" r="3.6"/></svg>
+      <span>Foto vom Geld</span>
+    </label>
+    <input type="file" id="kamera" accept="image/*" capture="environment" hidden>
+    <p class="tipp">Geld auf ein weißes Blatt legen · Münzen nicht übereinander · von oben fotografieren</p>
+
+    <div class="ergebnis" id="ergebnis" hidden>
+      <div class="lade" id="lade" hidden>Ich zähle das Geld …</div>
+      <div class="foto-rahmen" id="foto-rahmen" hidden><canvas id="foto"></canvas></div>
+      <p class="korrektur-hinweis" id="korrektur-hinweis" hidden>Korrigieren: Auf eine Markierung tippen ändert den Wert (1 € → 2 € → 5 € → 10 € → 20 € → weg). Auf eine leere Stelle tippen fügt 1 € hinzu.</p>
+      <div id="meldung"></div>
+      <div class="erkannt" id="erkannt"></div>
+      <button class="kleinlink" id="knopf-korrektur" hidden>Erkennung korrigieren</button>
+    </div>
+  </section>
+
+  <section class="schritt" id="schritt-schild" hidden>
+    <h3><span class="nr">2</span><span>Welches Preis-Schild passt?</span></h3>
+    <div class="schilder" id="schilder"></div>
+    <div id="schild-meldung"></div>
+  </section>
+
+  <div class="knopfreihe" id="weiter-reihe" hidden>
+    <button class="grossknopf weiter" id="knopf-weiter">
+      <span>Weiter</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+    </button>
+  </div>
+</main>
+
+<main id="ende" hidden>
+  <section class="tresen ende">
+    <h2>Geschafft!</h2>
+    <p class="gruss" id="ende-text"></p>
+    <div class="sterne" id="sterne"></div>
+    <button class="grossknopf" id="knopf-neu">Neue Runde</button>
+  </section>
+</main>
+
+<!-- Preisliste -->
+<dialog id="dlg-preisliste" aria-labelledby="pl-titel">
+  <div class="dialog-kopf">
+    <h2 id="pl-titel">Preisliste</h2>
+    <button class="mittelknopf" data-schliessen>Schließen</button>
+  </div>
+  <div class="dialog-inhalt">
+    <div class="preisliste" id="preisliste"></div>
+  </div>
+</dialog>
+
+<!-- Lehrkraft -->
+<dialog id="dlg-lehrkraft" aria-labelledby="lk-titel">
+  <div class="dialog-kopf">
+    <h2 id="lk-titel">Lehrkraft-Bereich</h2>
+    <button class="mittelknopf primaer" id="knopf-uebernehmen">Übernehmen &amp; neue Runde</button>
+    <button class="mittelknopf" data-schliessen>Schließen</button>
+  </div>
+  <div class="dialog-inhalt">
+    <div class="einstellungen">
+      <div class="feld">
+        <label for="e-name">Name des Kindes</label>
+        <input type="text" id="e-name" placeholder="optional, z. B. nur der Vorname" autocomplete="off" maxlength="30" spellcheck="false">
+        <span class="hilfe">Erscheint in Begrüßung und Lob. Bleibt nur auf diesem Gerät und kommt nicht in den Link.</span>
+      </div>
+      <div class="feld">
+        <label for="e-anzahl">Wie viele Sachen?</label>
+        <select id="e-anzahl">
+          <option value="1">1 Sache</option><option value="2">2 Sachen</option><option value="3">3 Sachen</option>
+          <option value="4">4 Sachen</option><option value="5">5 Sachen</option>
+        </select>
+      </div>
+      <div class="feld">
+        <label for="e-betrag">Gesamtbetrag</label>
+        <select id="e-betrag">
+          <option value="alle">gerade und ungerade</option>
+          <option value="gerade">nur gerade Beträge</option>
+          <option value="ungerade">nur ungerade Beträge</option>
+        </select>
+      </div>
+      <div class="feld">
+        <label for="e-max">Höchstens</label>
+        <select id="e-max">
+          <option value="5">5 €</option><option value="10">10 €</option><option value="12">12 €</option>
+          <option value="15">15 €</option><option value="20">20 €</option><option value="30">30 €</option>
+        </select>
+      </div>
+      <div class="feld">
+        <label for="e-runde">Aufgaben pro Runde</label>
+        <select id="e-runde">
+          <option value="3">3</option><option value="5">5</option><option value="10">10</option>
+          <option value="15">15</option><option value="20">20</option>
+        </select>
+      </div>
+      <div class="feld">
+        <label for="e-einer">1-€-Münzen</label>
+        <select id="e-einer">
+          <option value="0">beliebig viele</option>
+          <option value="1">höchstens eine</option>
+          <option value="2">höchstens zwei</option>
+          <option value="3">höchstens drei</option>
+        </select>
+        <span class="hilfe">Übt das Bündeln: zwei 1 € gegen ein 2-€-Stück tauschen.</span>
+      </div>
+      <div class="feld">
+        <label for="e-schild">Preis-Schild wählen (Schritt 2)</label>
+        <select id="e-schild">
+          <option value="aus">aus</option>
+          <option value="4">ja, 4 Schilder zur Auswahl</option>
+          <option value="alle">ja, alle Schilder bis zum Höchstbetrag</option>
+        </select>
+      </div>
+      <div class="feld">
+        <span class="label">Weitere Hilfen</span>
+        <label class="schalter"><input type="checkbox" id="e-preise"> Preise unter den Sachen zeigen</label>
+        <label class="schalter"><input type="checkbox" id="e-doppelt"> Gleiche Sachen mehrmals erlauben</label>
+        <label class="schalter"><input type="checkbox" id="e-hinweis"> Bei Fehler sagen: zu viel / zu wenig</label>
+        <label class="schalter"><input type="checkbox" id="e-betragzeigen"> Erkanntes Geld als Betrag zeigen</label>
+        <label class="schalter"><input type="checkbox" id="e-ton"> Töne und Vorlesen</label>
+        <label class="schalter"><input type="checkbox" id="e-fotos"> Vorschaubilder im Protokoll speichern</label>
+      </div>
+    </div>
+
+    <div class="abschnitt">
+      <h3>Link mit diesen Einstellungen</h3>
+      <p class="leer" style="margin:0">Für TaskCards oder einen QR-Code: Der Link öffnet die App direkt mit diesen Einstellungen. Der Name ist nicht enthalten.</p>
+      <div class="linkfeld"><code id="link-text"></code><button class="mittelknopf" id="knopf-link">Kopieren</button></div>
+    </div>
+
+    <div class="abschnitt">
+      <h3>Protokoll</h3>
+      <div class="statistik" id="statistik"></div>
+      <div class="protokoll" id="protokoll"></div>
+      <div class="knopfreihe" style="justify-content:flex-start">
+        <button class="mittelknopf warnung" id="knopf-protokoll-loeschen" style="flex:0 0 auto">Protokoll löschen</button>
+        <span id="loeschen-frage" hidden style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;flex:0 0 auto">
+          Wirklich alles löschen?
+          <button class="mittelknopf warnung" id="knopf-loeschen-ja">Ja, löschen</button>
+          <button class="mittelknopf" id="knopf-loeschen-nein">Nein</button>
+        </span>
+      </div>
+      <p class="leer" style="margin:0">Das Protokoll bleibt nur auf diesem Gerät gespeichert. Es enthält keinen Namen.</p>
+    </div>
+
+    <div class="abschnitt">
+      <h3>Datenschutz</h3>
+      <ul class="leer" style="margin:0;padding-left:1.2em;display:grid;gap:4px">
+        <li>Fotos werden nur im Browser ausgewertet und nirgendwohin geschickt.</li>
+        <li>Name, Einstellungen und Protokoll liegen nur im Speicher dieses Browsers.</li>
+        <li>Die App lädt nichts von fremden Servern (keine Schriften, keine Statistik, keine Werbung).</li>
+        <li>Vorlesen nutzt nur Stimmen, die auf dem Gerät installiert sind.</li>
+      </ul>
+      <div class="knopfreihe" style="justify-content:flex-start">
+        <button class="mittelknopf warnung" id="knopf-alles-loeschen" style="flex:0 0 auto">Alle Daten auf diesem Gerät löschen</button>
+        <span id="alles-frage" hidden style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;flex:0 0 auto">
+          Name, Einstellungen und Protokoll löschen?
+          <button class="mittelknopf warnung" id="knopf-alles-ja">Ja, alles löschen</button>
+          <button class="mittelknopf" id="knopf-alles-nein">Nein</button>
+        </span>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<script src="erkennung.js"></script>
+<script>
+'use strict';
+
+// ---------------------------------------------------------------------------
+// Waren und Preise (wie auf dem Kirmes-Plakat)
+// ---------------------------------------------------------------------------
+const PRODUKTE = [
+  { id: 'brezel', name: 'Brezel', preis: 1 },
+  { id: 'wurst', name: 'Wurst', preis: 3 },
+  { id: 'hotdog', name: 'Hot Dog', preis: 2 },
+  { id: 'falaffel', name: 'Falaffel', preis: 4 },
+  { id: 'burger', name: 'Burger', preis: 5 },
+  { id: 'pommes', name: 'Pommes', preis: 3 },
+  { id: 'pizza', name: 'Pizza', preis: 4 },
+  { id: 'tee', name: 'Tee', preis: 2 },
+  { id: 'kaffee', name: 'Kaffee', preis: 2 },
+  { id: 'limo', name: 'Limo', preis: 3 },
+  { id: 'cola', name: 'Cola', preis: 3 },
+  { id: 'saft', name: 'Saft', preis: 2 },
+  { id: 'zuckerwatte', name: 'Zuckerwatte', preis: 2 },
+  { id: 'kirschkuchen', name: 'Kirsch-Kuchen', preis: 3 },
+  { id: 'lebkuchen', name: 'Lebkuchen', preis: 3 },
+  { id: 'schokolade', name: 'Schokolade', preis: 1 },
+  { id: 'popcorn', name: 'Popcorn', preis: 2 },
+  { id: 'donut', name: 'Donut', preis: 1 },
+  { id: 'muffin', name: 'Muffin', preis: 1 },
+  { id: 'schoko-kuchen', name: 'Schoko-Kuchen', preis: 3 },
+];
+const bild = p => `bilder/${p.id}.png`;
+
+// ---------------------------------------------------------------------------
+// Einstellungen: Standard < gespeichert < Link-Parameter
+// ---------------------------------------------------------------------------
+const STANDARD = { name: '', anzahl: 3, betrag: 'alle', max: 15, runde: 10, einer: 0, schild: 'aus',
+                   preise: false, doppelt: true, hinweis: true, betragzeigen: true, ton: true, fotos: false };
+const speicher = {
+  lesen(k, f) { try { const v = localStorage.getItem('kirmes-' + k); return v ? JSON.parse(v) : f; } catch (e) { return f; } },
+  schreiben(k, v) { try { localStorage.setItem('kirmes-' + k, JSON.stringify(v)); } catch (e) { /* kein Speicher */ } },
+};
+function ausLink() {
+  const q = new URLSearchParams(location.search), e = {};
+  if (q.has('anzahl')) e.anzahl = clamp(+q.get('anzahl'), 1, 5);
+  if (q.has('betrag') && ['alle', 'gerade', 'ungerade'].includes(q.get('betrag'))) e.betrag = q.get('betrag');
+  if (q.has('max')) e.max = clamp(+q.get('max'), 3, 50);
+  if (q.has('runde')) e.runde = clamp(+q.get('runde'), 1, 50);
+  if (q.has('einer')) e.einer = clamp(+q.get('einer'), 0, 9);
+  if (q.has('schild') && ['aus', '4', 'alle'].includes(q.get('schild'))) e.schild = q.get('schild');
+  for (const k of ['preise', 'doppelt', 'hinweis', 'betragzeigen', 'ton', 'fotos']) if (q.has(k)) e[k] = q.get(k) === '1';
+  return e;
+}
+function clamp(v, a, b) { return Math.max(a, Math.min(b, isNaN(v) ? a : Math.round(v))); }
+let E = Object.assign({}, STANDARD, speicher.lesen('einstellungen', {}), ausLink());
+
+// ---------------------------------------------------------------------------
+// Zustand
+// ---------------------------------------------------------------------------
+const $ = id => document.getElementById(id);
+let runde = { nr: 0, ergebnisse: [] };
+let aufgabe = null;       // { waren: [...], summe }
+let versuche = 0;
+let analyse = null;       // { basis: canvas, objekte, korrigiert }
+let korrigieren = false;
+let geldOk = false;
+
+// ---------------------------------------------------------------------------
+// Aufgaben erzeugen
+// ---------------------------------------------------------------------------
+function passt(summe) {
+  if (summe > E.max) return false;
+  if (E.betrag === 'gerade' && summe % 2) return false;
+  if (E.betrag === 'ungerade' && !(summe % 2)) return false;
+  return true;
+}
+function neueAufgabe() {
+  const n = E.anzahl;
+  let beste = null;
+  for (let t = 0; t < 2000; t++) {
+    const pool = PRODUKTE.slice(), waren = [];
+    for (let i = 0; i < n; i++) {
+      const j = Math.floor(Math.random() * pool.length);
+      waren.push(pool[j]);
+      if (!E.doppelt) pool.splice(j, 1);
+    }
+    const summe = waren.reduce((s, p) => s + p.preis, 0);
+    const schluessel = waren.map(p => p.id).sort().join();
+    if (aufgabe && schluessel === aufgabe.schluessel) continue;
+    if (passt(summe)) { beste = { waren, summe, schluessel }; break; }
+    if (!beste || summe < beste.summe) beste = { waren, summe, schluessel }; // Notlösung: kleinste Summe
+  }
+  // Gleiche Sachen nebeneinander zeigen
+  beste.waren.sort((a, b) => a.name.localeCompare(b.name, 'de'));
+  return beste;
+}
+
+// ---------------------------------------------------------------------------
+// Anzeige
+// ---------------------------------------------------------------------------
+function zeigeRunde() {
+  $('spiel').hidden = false; $('ende').hidden = true;
+  $('gruss').textContent = E.name ? `Hallo ${E.name}!` : 'Hallo!';
+  $('aufgabe-text').textContent = `Aufgabe ${runde.nr + 1} von ${E.runde}`;
+  const punkte = $('punkte'); punkte.innerHTML = '';
+  for (let i = 0; i < E.runde; i++) {
+    const d = document.createElement('span');
+    d.className = 'punkt' + (i < runde.nr ? ' fertig' : i === runde.nr ? ' jetzt' : '');
+    punkte.appendChild(d);
+  }
+}
+function zeigeAufgabe() {
+  zeigeRunde();
+  const ware = $('ware'); ware.innerHTML = '';
+  for (const p of aufgabe.waren) {
+    const k = document.createElement('div');
+    k.className = 'produkt';
+    k.innerHTML = `<img src="${bild(p)}" alt="${p.name}"><div><div class="name">${p.name}</div>` +
+      (E.preise ? `<div style="text-align:center"><span class="preis">${p.preis} €</span></div>` : '') + '</div>';
+    ware.appendChild(k);
+  }
+  $('ware-titel').textContent = aufgabe.waren.length === 1 ? 'Das möchte ich kaufen:' : `Das möchte ich kaufen (${aufgabe.waren.length} Sachen):`;
+  // Schritte zurücksetzen
+  versuche = 0; geldOk = false; analyse = null; korrigieren = false;
+  $('ergebnis').hidden = true; $('foto-rahmen').hidden = true; $('meldung').innerHTML = ''; $('erkannt').innerHTML = '';
+  $('knopf-korrektur').hidden = true; $('korrektur-hinweis').hidden = true; $('foto-rahmen').classList.remove('korrigieren');
+  $('knopf-foto').hidden = false;
+  $('knopf-foto').querySelector('span').textContent = 'Foto vom Geld';
+  $('schritt-schild').hidden = true; $('schild-meldung').innerHTML = '';
+  $('weiter-reihe').hidden = true;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function geldHtml(objekte) {
+  const sortiert = objekte.filter(o => o.wert !== null && o.wert !== undefined)
+    .sort((a, b) => (b.art === 'schein') - (a.art === 'schein') || b.wert - a.wert);
+  return sortiert.map(o => o.art === 'schein'
+    ? `<span class="geld schein s${o.wert}" title="${o.wert}-€-Schein">${o.wert} €</span>`
+    : o.wert === 0 ? `<span class="geld m0" title="Cent-Münze">ct</span>`
+    : `<span class="geld m${o.wert}" title="${o.wert}-€-Münze">${o.wert} €</span>`).join('');
+}
+
+const SYMBOL_GUT = `<svg class="symbol" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="var(--gut)"/><path d="M18 33l9 9 19-20" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const SYMBOL_HM = `<svg class="symbol" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="var(--hm)"/><path d="M24 24a8 8 0 1 1 11 7.4c-2 .9-3 2.4-3 4.6v2" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/><circle cx="32" cy="47" r="3.6" fill="#fff"/></svg>`;
+const STERN = f => `<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z" fill="${f ? 'var(--senf)' : 'none'}" stroke="var(--holz)" stroke-width="1.6" stroke-linejoin="round"/></svg>`;
+
+// ---------------------------------------------------------------------------
+// Foto auswerten
+// ---------------------------------------------------------------------------
+$('kamera').addEventListener('change', async ev => {
+  const datei = ev.target.files && ev.target.files[0];
+  ev.target.value = '';
+  if (!datei) return;
+  $('ergebnis').hidden = false; $('lade').hidden = false; $('foto-rahmen').hidden = true;
+  $('meldung').innerHTML = ''; $('erkannt').innerHTML = ''; $('knopf-korrektur').hidden = true;
+  try {
+    const basis = await ladeBild(datei, 900);
+    await new Promise(r => setTimeout(r, 30)); // Ladeanzeige zeichnen lassen
+    const daten = basis.getContext('2d').getImageData(0, 0, basis.width, basis.height);
+    const erg = KirmesErkennung.erkenne(daten.data, basis.width, basis.height);
+    analyse = { basis, objekte: erg.objekte, korrigiert: false };
+    versuche++;
+    $('lade').hidden = true; $('foto-rahmen').hidden = false; $('knopf-korrektur').hidden = false;
+    pruefeGeld(true);
+  } catch (e) {
+    console.error(e);
+    $('lade').hidden = true;
+    $('meldung').innerHTML = `<div class="meldung hm">${SYMBOL_HM}<div><strong>Das Foto ging nicht.</strong>Bitte noch einmal fotografieren.</div></div>`;
+  }
+});
+
+async function ladeBild(datei, maxSeite) {
+  let quelle;
+  try { quelle = await createImageBitmap(datei, { imageOrientation: 'from-image' }); }
+  catch (e) {
+    quelle = await new Promise((ok, fehler) => {
+      const img = new Image(); img.onload = () => ok(img); img.onerror = fehler; img.src = URL.createObjectURL(datei);
+    });
+  }
+  const w0 = quelle.width, h0 = quelle.height, f = Math.min(1, maxSeite / Math.max(w0, h0));
+  const c = document.createElement('canvas');
+  c.width = Math.round(w0 * f); c.height = Math.round(h0 * f);
+  c.getContext('2d').drawImage(quelle, 0, 0, c.width, c.height);
+  return c;
+}
+
+function zeichneFoto() {
+  const c = $('foto'), b = analyse.basis;
+  c.width = b.width; c.height = b.height;
+  const g = c.getContext('2d');
+  g.drawImage(b, 0, 0);
+  const s = Math.max(b.width, b.height) / 900;
+  for (const o of analyse.objekte) {
+    if (o.wert === null) continue;
+    const farbe = o.art === 'schein' ? '#1f6fd1' : o.wert === 0 ? '#8a5a00' : o.wert === 2 ? '#d1561f' : '#15803d';
+    g.save(); g.translate(o.x, o.y); g.rotate(o.winkel);
+    g.lineWidth = 5 * s; g.strokeStyle = '#fff';
+    g.beginPath(); g.ellipse(0, 0, o.a * 1.05 + 3 * s, o.b * 1.05 + 3 * s, 0, 0, Math.PI * 2); g.stroke();
+    g.lineWidth = 3.5 * s; g.strokeStyle = farbe; g.stroke();
+    g.restore();
+    const text = o.wert === 0 ? 'ct' : `${o.wert} €`;
+    g.font = `700 ${Math.round(22 * s)}px Andika, sans-serif`;
+    const tw = g.measureText(text).width + 14 * s, th = 30 * s;
+    const lx = o.x - tw / 2, ly = o.y - th / 2;
+    g.fillStyle = farbe; roundRect(g, lx, ly, tw, th, 8 * s); g.fill();
+    g.fillStyle = '#fff'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(text, o.x, o.y + 1 * s);
+  }
+}
+function roundRect(g, x, y, w, h, r) {
+  g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r);
+  g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath();
+}
+
+function pruefeGeld(neu) {
+  zeichneFoto();
+  const objekte = analyse.objekte.filter(o => o.wert !== null);
+  const summe = objekte.reduce((s, o) => s + o.wert, 0);
+  const einer = objekte.filter(o => o.art === 'muenze' && o.wert === 1).length;
+  const soll = aufgabe.summe;
+  const name = E.name ? `, ${E.name}` : '';
+  let html, gut = false, sprich, grund = '';
+  if (!objekte.length) {
+    html = `<div class="meldung hm">${SYMBOL_HM}<div><strong>Ich sehe kein Geld.</strong>Leg das Geld auf ein weißes Blatt und fotografiere von oben.</div></div>`;
+    sprich = 'Ich sehe kein Geld. Leg das Geld auf ein weißes Blatt und fotografiere von oben.';
+  } else if (summe === soll && E.einer > 0 && einer > E.einer) {
+    html = `<div class="meldung hm">${SYMBOL_HM}<div><strong>Der Betrag stimmt!</strong>Aber du hast ${einer} Ein-Euro-Münzen. Erlaubt sind höchstens ${E.einer === 1 ? 'eine' : E.einer}. Tausche zwei 1 € gegen ein 2-€-Stück.</div></div>`;
+    grund = 'zu viele 1-€-Münzen';
+    sprich = `Der Betrag stimmt. Aber du hast zu viele Ein-Euro-Münzen. Tausche zwei Ein-Euro-Münzen gegen ein Zwei-Euro-Stück.`;
+  } else if (summe === soll) {
+    gut = true;
+    html = `<div class="meldung gut huepfen">${SYMBOL_GUT}<div><strong>Super${name}!</strong>Das sind genau ${soll} €.</div></div>`;
+    sprich = `Super${name}! Das sind genau ${soll} Euro.`;
+  } else {
+    let zusatz = 'Rechne noch einmal und zähle dein Geld.';
+    if (E.hinweis) zusatz = summe < soll ? 'Das ist zu wenig Geld. Es kostet mehr.' : 'Das ist zu viel Geld. Es kostet weniger.';
+    const betrag = E.betragzeigen ? `Ich sehe ${summe} €. ` : '';
+    html = `<div class="meldung hm">${SYMBOL_HM}<div><strong>Das passt noch nicht.</strong>${betrag}${zusatz}</div></div>`;
+    sprich = `Das passt noch nicht. ${E.betragzeigen ? `Ich sehe ${summe} Euro. ` : ''}${zusatz}`;
+  }
+  $('meldung').innerHTML = html;
+  $('erkannt').innerHTML = objekte.length
+    ? `<span>Erkannt:</span>${geldHtml(objekte)}${E.betragzeigen || gut ? `<strong style="margin-left:6px">= ${summe} €</strong>` : ''}`
+    : '';
+  $('knopf-foto').querySelector('span').textContent = gut ? 'Neues Foto' : 'Noch ein Foto';
+  geldOk = gut;
+  protokolliere(summe, gut, !neu, grund); // Korrektur ersetzt den letzten Eintrag
+  if (gut) { jubel(); }
+  sage(sprich);
+  if (gut) {
+    if (E.schild !== 'aus') zeigeSchilder(); else $('weiter-reihe').hidden = false;
+  } else {
+    $('schritt-schild').hidden = true; $('weiter-reihe').hidden = true;
+  }
+  if (neu) $('ergebnis').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Korrektur durch die Lehrkraft: Markierungen antippen
+$('knopf-korrektur').addEventListener('click', () => {
+  korrigieren = !korrigieren;
+  $('korrektur-hinweis').hidden = !korrigieren;
+  $('foto-rahmen').classList.toggle('korrigieren', korrigieren);
+  $('knopf-korrektur').textContent = korrigieren ? 'Korrigieren beenden' : 'Erkennung korrigieren';
+});
+$('foto').addEventListener('click', ev => {
+  if (!korrigieren || !analyse) return;
+  const c = $('foto'), r = c.getBoundingClientRect();
+  const x = (ev.clientX - r.left) * c.width / r.width, y = (ev.clientY - r.top) * c.height / r.height;
+  let treffer = null, best = Infinity;
+  for (const o of analyse.objekte) {
+    const d = Math.hypot(o.x - x, o.y - y);
+    if (d < Math.max(o.a, 24) && d < best) { best = d; treffer = o; }
+  }
+  const folge = [1, 2, 5, 10, 20, null];
+  if (treffer) {
+    const i = folge.indexOf(treffer.wert);
+    const neu = folge[(i + 1) % folge.length];
+    if (neu === null) analyse.objekte.splice(analyse.objekte.indexOf(treffer), 1);
+    else { treffer.wert = neu; treffer.art = neu >= 5 ? 'schein' : 'muenze'; }
+  } else {
+    const typ = analyse.objekte.find(o => o.art === 'muenze');
+    const a = typ ? typ.a : c.width * 0.04, b = typ ? typ.b : c.width * 0.04;
+    analyse.objekte.push({ art: 'muenze', wert: 1, x, y, a, b, winkel: typ ? typ.winkel : 0, sicher: true });
+  }
+  analyse.korrigiert = true;
+  pruefeGeld(false);
+});
+
+// ---------------------------------------------------------------------------
+// Schritt 2: Preis-Schild wählen
+// ---------------------------------------------------------------------------
+function zeigeSchilder() {
+  const soll = aufgabe.summe;
+  let werte;
+  if (E.schild === 'alle') {
+    werte = []; for (let i = 1; i <= Math.max(E.max, soll); i++) werte.push(i);
+  } else {
+    const set = new Set([soll]);
+    const nah = [soll - 1, soll + 1, soll - 2, soll + 2, soll + 10, soll - 10, soll + 3].filter(v => v >= 1 && v <= 30);
+    while (set.size < 4 && nah.length) set.add(nah.splice(Math.floor(Math.random() * Math.min(4, nah.length)), 1)[0]);
+    werte = [...set].sort((a, b) => a - b);
+  }
+  const box = $('schilder');
+  box.className = 'schilder' + (E.schild === 'alle' ? ' alle' : '');
+  box.innerHTML = werte.map(v => `<button class="preisschild" data-wert="${v}" aria-label="${v} Euro"><small>Gesamt-Preis:</small><span>${v} €</span></button>`).join('');
+  $('schild-meldung').innerHTML = '';
+  $('schritt-schild').hidden = false;
+  $('schritt-schild').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  setTimeout(() => sage('Welches Preis-Schild passt?'), 1600);
+}
+$('schilder').addEventListener('click', ev => {
+  const k = ev.target.closest('.preisschild'); if (!k || !geldOk) return;
+  const v = +k.dataset.wert, soll = aufgabe.summe;
+  if (v === soll) {
+    $('schilder').querySelectorAll('.preisschild').forEach(b => b.classList.toggle('falsch', +b.dataset.wert !== soll));
+    k.classList.add('richtig');
+    $('schild-meldung').innerHTML = `<div class="meldung gut huepfen">${SYMBOL_GUT}<div><strong>Richtig!</strong>Gesamt-Preis: ${soll} €</div></div>`;
+    sage(`Richtig! Der Gesamt-Preis ist ${soll} Euro.`);
+    jubel();
+    $('weiter-reihe').hidden = false;
+    $('weiter-reihe').scrollIntoView({ behavior: 'smooth', block: 'end' });
+  } else {
+    k.classList.add('falsch');
+    $('schild-meldung').innerHTML = `<div class="meldung hm">${SYMBOL_HM}<div><strong>Schau noch mal.</strong>Zähle dein Geld auf dem Foto.</div></div>`;
+    sage('Schau noch mal. Zähle dein Geld auf dem Foto.');
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Runde
+// ---------------------------------------------------------------------------
+$('knopf-weiter').addEventListener('click', () => {
+  runde.ergebnisse.push({ versuche });
+  runde.nr++;
+  if (runde.nr >= E.runde) return zeigeEnde();
+  aufgabe = neueAufgabe();
+  zeigeAufgabe();
+  setTimeout(vorlesenAufgabe, 400);
+});
+function zeigeEnde() {
+  $('spiel').hidden = true; $('ende').hidden = false;
+  const beimErsten = runde.ergebnisse.filter(e => e.versuche === 1).length;
+  $('ende-text').textContent = `${E.name ? E.name + ', du' : 'Du'} hast ${E.runde} Aufgaben geschafft. ${beimErsten} davon beim ersten Foto!`;
+  $('sterne').innerHTML = runde.ergebnisse.map(e => STERN(e.versuche === 1)).join('');
+  jubel(true);
+  sage(`Geschafft! ${E.name ? E.name + ', du' : 'Du'} hast alle Aufgaben geschafft.`);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+$('knopf-neu').addEventListener('click', starteRunde);
+function starteRunde() {
+  runde = { nr: 0, ergebnisse: [] };
+  aufgabe = neueAufgabe();
+  zeigeAufgabe();
+}
+
+// ---------------------------------------------------------------------------
+// Vorlesen und Töne
+// ---------------------------------------------------------------------------
+function sage(text) {
+  if (!E.ton || !('speechSynthesis' in window)) return;
+  try {
+    speechSynthesis.cancel();
+    // Nur Stimmen, die auf dem Gerät selbst laufen – Online-Stimmen würden den Text
+    // (mit dem Namen) an einen Server schicken.
+    const stimme = speechSynthesis.getVoices().find(v => v.lang && v.lang.startsWith('de') && v.localService);
+    if (!stimme) return;
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = stimme.lang; u.voice = stimme; u.rate = 0.9;
+    speechSynthesis.speak(u);
+  } catch (e) { /* kein Vorlesen möglich */ }
+}
+// Manche Browser laden die Stimmenliste erst später.
+try { if ('speechSynthesis' in window) { speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices(); } } catch (e) { /* egal */ }
+function vorlesenAufgabe() {
+  if (!aufgabe) return;
+  const liste = aufgabe.waren.map(p => p.name.replace('-', ' ')).join(', ');
+  sage(`Ich möchte kaufen: ${liste}. Rechne aus, wie viel alles kostet. Lege das Geld und mach ein Foto.`);
+}
+$('knopf-vorlesen').addEventListener('click', () => {
+  if (!$('ende').hidden) return sage($('ende-text').textContent);
+  vorlesenAufgabe();
+});
+let audio = null;
+function jubel(gross) {
+  if (!E.ton) return;
+  try {
+    audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+    const t0 = audio.currentTime + 0.02;
+    const toene = gross ? [523, 659, 784, 1047, 784, 1047] : [523, 659, 784, 1047];
+    toene.forEach((f, i) => {
+      const o = audio.createOscillator(), g = audio.createGain();
+      o.type = 'triangle'; o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, t0 + i * 0.11);
+      g.gain.exponentialRampToValueAtTime(0.25, t0 + i * 0.11 + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + i * 0.11 + 0.22);
+      o.connect(g).connect(audio.destination); o.start(t0 + i * 0.11); o.stop(t0 + i * 0.11 + 0.25);
+    });
+  } catch (e) { /* kein Ton möglich */ }
+}
+
+// ---------------------------------------------------------------------------
+// Protokoll (nur auf diesem Gerät)
+// ---------------------------------------------------------------------------
+function protokolliere(erkannt, richtig, ersetzen, grund) {
+  const liste = speicher.lesen('protokoll', []);
+  if (ersetzen && liste.length) liste.shift();
+  let foto = '';
+  if (E.fotos) try {
+    const c = document.createElement('canvas'), q = $('foto'), f = 240 / Math.max(q.width, q.height);
+    c.width = Math.round(q.width * f); c.height = Math.round(q.height * f);
+    c.getContext('2d').drawImage(q, 0, 0, c.width, c.height);
+    foto = c.toDataURL('image/jpeg', 0.6);
+  } catch (e) { /* ohne Vorschaubild */ }
+  liste.unshift({
+    zeit: Date.now(), waren: aufgabe.waren.map(p => p.name), soll: aufgabe.summe,
+    erkannt, richtig, grund, versuch: versuche, korrigiert: analyse.korrigiert, foto,
+  });
+  speicher.schreiben('protokoll', liste.slice(0, 60));
+}
+function zeigeProtokoll() {
+  const liste = speicher.lesen('protokoll', []);
+  const richtig = liste.filter(e => e.richtig).length;
+  $('statistik').innerHTML = liste.length
+    ? `<span>Fotos: <strong>${liste.length}</strong></span><span>richtig: <strong>${richtig}</strong></span><span>noch nicht: <strong>${liste.length - richtig}</strong></span><span>korrigiert: <strong>${liste.filter(e => e.korrigiert).length}</strong></span>`
+    : '';
+  $('protokoll').innerHTML = liste.length ? liste.map(e => {
+    const d = new Date(e.zeit);
+    const wann = d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' }) + ', ' + d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    return `<div class="eintrag">${e.foto ? `<img src="${e.foto}" alt="Foto vom Geld">` : '<span></span>'}<div>
+      <div><span class="status ${e.richtig ? 'ok' : 'nein'}">${e.richtig ? 'richtig' : 'noch nicht richtig'}</span> · ${wann}</div>
+      <div>${e.waren.join(', ')}</div>
+      <div>Preis ${e.soll} € · erkannt ${e.erkannt} € · ${e.versuch}. Foto${e.grund ? ' · ' + e.grund : ''}${e.korrigiert ? ' · von Hand korrigiert' : ''}</div></div></div>`;
+  }).join('') : '<p class="leer">Noch keine Fotos.</p>';
+}
+function escapeHtml(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+$('knopf-protokoll-loeschen').addEventListener('click', () => { $('loeschen-frage').hidden = false; });
+$('knopf-loeschen-nein').addEventListener('click', () => { $('loeschen-frage').hidden = true; });
+$('knopf-alles-loeschen').addEventListener('click', () => { $('alles-frage').hidden = false; });
+$('knopf-alles-nein').addEventListener('click', () => { $('alles-frage').hidden = true; });
+$('knopf-alles-ja').addEventListener('click', () => {
+  try { Object.keys(localStorage).filter(k => k.startsWith('kirmes-')).forEach(k => localStorage.removeItem(k)); } catch (e) { /* kein Speicher */ }
+  E = Object.assign({}, STANDARD, ausLink());
+  $('alles-frage').hidden = true;
+  $('dlg-lehrkraft').close();
+  starteRunde();
+});
+$('knopf-loeschen-ja').addEventListener('click', () => {
+  speicher.schreiben('protokoll', []); $('loeschen-frage').hidden = true; zeigeProtokoll();
+});
+
+// ---------------------------------------------------------------------------
+// Dialoge
+// ---------------------------------------------------------------------------
+document.querySelectorAll('[data-schliessen]').forEach(b => b.addEventListener('click', () => b.closest('dialog').close()));
+document.querySelectorAll('dialog').forEach(d => d.addEventListener('click', ev => { if (ev.target === d) d.close(); }));
+
+$('preisliste').innerHTML = PRODUKTE.slice().sort((a, b) => a.preis - b.preis || a.name.localeCompare(b.name, 'de')).map(p =>
+  `<div class="produkt"><img src="${bild(p)}" alt="" loading="lazy"><div style="text-align:center"><div class="name">${p.name}</div><span class="preis">${p.preis} €</span></div></div>`).join('');
+$('knopf-preisliste').addEventListener('click', () => $('dlg-preisliste').showModal());
+
+// Lehrkraft-Bereich: gedrückt halten (damit Kinder ihn nicht aus Versehen öffnen)
+(function () {
+  const k = $('knopf-lehrkraft'); let timer = null;
+  const start = () => { timer = setTimeout(oeffneLehrkraft, 1200); };
+  const stop = () => { clearTimeout(timer); };
+  k.addEventListener('pointerdown', start); k.addEventListener('pointerup', stop);
+  k.addEventListener('pointerleave', stop); k.addEventListener('pointercancel', stop);
+  k.addEventListener('contextmenu', ev => ev.preventDefault());
+  k.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); oeffneLehrkraft(); } });
+})();
+function oeffneLehrkraft() {
+  $('e-name').value = E.name; $('e-anzahl').value = E.anzahl; $('e-betrag').value = E.betrag;
+  setzeAuswahl($('e-max'), E.max); setzeAuswahl($('e-runde'), E.runde); setzeAuswahl($('e-einer'), E.einer);
+  $('e-schild').value = E.schild;
+  for (const k of ['preise', 'doppelt', 'hinweis', 'betragzeigen', 'ton', 'fotos']) $('e-' + k).checked = !!E[k];
+  aktualisiereLink(); zeigeProtokoll(); $('loeschen-frage').hidden = true; $('alles-frage').hidden = true;
+  $('dlg-lehrkraft').showModal();
+}
+function setzeAuswahl(sel, wert) {
+  if (![...sel.options].some(o => +o.value === +wert)) sel.add(new Option(String(wert), String(wert)));
+  sel.value = String(wert);
+}
+function leseFormular() {
+  return {
+    name: $('e-name').value.trim().slice(0, 30), anzahl: +$('e-anzahl').value, betrag: $('e-betrag').value,
+    max: +$('e-max').value, runde: +$('e-runde').value, einer: +$('e-einer').value, schild: $('e-schild').value,
+    preise: $('e-preise').checked, doppelt: $('e-doppelt').checked, hinweis: $('e-hinweis').checked,
+    betragzeigen: $('e-betragzeigen').checked, ton: $('e-ton').checked, fotos: $('e-fotos').checked,
+  };
+}
+function aktualisiereLink() {
+  const f = leseFormular(), q = new URLSearchParams();
+  q.set('anzahl', f.anzahl); q.set('betrag', f.betrag); q.set('max', f.max); q.set('runde', f.runde);
+  if (f.einer) q.set('einer', f.einer);
+  if (f.schild !== 'aus') q.set('schild', f.schild);
+  for (const k of ['preise', 'doppelt', 'hinweis', 'betragzeigen', 'ton', 'fotos']) if (f[k] !== STANDARD[k]) q.set(k, f[k] ? '1' : '0');
+  const basis = location.protocol.startsWith('http') ? location.origin + location.pathname : 'https://DEIN-NAME.github.io/kirmes-kiosk/';
+  $('link-text').textContent = basis + '?' + q.toString();
+}
+$('dlg-lehrkraft').addEventListener('input', aktualisiereLink);
+$('dlg-lehrkraft').addEventListener('change', aktualisiereLink);
+$('knopf-link').addEventListener('click', async () => {
+  const t = $('link-text').textContent;
+  try { await navigator.clipboard.writeText(t); $('knopf-link').textContent = 'Kopiert'; }
+  catch (e) {
+    const r = document.createRange(); r.selectNodeContents($('link-text'));
+    const s = getSelection(); s.removeAllRanges(); s.addRange(r); $('knopf-link').textContent = 'Markiert';
+  }
+  setTimeout(() => { $('knopf-link').textContent = 'Kopieren'; }, 1800);
+});
+$('knopf-uebernehmen').addEventListener('click', () => {
+  E = leseFormular();
+  speicher.schreiben('einstellungen', E);
+  $('dlg-lehrkraft').close();
+  starteRunde();
+});
+
+// Start
+starteRunde();
+</script>
+</body>
+</html>
