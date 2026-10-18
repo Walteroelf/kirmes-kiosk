@@ -35,7 +35,9 @@ Alles läuft im Browser: kein Server, kein Konto, keine KI-Dienste. Die Fotos ve
 
 ### Kamera mit Rahmen
 
-„Foto vom Geld“ öffnet ein Kamerabild mit Rahmen („Das weiße Blatt in den Rahmen“) und einem großen gelben Auslöser. Geht das auf einem Gerät nicht oder wird die Kamera nicht erlaubt, öffnet sich automatisch die normale Kamera-App. Abschaltbar im Lehrkraft-Bereich.
+„Foto vom Geld“ öffnet ein Kamerabild mit Rahmen („Das weiße Blatt in den Rahmen“). Unten liegt eine feste Leiste mit dem großen gelben **Auslöser** (aktiv, sobald ein Kamerabild da ist), **Zurück** und **Kamera-App**. Gezeigt wird immer das ganze Kamerabild – genau das kommt aufs Foto.
+
+Wird die Kamera nicht erlaubt oder kommt nach 6 Sekunden kein Bild, sagt die App „Tippe auf Kamera-App“ und merkt sich das für dieses Gerät: Danach öffnet „Foto vom Geld“ direkt die normale Kamera-App des iPads. Im Lehrkraft-Bereich lässt sich die Kamera in der App ab- und wieder einschalten (das setzt die Merkung zurück).
 
 ### Rückmeldungen
 

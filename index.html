@@ -289,18 +289,25 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
 .rechenweg { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-family: var(--anzeige); font-size: 26px; }
 .rechenweg .preis { margin: 0; }
 
-/* --- Kamera mit Rahmen --- */
-.kamera { position: fixed; inset: 0; z-index: 50; background: #000; display: grid; grid-template-rows: 1fr auto; }
-.kamera video { width: 100%; height: 100%; object-fit: cover; grid-row: 1; grid-column: 1; }
-.kamera .rahmen { grid-row: 1; grid-column: 1; align-self: center; justify-self: center; width: min(86vw, 120vh); aspect-ratio: 4 / 3;
-  max-height: 72vh; border: 5px dashed rgba(255,255,255,.9); border-radius: 18px; box-shadow: 0 0 0 100vmax rgba(0,0,0,.35); pointer-events: none; }
-.kamera .rahmen-text { grid-row: 1; grid-column: 1; align-self: start; justify-self: center; margin-top: calc(14px + env(safe-area-inset-top, 0px));
-  background: rgba(0,0,0,.6); color: #fff; font-size: 22px; font-weight: 700; padding: 8px 16px; border-radius: 12px; text-align: center; }
-.kamera .leiste { display: flex; align-items: center; justify-content: center; gap: 28px; background: #111;
-  padding: 16px max(16px, env(safe-area-inset-right, 0px)) calc(16px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
-.ausloeser { width: 104px; height: 104px; border-radius: 50%; border: 8px solid #fff; background: var(--senf); }
+/* --- Kamera mit Rahmen ---
+   Video liegt absolut im Hintergrund; Rahmen, Text und Knopfleiste liegen darüber.
+   (Kein Raster: Safari macht die Rasterzeile sonst so hoch wie das Kamerabild.) */
+.kamera { position: fixed; inset: 0; z-index: 50; background: #000; overflow: hidden; height: 100vh; height: 100dvh; }
+.kamera { --leiste: 136px; }
+.kamera video { position: absolute; left: 0; top: 0; width: 100%; height: calc(100% - var(--leiste) - env(safe-area-inset-bottom, 0px)); object-fit: contain; }
+.kamera .rahmen { position: absolute; left: 10%; top: 15%; width: 80%; height: 60%; border: 5px dashed rgba(255,255,255,.9);
+  border-radius: 18px; pointer-events: none; }
+.kamera .rahmen-text { position: absolute; left: 50%; transform: translateX(-50%); top: calc(14px + env(safe-area-inset-top, 0px));
+  width: max-content; max-width: calc(100vw - 32px); background: rgba(0,0,0,.7); color: #fff; font-size: 22px; font-weight: 700;
+  padding: 8px 16px; border-radius: 12px; text-align: center; }
+.kamera .leiste { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  background: #111; min-height: calc(var(--leiste) + env(safe-area-inset-bottom, 0px)); box-sizing: border-box;
+  padding: 14px max(18px, env(safe-area-inset-right, 0px)) calc(14px + env(safe-area-inset-bottom, 0px)) max(18px, env(safe-area-inset-left, 0px)); }
+.ausloeser { width: 104px; height: 104px; flex: none; border-radius: 50%; border: 8px solid #fff; background: var(--senf); }
+.ausloeser:disabled { opacity: .4; }
 .ausloeser:active { transform: scale(.94); }
-.kamera .abbrechen { background: none; border: 3px solid #fff; color: #fff; border-radius: 14px; padding: 12px 18px; font-size: 20px; font-weight: 700; }
+.kamera .abbrechen { background: rgba(0,0,0,.4); border: 3px solid #fff; color: #fff; border-radius: 14px; padding: 12px 16px;
+  font-size: 19px; font-weight: 700; min-width: 120px; text-align: center; cursor: pointer; }
 
 /* --- Einzeltaster: markiertes Ziel --- */
 .scan { outline: 7px solid #1f6fd1 !important; outline-offset: 5px !important; transform: scale(1.03); transition: transform .12s; }
@@ -420,13 +427,13 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
 
 <!-- Kamera mit Rahmen -->
 <div class="kamera" id="kamera-ansicht" hidden>
-  <video id="video" playsinline muted autoplay></video>
+  <video id="video" playsinline webkit-playsinline muted autoplay></video>
   <div class="rahmen" aria-hidden="true"></div>
-  <div class="rahmen-text">Das weiße Blatt in den Rahmen</div>
+  <div class="rahmen-text" id="kamera-text">Kamera startet …</div>
   <div class="leiste">
     <button class="abbrechen" id="knopf-kamera-zu" data-scan-kamera>Zurück</button>
-    <button class="ausloeser" id="knopf-ausloesen" data-scan-kamera aria-label="Foto machen"></button>
-    <span style="width:96px"></span>
+    <button class="ausloeser" id="knopf-ausloesen" data-scan-kamera aria-label="Foto machen" disabled></button>
+    <label class="abbrechen" for="kamera" id="knopf-kamera-app" data-scan-kamera>Kamera-App</label>
   </div>
 </div>
 
@@ -560,7 +567,7 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
       <div class="feld">
         <span class="label">Bedienung</span>
         <label class="schalter"><input type="checkbox" id="e-ton"> Töne und Vorlesen</label>
-        <label class="schalter"><input type="checkbox" id="e-kamera"> Kamera in der App mit Rahmen</label>
+        <label class="schalter"><input type="checkbox" id="e-kamera"> Kamera in der App mit Rahmen (sonst Kamera-App des Geräts)</label>
         <label class="schalter"><input type="checkbox" id="e-fotos"> Vorschaubilder im Protokoll speichern</label>
       </div>
       <div class="feld">
@@ -636,7 +643,7 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
 <script src="erkennung.js"></script>
 <script>
 'use strict';
-const VERSION = '2.0.0';
+const VERSION = '2.0.1';
 const STAND = '18.10.2026';
 
 // ---------------------------------------------------------------------------
@@ -864,22 +871,69 @@ function bieteHilfe() {
 // ---------------------------------------------------------------------------
 // Foto aufnehmen: Kamera mit Rahmen oder Kamera-App des Geräts
 // ---------------------------------------------------------------------------
-let strom = null, kameraGeht = true;
-$('knopf-foto').addEventListener('click', async () => {
-  if (E.kamera && kameraGeht && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-    try {
-      strom = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1440 } }, audio: false });
-      $('video').srcObject = strom;
-      $('kamera-ansicht').hidden = false;
-      document.body.style.overflow = 'hidden';
-      sage('Halte das weiße Blatt in den Rahmen. Dann drück auf den gelben Knopf.');
-      scanNeu();
-      return;
-    } catch (e) { kameraGeht = false; /* z. B. abgelehnt: normale Kamera-App nehmen */ }
-  }
-  $('kamera').click();
+let strom = null, kameraWache = null;
+// Merkt sich pro Gerät, wenn die Kamera in der App nicht geht – dann gleich die Kamera-App.
+let kameraGeht = speicher.lesen('kamera-geht', true);
+$('knopf-foto').addEventListener('click', () => {
+  const inApp = E.kamera && kameraGeht && navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
+  // Wichtig für Safari: Die Kamera-App muss direkt im Fingertipp geöffnet werden (kein await davor).
+  if (!inApp) { $('kamera').click(); return; }
+  oeffneKamera();
 });
+function kameraText(t) { $('kamera-text').textContent = t; }
+// Das Foto enthält das ganze Kamerabild. Der Rahmen liegt deshalb auf dem sichtbaren Bild (90 %).
+function rahmenAnpassen() {
+  const v = $('video'), r = $('kamera-ansicht').querySelector('.rahmen');
+  if (!v.videoWidth) return;
+  const W = v.clientWidth, H = v.clientHeight, f = Math.min(W / v.videoWidth, H / v.videoHeight);
+  const bw = v.videoWidth * f, bh = v.videoHeight * f, x = (W - bw) / 2, y = (H - bh) / 2;
+  Object.assign(r.style, { left: x + bw * 0.05 + 'px', top: y + bh * 0.05 + 'px', width: bw * 0.9 + 'px', height: bh * 0.9 + 'px' });
+}
+window.addEventListener('resize', rahmenAnpassen);
+function kameraGehtNicht(text) {
+  kameraGeht = false; speicher.schreiben('kamera-geht', false);
+  $('knopf-ausloesen').disabled = true;
+  kameraText(text || 'Die Kamera in der App geht hier nicht. Tippe auf „Kamera-App“.');
+  sage('Tippe auf Kamera App.');
+  scanNeu();
+}
+async function oeffneKamera() {
+  $('kamera-ansicht').hidden = false; document.body.style.overflow = 'hidden';
+  $('knopf-ausloesen').disabled = true; kameraText('Kamera startet …');
+  $('kamera-ansicht').querySelector('.rahmen').removeAttribute('style');
+  scanNeu();
+  const v = $('video');
+  try {
+    strom = await navigator.mediaDevices.getUserMedia({ audio: false,
+      video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1440 } } });
+  } catch (e) {
+    try { strom = await navigator.mediaDevices.getUserMedia({ video: true, audio: false }); }   // ohne Wünsche noch einmal
+    catch (e2) { return kameraGehtNicht(e2 && e2.name === 'NotAllowedError' ? 'Die Kamera ist nicht erlaubt. Tippe auf „Kamera-App“.' : null); }
+  }
+  if ($('kamera-ansicht').hidden) { strom.getTracks().forEach(t => t.stop()); strom = null; return; }  // schon "Zurück"
+  v.srcObject = strom;
+  // Nicht auf play() warten: Kommt kein Bild, würde das ewig dauern. Stattdessen Sicherung nach 6 s.
+  clearTimeout(kameraWache);
+  kameraWache = setTimeout(() => { if (!v.videoWidth) kameraGehtNicht(); }, 6000);
+  v.play().catch(() => { /* manche Geräte starten erst mit loadedmetadata */ });
+  const bereit = () => {
+    if (!v.videoWidth) return false;
+    clearTimeout(kameraWache);
+    rahmenAnpassen();
+    $('knopf-ausloesen').disabled = false;
+    kameraText('Das weiße Blatt in den Rahmen. Dann den gelben Knopf drücken.');
+    sage('Halte das weiße Blatt in den Rahmen. Dann drück auf den gelben Knopf.');
+    scanNeu();
+    return true;
+  };
+  if (!bereit()) {
+    v.addEventListener('loadedmetadata', () => { v.play().catch(() => {}); bereit(); }, { once: true });
+    v.addEventListener('playing', bereit, { once: true });
+    v.addEventListener('resize', bereit, { once: true });
+  }
+}
 function kameraZu() {
+  clearTimeout(kameraWache);
   if (strom) strom.getTracks().forEach(t => t.stop());
   strom = null; $('video').srcObject = null;
   $('kamera-ansicht').hidden = true; document.body.style.overflow = '';
@@ -897,6 +951,7 @@ $('knopf-ausloesen').addEventListener('click', () => {
   werteAus(c);
 });
 $('kamera').addEventListener('change', async ev => {
+  if (!$('kamera-ansicht').hidden) kameraZu();
   const datei = ev.target.files && ev.target.files[0];
   ev.target.value = '';
   if (!datei) return;
@@ -1501,6 +1556,7 @@ $('knopf-link').addEventListener('click', async () => {
 $('knopf-uebernehmen').addEventListener('click', () => {
   const f = leseFormular();
   const stufeGeaendert = f.start !== S.nr || f.modus !== E.modus;
+  if (f.kamera && !E.kamera) { kameraGeht = true; speicher.schreiben('kamera-geht', true); }
   E = f;
   if (stufeGeaendert) S = { nr: E.start, geloest: 0, schwerInFolge: 0 };
   speicher.schreiben('einstellungen', E); speicher.schreiben('stufe', S);
