@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Erkennung prüfen</title>
+<style>
+:root { --bg: #f4f7f9; --fg: #2b2118; --linie: #d9cbbd; --gut: #2f8f3a; --hm: #c76a12; --karte: #fff; color-scheme: light; }
+@media (prefers-color-scheme: dark) { :root { --bg: #17202c; --fg: #f4e6d6; --linie: #3a4859; --gut: #6fd07a; --hm: #f3a24a; --karte: #222d3b; color-scheme: dark; } }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 17px/1.45 system-ui, sans-serif; padding: 20px max(16px, env(safe-area-inset-left, 0px)); }
+main { max-width: 900px; margin: 0 auto; display: grid; gap: 16px; }
+h1 { margin: 0; font-size: 26px; }
+.hinweis { margin: 0; }
+.ablage { border: 3px dashed var(--linie); border-radius: 16px; padding: 22px; text-align: center; background: var(--karte); }
+.ablage.drueber { border-color: var(--gut); }
+.ergebnisse { display: grid; gap: 10px; }
+.zeile { display: grid; grid-template-columns: 160px 1fr; gap: 12px; align-items: center; background: var(--karte); border: 2px solid var(--linie); border-radius: 12px; padding: 8px; }
+.zeile canvas { width: 160px; height: auto; border-radius: 8px; }
+.ok { color: var(--gut); font-weight: 700; } .nein { color: var(--hm); font-weight: 700; }
+.summe { font-size: 19px; font-weight: 700; }
+@media (max-width: 520px) { .zeile { grid-template-columns: 1fr; } .zeile canvas { width: 100%; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Erkennung prüfen</h1>
+  <p class="hinweis">Fotos von eurem Spielgeld hier hineinziehen oder auswählen. Steht der richtige Betrag im Dateinamen (z. B. <code>12euro.jpg</code> oder <code>7_foto2.jpg</code>), vergleicht die Seite automatisch. Die Fotos bleiben auf diesem Gerät, nichts wird hochgeladen.</p>
+  <label class="ablage" id="ablage">Fotos hierher ziehen oder <u>auswählen</u><input type="file" id="dateien" accept="image/*" multiple hidden></label>
+  <p class="summe" id="summe"></p>
+  <div class="ergebnisse" id="ergebnisse"></div>
+</main>
+<script src="../erkennung.js"></script>
+<script>
+'use strict';
+const liste = [];
+async function lade(datei) {
+  const bmp = await createImageBitmap(datei, { imageOrientation: 'from-image' });
+  const f = Math.min(1, 900 / Math.max(bmp.width, bmp.height));
+  const c = document.createElement('canvas'); c.width = Math.round(bmp.width * f); c.height = Math.round(bmp.height * f);
+  c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+  return c;
+}
+async function pruefe(dateien) {
+  for (const datei of dateien) {
+    const c = await lade(datei), g = c.getContext('2d');
+    const d = g.getImageData(0, 0, c.width, c.height);
+    const t = performance.now();
+    const r = KirmesErkennung.erkenne(d.data, c.width, c.height), q = KirmesErkennung.qualitaet(d.data, c.width, c.height);
+    const ms = Math.round(performance.now() - t);
+    for (const o of r.objekte) {
+      g.save(); g.translate(o.x, o.y); g.rotate(o.winkel); g.lineWidth = 4;
+      g.strokeStyle = o.art === 'unklar' ? '#b45309' : o.art === 'schein' ? '#1f6fd1' : o.wert === 2 ? '#d1561f' : '#15803d';
+      g.beginPath(); g.ellipse(0, 0, o.a, o.b, 0, 0, Math.PI * 2); g.stroke(); g.restore();
+      g.font = '700 22px system-ui'; g.fillStyle = '#000'; g.fillText(o.art === 'unklar' ? '?' : o.wert + '€', o.x - 14, o.y + 8);
+    }
+    const m = datei.name.match(/(\d+)/), soll = m ? +m[1] : null;
+    const urteil = soll === null ? '' : r.summe === soll ? 'richtig' : r.unsicher ? 'neues Foto erbeten' : 'FALSCH';
+    liste.push(urteil);
+    const zeile = document.createElement('div'); zeile.className = 'zeile';
+    zeile.appendChild(c);
+    const info = document.createElement('div');
+    info.innerHTML = `<div><strong>${datei.name.replace(/</g, '&lt;')}</strong></div>
+      <div>erkannt: <strong>${r.summe} €</strong>${soll !== null ? ` · soll: ${soll} € · <span class="${urteil === 'richtig' ? 'ok' : 'nein'}">${urteil}</span>` : ''}</div>
+      <div>${r.objekte.map(o => o.art === 'unklar' ? '?' : (o.art === 'schein' ? 'Schein ' : '') + o.wert + ' €' + (o.sicher === false ? '?' : '')).join(' · ') || 'nichts erkannt'}</div>
+      <div>Fotocheck: ${q.ok ? 'ok' : q.grund} · ${ms} ms</div>`;
+    zeile.appendChild(info);
+    document.getElementById('ergebnisse').prepend(zeile);
+  }
+  const mit = liste.filter(u => u);
+  document.getElementById('summe').textContent = mit.length
+    ? `${mit.filter(u => u === 'richtig').length} von ${mit.length} richtig · ${mit.filter(u => u === 'neues Foto erbeten').length}× neues Foto · ${mit.filter(u => u === 'FALSCH').length}× falsch`
+    : '';
+}
+document.getElementById('dateien').addEventListener('change', e => pruefe([...e.target.files]));
+const ab = document.getElementById('ablage');
+ab.addEventListener('dragover', e => { e.preventDefault(); ab.classList.add('drueber'); });
+ab.addEventListener('dragleave', () => ab.classList.remove('drueber'));
+ab.addEventListener('drop', e => { e.preventDefault(); ab.classList.remove('drueber'); pruefe([...e.dataTransfer.files].filter(f => f.type.startsWith('image/'))); });
+</script>
+</body>
+</html>

@@ -93,11 +93,14 @@
     const scheinMaske = new Uint8Array(n);
     const sk = vermesse(fgS, roh, w, h);
     for (const o of sk) {
-      o.rahmen = rahmenAnteil(sk.lab, o, L, papier, w, h);
       if (o.n < Math.max(medN * 3, n * 0.012) || o.n > n * 0.5) continue;
       if (o.rechteckig < 0.65 || o.seiten < 1.2 || o.seiten > 4) continue;
       if (o.dichte < 0.33) continue;  // fast nur helles Papier (z. B. Preisschild)
-      if (o.rahmen > 0.2) continue;   // schwarzer Rand: Preisschild, kein Geldschein
+      // Ein Spielgeld-Schein (120 x 62 mm) ist etwa 18-mal so groß wie eine Münze.
+      // Deutlich größer: wahrscheinlich zwei Scheine, die sich berühren -> nachfragen.
+      if (probe.length && o.n > medN * 28) { objekte.push(Object.assign({ art: 'unklar', wert: null }, lage(o))); continue; }
+      // Zwei deutlich verschiedene Scheinfarben in einer Fläche: überlappende Scheine.
+      if (gemischteScheinfarben(rgba, roh, w, h, sk.lab, o)) { objekte.push(Object.assign({ art: 'unklar', wert: null }, lage(o))); continue; }
       const f = scheinFarbe(rgba, roh, w, h, sk.lab, o);
       if (!f) continue;
       objekte.push(Object.assign({ art: 'schein' }, lage(o), f));
@@ -105,6 +108,9 @@
     }
     const scheinRand = dilatiere(scheinMaske, w, h, 2);
     for (let i = 0; i < n; i++) if (scheinRand[i]) fg[i] = 0;
+    // Münzen, die auf einem Schein liegen: dort nur nach goldenen Flächen suchen
+    // (1 €: goldener Ring, 2 €: goldene Mitte). Scheine sind nicht golden.
+    if (objekte.length) for (const m of muenzenAufScheinen(rgba, w, h, scheinRand, medB, medN)) objekte.push(m);
 
     // --- 5. Münzen: Berührungen trennen, verschmolzene Flächen aufteilen ----
     const fg2 = oeffneScheibe(fg, w, h, Math.max(2, Math.round(medB * 0.5)));
@@ -127,6 +133,11 @@
       if (f) objekte.push(Object.assign({ art: 'muenze' }, lage(m), f, m.geteilt ? { geteilt: true } : {}));
       else if (!m.geteilt && goldAnteil(rgba, kand.lab, m, w, h) > 0.12) objekte.push(Object.assign({ art: 'unklar', wert: null }, lage(m)));
     }
+    // Doppelt gefundene Münzen (am Rand eines Scheins) nur einmal zählen.
+    for (let i = objekte.length - 1; i >= 0; i--) {
+      const o = objekte[i]; if (o.art !== 'muenze' || !o.aufSchein) continue;
+      if (objekte.some(m => m !== o && (m.art === 'muenze' || m.art === 'unklar') && !m.aufSchein && Math.hypot(m.x - o.x, m.y - o.y) < Math.max(m.a, o.a) * 1.3)) objekte.splice(i, 1);
+    }
     klaereUnsichere(objekte);
 
     // Unklare Stellen: Flächen in Münzgröße oder größer, die golden schimmern, aber
@@ -144,6 +155,23 @@
     return erg;
   }
 
+  function muenzenAufScheinen(rgba, w, h, bereich, medB, medN) {
+    const n = w * h; let gm = new Uint8Array(n);
+    for (let i = 0; i < n; i++) if (bereich[i]) { const p = i * 4; if (gold(rgba[p], rgba[p + 1], rgba[p + 2]) > 0.2) gm[i] = 1; }
+    const r = Math.max(1, Math.round(medB * 0.12));
+    gm = erodiere(dilatiere(gm, w, h, r), w, h, r);              // Lücken in der Prägung schließen
+    fuelleLoecher(gm, w, h, medN * 0.8);                         // Ring (1 €) zur Scheibe füllen
+    gm = oeffneScheibe(gm, w, h, Math.max(1, Math.round(medB * 0.35)));
+    const roh = new Uint8Array(n).fill(1);
+    const funde = [];
+    for (const o of vermesse(gm, roh, w, h)) {
+      if (o.n < medN * 0.45 || o.n > medN * 1.8 || o.seiten > 2.6 || o.fuell < 0.75) continue;
+      const f = muenzFarbe(rgba, w, h, o);
+      if (f) funde.push(Object.assign({ art: 'muenze', aufSchein: true }, lage(o), f, { sicher: false }));
+    }
+    return funde;
+  }
+
   // Anteil deutlich goldener Pixel in einer Fläche.
   function goldAnteil(rgba, lab, o, w, h) {
     const R = Math.ceil(o.a * 1.2); let z = 0, g = 0;
@@ -155,23 +183,6 @@
         if (gold(rgba[p], rgba[p + 1], rgba[p + 2]) > 0.18) g++;
       }
     return z ? g / z : 0;
-  }
-
-  // Anteil sehr dunkler Pixel im Saum einer Fläche (±3 px um ihren Rand).
-  // Preisschilder haben einen schwarzen Rahmen, Geldscheine nicht.
-  function rahmenAnteil(lab, o, L, papier, w, h) {
-    const R = Math.ceil(o.a * 1.5) + 4, d = 3;
-    const x0 = Math.max(0, Math.floor(o.x - R)), x1 = Math.min(w - 1, Math.ceil(o.x + R));
-    const y0 = Math.max(0, Math.floor(o.y - R)), y1 = Math.min(h - 1, Math.ceil(o.y + R));
-    const bw = x1 - x0 + 1, bh = y1 - y0 + 1, m = new Uint8Array(bw * bh);
-    for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) m[(y - y0) * bw + (x - x0)] = lab[y * w + x] === o.k ? 1 : 0;
-    const innen = erodiere(m, bw, bh, d), aussen = dilatiere(m, bw, bh, d);
-    let z = 0, dunkel = 0;
-    for (let y = 0; y < bh; y++) for (let x = 0; x < bw; x++) {
-      const i = y * bw + x; if (!aussen[i] || innen[i]) continue;
-      z++; if (L[(y + y0) * w + x + x0] < papier(x + x0, y + y0) * 0.55) dunkel++;
-    }
-    return z ? dunkel / z : 0;
   }
 
   // Eine Fläche aus mehreren verschmolzenen Münzen anhand der "dicksten Stellen"
@@ -315,7 +326,35 @@
     if (!s1.length && !s2.length) return;
     const m1 = s1.length ? median(s1) : median(s2) / 1.11;
     const m2 = s2.length ? median(s2) : median(s1) * 1.11;
-    for (const o of objekte) if (o.art === 'muenze' && !o.sicher && o.wert !== 0) o.wert = Math.abs(o.a - m1) < Math.abs(o.a - m2) ? 1 : 2;
+    for (const o of objekte) if (o.art === 'muenze' && !o.sicher && o.wert !== 0 && !o.aufSchein) o.wert = Math.abs(o.a - m1) < Math.abs(o.a - m2) ? 1 : 2;
+  }
+
+  // Farbklasse eines Pixels wie bei den Scheinen; Gold (Münzen) zählt nicht.
+  function scheinKlasse(r, g, b) {
+    const mx = Math.max(r, g, b), mn = Math.min(r, g, b), sat = (mx - mn) / (mx || 1);
+    if (sat < 0.16) return 5;
+    let hue;
+    if (mx === r) hue = 60 * (((g - b) / (mx - mn)) % 6); else if (mx === g) hue = 60 * ((b - r) / (mx - mn) + 2); else hue = 60 * ((r - g) / (mx - mn) + 4);
+    if (hue < 0) hue += 360;
+    if (hue >= 34 && hue < 62) return 0;            // golden: Münze
+    if (hue >= 330 || hue < 20) return 10;
+    if (hue < 34) return 50;
+    if (hue >= 190 && hue < 290) return 20;
+    if (hue < 190) return 5;
+    return 10;
+  }
+  function gemischteScheinfarben(rgba, roh, w, h, lab, o) {
+    const z = { 5: 0, 10: 0, 20: 0, 50: 0 }; let alle = 0;
+    const R = Math.ceil(o.a * 1.3);
+    for (let y = Math.max(0, Math.round(o.y - R)); y < Math.min(h, o.y + R); y += 2)
+      for (let x = Math.max(0, Math.round(o.x - R)); x < Math.min(w, o.x + R); x += 2) {
+        if (lab[y * w + x] !== o.k || !roh[y * w + x]) continue;
+        const p = (y * w + x) * 4, k = scheinKlasse(rgba[p], rgba[p + 1], rgba[p + 2]);
+        if (!k) continue; z[k]++; alle++;
+      }
+    if (alle < 50) return false;
+    const anteile = Object.values(z).map(v => v / alle).sort((a, b) => b - a);
+    return anteile[1] > 0.25;
   }
 
   // Mittlere Farbe der bedruckten (nicht weißen) Teile eines Scheins.
@@ -345,6 +384,40 @@
     else if (hue < 190) wert = 5;                    // grünlich-grau
     else wert = 10;                                  // pink/magenta
     return { wert, sicher: sat >= 0.16 || wert === 5, farbton: Math.round(hue), saettigung: +sat.toFixed(2) };
+  }
+
+  // --- Fotoqualität ---------------------------------------------------------
+  // Grobe Prüfung des Originalfotos: zu dunkel, verwackelt/unscharf, kein Blatt.
+  // Rückgabe: { ok, grund: null | 'dunkel' | 'unscharf' | 'kein_papier', werte }
+  function qualitaet(rgba, w, h) {
+    const f = Math.max(1, Math.round(Math.max(w, h) / 400)), sw = Math.floor(w / f), sh = Math.floor(h / f);
+    const G = new Float32Array(sw * sh), hell = [];
+    let neutralHell = 0;
+    for (let y = 0; y < sh; y++) for (let x = 0; x < sw; x++) {
+      const p = ((y * f) * w + x * f) * 4, r = rgba[p], g = rgba[p + 1], b = rgba[p + 2];
+      const l = 0.299 * r + 0.587 * g + 0.114 * b; G[y * sw + x] = l; hell.push(l);
+    }
+    hell.sort((a, b) => a - b);
+    const p95 = hell[Math.floor(hell.length * 0.95)] || 0;
+    for (let y = 0; y < sh; y++) for (let x = 0; x < sw; x++) {
+      const p = ((y * f) * w + x * f) * 4, r = rgba[p], g = rgba[p + 1], b = rgba[p + 2];
+      const mx = Math.max(r, g, b), mn = Math.min(r, g, b);
+      if (G[y * sw + x] > p95 * 0.72 && (mx - mn) / (mx || 1) < 0.22) neutralHell++;
+    }
+    // Schärfe: Stärke der kräftigsten Kanten (oberstes Prozent), bezogen auf die Helligkeit.
+    const grad = [];
+    for (let y = 1; y < sh - 1; y++) for (let x = 1; x < sw - 1; x++) {
+      const i = y * sw + x;
+      grad.push(Math.abs(G[i + 1] - G[i - 1]) + Math.abs(G[i + sw] - G[i - sw]));
+    }
+    grad.sort((a, b) => a - b);
+    const kante = (grad[Math.floor(grad.length * 0.995)] || 0) / Math.max(1, p95);
+    const papier = neutralHell / (sw * sh);
+    const werte = { p95: Math.round(p95), kante: +kante.toFixed(3), papier: +papier.toFixed(2) };
+    if (p95 < 70) return { ok: false, grund: 'dunkel', werte };
+    if (papier < 0.2) return { ok: false, grund: 'kein_papier', werte };
+    if (kante < 0.22) return { ok: false, grund: 'unscharf', werte };
+    return { ok: true, grund: null, werte };
   }
 
   // --- Weißabgleich ---------------------------------------------------------
@@ -470,5 +543,5 @@
     for (let i = 0; i < w * h; i++) { const k = lab[i]; if (k && !rand[k] && groesse[k] < maxLoch) m[i] = 1; }
   }
 
-  global.KirmesErkennung = { erkenne };
-})(typeof window !== 'undefined' ? window : this);
+  global.KirmesErkennung = { erkenne, qualitaet };
+})(typeof globalThis !== 'undefined' ? globalThis : typeof self !== 'undefined' ? self : this);

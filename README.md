@@ -1,86 +1,118 @@
 # Kirmes-Kiosk
 
-Eine Lern-App für den Mathe-Unterricht (Förderschwerpunkt GG): Das Kind sieht 1–5 Sachen vom Kirmes-Kiosk, rechnet die Preise zusammen, legt das passende Spielgeld auf ein weißes Blatt und fotografiert es. Die App erkennt die Münzen und Scheine auf dem Foto und sagt, ob der Betrag stimmt. Schreiben ist nicht nötig.
+Eine Lern-App für den Mathe-Unterricht (Förderschwerpunkt GG): Das Kind sieht Sachen vom Kirmes-Kiosk, rechnet die Preise zusammen, legt das passende Spielgeld auf ein weißes Blatt und fotografiert es. Die App erkennt Münzen und Scheine auf dem Foto und sagt, ob der Betrag stimmt. Schreiben ist nicht nötig.
 
-Alles läuft im Browser: kein Server, kein Konto, keine KI-Dienste. Die Fotos verlassen das Gerät nicht.
+Alles läuft im Browser: kein Server, kein Konto, keine KI-Dienste. Die Fotos verlassen das Gerät nicht. Die App funktioniert nach dem ersten Öffnen auch offline.
+
+**App:** https://walteroelf.github.io/kirmes-kiosk/
 
 ## Dateien
 
 | Datei | Inhalt |
 |---|---|
-| `index.html` | Die App (Oberfläche, Aufgaben, Einstellungen, Protokoll) |
-| `erkennung.js` | Die Geld-Erkennung |
+| `index.html` | Die App (Oberfläche, Aufgaben, Stufen, Einstellungen, Auswertung) |
+| `erkennung.js` | Die Geld-Erkennung und der Fotocheck |
+| `worker.js` | Führt die Erkennung im Hintergrund aus, damit nichts einfriert |
+| `sw.js`, `manifest.webmanifest`, `icons/` | Offline-Fähigkeit und App-Symbol für den Home-Bildschirm |
 | `bilder/` | Produktbilder |
 | `schriften/` | Schriften Andika und Grandstander (SIL Open Font License), lokal eingebunden |
+| `tests/` | Automatischer Test mit künstlichen Szenen und eine Prüfseite für echte Fotos |
 
-## Auf GitHub Pages veröffentlichen
+## Auf dem iPad einrichten
 
-1. Auf github.com ein neues Repository anlegen, z. B. `kirmes-kiosk` (öffentlich).
-2. **Add file → Upload files**: `index.html`, `erkennung.js`, `README.md` und die Ordner `bilder` und `schriften` hineinziehen, dann **Commit changes**.
-3. **Settings → Pages**: unter *Branch* `main` und `/ (root)` wählen, **Save**.
-4. Nach etwa einer Minute ist die App erreichbar unter
-   `https://DEIN-NAME.github.io/kirmes-kiosk/`
+1. Die App-Adresse in Safari öffnen.
+2. **Teilen → Zum Home-Bildschirm**. Danach startet die App wie ein normales Programm und läuft auch ohne WLAN.
+3. Beim ersten Foto fragt das iPad, ob die App die Kamera benutzen darf: **Erlauben**.
+4. Den **Zahnrad-Knopf gut 1 Sekunde gedrückt halten** → Lehrkraft-Bereich.
 
-Die Kamera funktioniert nur über `https://` (bei GitHub Pages automatisch).
+## Was das Kind macht
 
-## Bedienung
+- **Einkaufen**: Sachen ansehen, Preise zusammenrechnen, Geld legen, Foto.
+- **Rückgeld**: „Ich bezahle mit 10 €“ – das Rückgeld legen und fotografieren.
+- **Reicht das Geld?**: „Ich habe 10 €“ – mit großem Knopf *Ja, das reicht* / *Nein, zu wenig* antworten.
+- **Preis-Schild wählen** (ab Stufe 5): nach dem Foto das passende Schild antippen. Solange dieser Schritt aktiv ist, nennt die App vorher keinen Betrag.
+- Knöpfe oben: **Vorlesen** (Lautsprecher), **Preisliste** (Preisschild-Symbol).
 
-- **Foto vom Geld**: öffnet auf Tablet/Handy direkt die Kamera.
-- **Lautsprecher-Knopf**: liest die Aufgabe vor.
-- **Preisschild-Knopf**: zeigt die Preisliste mit allen 20 Sachen.
-- **Name** (optional, im Lehrkraft-Bereich): erscheint in Begrüßung und Lob, z. B. „Super, [Name]!“.
-- **Zahnrad gedrückt halten** (gut 1 Sekunde): öffnet den Lehrkraft-Bereich. Kurz antippen reicht absichtlich nicht.
+### Kamera mit Rahmen
 
-### Lehrkraft-Bereich
+„Foto vom Geld“ öffnet ein Kamerabild mit Rahmen („Das weiße Blatt in den Rahmen“) und einem großen gelben Auslöser. Geht das auf einem Gerät nicht oder wird die Kamera nicht erlaubt, öffnet sich automatisch die normale Kamera-App. Abschaltbar im Lehrkraft-Bereich.
 
-- Anzahl der Sachen (1–5), nur gerade / nur ungerade Beträge, Höchstbetrag, Aufgaben pro Runde
-- **1-€-Münzen begrenzen** (Bündeln üben: „Ab jetzt hast du nur noch zwei 1-€-Stücke.“)
-- **Preis-Schild wählen** als 2. Schritt: 4 Schilder zur Auswahl oder alle bis zum Höchstbetrag
-- Hilfen: Preise anzeigen, gleiche Sachen mehrmals, Vorlesen und Töne
-- Bei falschem Betrag sagt die App absichtlich nicht „zu viel“ oder „zu wenig“, damit nicht geraten wird (Münze weg, neues Foto …). Sie bittet nur, noch einmal zu rechnen und zu zählen.
-- **Link mit diesen Einstellungen**: für TaskCards oder einen QR-Code. Beispiel:
-  `…/kirmes-kiosk/?anzahl=4&betrag=ungerade&max=15&runde=10&einer=2&schild=4`
-  Der Name kommt absichtlich nicht in den Link. Er wird auf jedem Gerät einmal im Lehrkraft-Bereich eingetragen.
-- **Protokoll**: jedes Foto mit Preis, erkanntem Betrag und Ergebnis, auf Wunsch mit Vorschaubild. Ohne Namen, nur auf diesem Gerät.
+### Rückmeldungen
 
-### Wenn die Erkennung sich irrt
+- Richtig: Lob (mit Namen, falls eingetragen) und ein kurzer Ton.
+- Falsch: „Das passt noch nicht. Rechne noch einmal und zähle dein Geld.“ – bewusst **ohne** „zu viel / zu wenig“, damit nicht geraten wird.
+- Unsicher (verschmolzene Münzen, starker Glanz): Stellen werden mit **?** markiert, die App bittet um ein neues Foto, statt zu korrigieren.
+- **Fotocheck**: Ist das Foto zu dunkel, verwackelt oder ist kein weißes Blatt zu sehen, sagt die App das konkret („Halte das Tablet ganz ruhig …“). Solche Fotos zählen nicht als Fehlversuch.
 
-Unter dem Foto auf **Erkennung korrigieren** tippen. Dann:
-- Markierung antippen: Wert wechselt 1 € → 2 € → 5 € → 10 € → 20 € → entfernen
-- leere Stelle antippen: fügt dort 1 € hinzu
+### Gestufte Hilfe
 
-Die App prüft danach sofort neu. Im Protokoll steht dann „von Hand korrigiert“.
+Nach dem **2. Fehlversuch** erscheint *Hilfe: Preise zeigen*, nach dem **3.** *Hilfe: Schritt für Schritt* (z. B. „3 € + 2 € + 1 € = ?“). Die Lösung wird nie verraten. Abschaltbar.
+
+## Stufen (wie die „Neu ab hier“-Karten auf TaskCards)
+
+| Stufe | Inhalt |
+|---|---|
+| 1 | 2 Sachen einkaufen (bis 10 €) |
+| 2 | 3 Sachen (bis 12 €) |
+| 3 | 4 Sachen (bis 15 €) |
+| 4 | Weniger 1-€-Stücke: höchstens zwei 1 € (Bündeln) |
+| 5 | Gesamt-Preis finden: Preis-Schild wählen |
+| 6 | Größere Beträge bis 20 € |
+| 7 | Rückgeld (bezahlt mit 10 €) |
+| 8 | Reicht das Geld? (10 € dabei) |
+
+Nach einer einstellbaren Zahl gelöster Aufgaben (Standard 8; gezählt werden Aufgaben mit höchstens 2 Fotos und ohne Hilfe) erscheint die Karte **„Neu ab hier“** mit Lob, und die nächste Stufe beginnt. Optional geht es nach 3 schweren Aufgaben in Folge eine Stufe zurück. Statt Stufen kann im Lehrkraft-Bereich auch **„Feste Einstellungen“** gewählt werden (Aufgabe, Anzahl Sachen, gerade/ungerade, Höchstbetrag, Bezahlen mit, 1-€-Münzen, Preis-Schild).
+
+## Lehrkraft-Bereich
+
+- Name (optional, nur auf diesem Gerät), Ablauf (Stufen oder fest), Aufgaben pro Runde
+- Hilfen, Töne und Vorlesen, Kamera mit Rahmen, Vorschaubilder im Protokoll
+- **Bedienung mit einem Taster**: Eine blaue Markierung wandert von Knopf zu Knopf (1,5 / 2,5 / 4 Sekunden). Auswählen mit Leertaste/Enter (viele Taster für das iPad senden diese Tasten) oder durch Tippen irgendwo auf den Bildschirm. Alternativ hat das iPad selbst die „Schaltersteuerung“ (Einstellungen → Bedienungshilfen).
+- **Link mit diesen Einstellungen** für TaskCards oder einen QR-Code, z. B.
+  `…/kirmes-kiosk/?modus=stufen&stufe=4&aufstieg=8&runde=10`
+  oder fest: `…/kirmes-kiosk/?modus=fest&art=kaufen&anzahl=4&betrag=ungerade&max=15&einer=2&schild=4&runde=10`
+  Der Name kommt absichtlich nicht in den Link.
+- **Auswertung für den Förderplan**: Zusammenfassung („… davon 85 % ohne Hilfe gelöst. Sicher: bis 10 €. Noch schwierig: 16–20 €.“) und Tabellen nach Stufe, Betrag und Anzahl der Sachen, für 7 Tage, 30 Tage oder alles. **Drucken** oder **Als Tabelle speichern** (CSV, öffnet in Excel/Numbers).
+- **Protokoll der Fotos** mit Ergebnis, auf Wunsch mit Vorschaubild.
+- **Wenn die Erkennung sich irrt**: unter dem Foto *Erkennung korrigieren* → Markierung antippen wechselt 1 € → 2 € → 5 € → 10 € → 20 € → entfernen; leere Stelle antippen fügt 1 € hinzu.
+- Unten: Versionsnummer und ob die App offline verfügbar ist.
 
 ## Tipps für gute Fotos
 
 - Weißes Blatt als Unterlage (die „Unterlage für Geld“ funktioniert gut)
-- Münzen nicht übereinander, mit etwas Abstand; Scheine nicht auf Münzen legen
-- Möglichst von oben fotografieren, Blatt füllt das Bild
+- Münzen mit etwas Abstand; Scheine nebeneinander, nicht übereinander
+- Kein Schatten, keine Spiegelung; möglichst von oben
 - Kein Preisschild mit aufs Foto (das Schild wählt das Kind in der App)
 
 ## Datenschutz
 
-Die App ist so gebaut, dass keine personenbezogenen Daten das Gerät verlassen:
+- **Fotos** werden nur im Browser ausgewertet, nicht hochgeladen und nicht gespeichert. Ausnahme: Ist „Vorschaubilder im Protokoll speichern“ eingeschaltet, bleibt ein kleines Vorschaubild im Browser-Speicher dieses Geräts (standardmäßig aus).
+- **Name, Einstellungen, Stufe, Protokoll und Auswertung** liegen nur im Browser-Speicher dieses Geräts. Name nicht im Link, nicht im Protokoll, nicht in der Auswertung.
+- **Keine fremden Server**: keine Google-Schriften, keine Statistik, keine Cookies, keine Werbung.
+- **Vorlesen** nutzt nur Stimmen, die auf dem Gerät installiert sind. Online-Stimmen werden bewusst nicht verwendet.
+- **Löschen**: „Alle Daten auf diesem Gerät löschen“ im Lehrkraft-Bereich.
 
-- **Fotos** werden nur im Browser ausgewertet. Sie werden nicht hochgeladen und nicht gespeichert. Ausnahme: Ist „Vorschaubilder im Protokoll speichern“ eingeschaltet, bleibt ein kleines Vorschaubild im Browser-Speicher dieses Geräts. Diese Einstellung ist standardmäßig aus.
-- **Name**: optional, steht nur im Browser-Speicher dieses Geräts, nicht im Link und nicht im Protokoll. Am besten nur den Vornamen oder einen Spitznamen verwenden.
-- **Keine fremden Server**: keine Google-Schriften, keine Statistik, keine Cookies, keine Werbung. Alles kommt aus dem eigenen Repository.
-- **Vorlesen** nutzt nur Stimmen, die auf dem Gerät installiert sind. Online-Stimmen werden bewusst nicht verwendet, weil sie den Text an einen Server schicken. Gibt es auf dem Gerät keine deutsche Stimme, bleibt die App still.
-- **Löschen**: Im Lehrkraft-Bereich löscht „Alle Daten auf diesem Gerät löschen“ Name, Einstellungen und Protokoll.
-
-Zu beachten: GitHub Pages ist der Webhoster. Beim Aufruf der Seite verarbeitet GitHub wie jeder Webserver technisch die IP-Adresse (siehe Datenschutzerklärung von GitHub). Bei Bedarf kann der Ordner genauso auf den Schulserver oder in die Schul-Cloud gelegt werden. Die App braucht nur einen Webserver mit https.
-
-Bitte keine Fotos auf GitHub hochladen, auf denen Kinder zu erkennen sind. Für die App selbst werden keine Fotos benötigt.
+GitHub Pages ist der Webhoster: Beim Aufruf verarbeitet GitHub wie jeder Webserver technisch die IP-Adresse. Der Ordner kann genauso auf den Schulserver gelegt werden (nötig ist nur https).
 
 ## Wie die Erkennung arbeitet
 
-0. **Weißabgleich über das Papier**: Die App schätzt an jeder Stelle die Farbe des Blatts und rechnet sie auf neutrales Weiß um. Das gleicht Farbstich (Glühbirne, Neonröhre, Fensterlicht) und Schatten aus.
+0. **Weißabgleich über das Papier**: gleicht Farbstich (Glühbirne, Neonröhre) und Schatten aus.
 1. Alles, was sich vom hellen Papier abhebt, wird als Fläche ausgeschnitten.
-2. Ovale Flächen sind Münzen. **1 €**: Ring golden, Mitte silbern. **2 €**: Mitte golden, Ring silbern. Einfarbig goldene Münzen sind Cent-Münzen und zählen 0 €.
+2. Ovale Flächen sind Münzen. **1 €**: Ring golden, Mitte silbern. **2 €**: Mitte golden, Ring silbern.
 3. Sich berührende Münzen werden an der engsten Stelle getrennt.
-4. Große rechteckige, bedruckte Flächen sind Scheine, die Farbe entscheidet: 5 € grau-grün, 10 € rot, 20 € blau, 50 € orange.
+4. Große rechteckige, bedruckte Flächen sind Scheine; die Farbe entscheidet: 5 € grau-grün, 10 € rot, 20 € blau, 50 € orange. Ein Schein ist etwa 18-mal so groß wie eine Münze – deutlich größere Flächen oder zwei Scheinfarben in einer Fläche gelten als „überlappende Scheine“ → neues Foto.
+5. **Münzen auf Scheinen** werden über ihre goldenen Teile gefunden.
+6. Farben werden als Median gemessen; Glanzlichter zählen nicht. Verdeckt Glanz die Mitte, entscheidet der Ring.
+7. Unsichere Stellen → **?** und Bitte um ein neues Foto.
 
-5. Farben werden als Median gemessen; Glanzlichter und tiefe Schatten zählen nicht mit. Verdeckt ein Glanzfleck die Mitte, entscheidet der Ring allein.
-6. **Unsichere Stellen** (verschmolzene Münzen, starker Glanz, scheinbar „ganz goldene“ Münzen) werden gestrichelt mit **?** markiert. Passt der Betrag dann nicht, sagt die App nicht „falsch“, sondern bittet um ein neues Foto.
+## Tests
 
-Getestet mit 15 Fotos von Spielgeld auf der Unterlage, jeweils in 9 Lichtvarianten (Original, warmes, kaltes und grünliches Licht, dunkel mit Bildrauschen, Schattenverlauf, harte Schattenkante, Spiegelungen auf allen Münzen, alles zusammen). Von 135 Fällen: 119 richtig erkannt, 12-mal um ein neues Foto gebeten, 4-mal ein falsches Urteil (fast nur in der Extremvariante „alles zusammen“ oder wenn ein Preisschild mit im Bild lag). 1 € und 2 € wurden in keinem Fall vertauscht. 10-€- und 20-€-Scheine waren auf den Testfotos nicht dabei; ihre Erkennung ist deshalb noch nicht an echtem Spielgeld geprüft.
+**Automatisch (bei jeder Änderung auf GitHub):** `node tests/test.js` erzeugt rund 100 künstliche Szenen (normal, 5-/10-/20-€-Scheine, zwei Scheine, überlappende Scheine, Münze auf Schein, sich berührende Münzen, warmes und kaltes Licht, Schattenverlauf, Schattenkante, Spiegelungen, dunkel, unscharf, viele Münzen) und prüft den Fotocheck. Stand Version 2.0.0: 88 von 102 Szenen richtig, 13-mal Bitte um neues Foto, 1 falsches Urteil (bei überlappenden Scheinen).
+
+**Echte Fotos:** `tests/pruefen.html` öffnen (z. B. `…/kirmes-kiosk/tests/pruefen.html`), Fotos hineinziehen. Steht der richtige Betrag im Dateinamen (`12euro.jpg`), wird automatisch verglichen. Nichts wird hochgeladen. Bitte keine Fotos mit Kindern ins Repository legen.
+
+Bisher an 15 echten Spielgeld-Fotos geprüft (14 richtig, 1-mal neues Foto). 10-€- und 20-€-Scheine sowie Münzen auf Scheinen sind bisher nur an künstlichen Szenen getestet.
+
+## Neue Version veröffentlichen
+
+In `index.html` (`VERSION`) und `sw.js` (`VERSION`) die Versionsnummer erhöhen, dann hochladen. Geräte holen sich die neue Fassung beim nächsten Öffnen mit Internet.

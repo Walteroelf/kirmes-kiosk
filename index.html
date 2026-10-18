@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Kirmes-Kiosk</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#c9362c">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Kirmes-Kiosk">
 <meta name="description" content="Einkaufen am Kirmes-Kiosk: Preise zusammenrechnen, Spielgeld legen, fotografieren – die App prüft den Betrag.">
 <style>
 /* Schriften liegen in der App selbst (keine Verbindung zu Google & Co.). Lizenz: SIL Open Font License. */
@@ -260,6 +267,61 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
   .eintrag { grid-template-columns: 84px 1fr; }
   .eintrag img { width: 84px; }
 }
+
+/* --- Stufen-Karte "Neu ab hier" --- */
+.neu-karte { border-color: var(--markise); }
+.neu-karte .dialog-inhalt { justify-items: center; text-align: center; padding: 26px 22px 30px; }
+.neu-band { background: var(--markise); color: var(--markise-text); font-family: var(--anzeige); font-weight: 900;
+  font-size: 22px; border-radius: 12px; padding: 4px 16px; }
+.neu-karte h2 { font-family: var(--anzeige); font-size: clamp(30px, 6vw, 44px); margin: 0; text-wrap: balance; }
+.neu-karte p { margin: 0; font-size: 22px; max-width: 34ch; }
+
+/* --- Aufgabenarten --- */
+.bezahlen { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; font-size: 22px; font-weight: 700; }
+.bezahlen .geld.schein { min-width: 110px; height: 58px; font-size: 24px; }
+.antworten { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+.grossknopf.ja { background: var(--gut-hell); color: var(--holz); border-color: var(--gut); box-shadow: 0 6px 0 var(--gut); }
+.grossknopf.nein { background: var(--hm-hell); color: var(--holz); border-color: var(--hm); box-shadow: 0 6px 0 var(--hm); }
+.grossknopf svg.gross { width: 52px; height: 52px; }
+
+/* --- Hilfe --- */
+.hilfe-reihe { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.rechenweg { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-family: var(--anzeige); font-size: 26px; }
+.rechenweg .preis { margin: 0; }
+
+/* --- Kamera mit Rahmen --- */
+.kamera { position: fixed; inset: 0; z-index: 50; background: #000; display: grid; grid-template-rows: 1fr auto; }
+.kamera video { width: 100%; height: 100%; object-fit: cover; grid-row: 1; grid-column: 1; }
+.kamera .rahmen { grid-row: 1; grid-column: 1; align-self: center; justify-self: center; width: min(86vw, 120vh); aspect-ratio: 4 / 3;
+  max-height: 72vh; border: 5px dashed rgba(255,255,255,.9); border-radius: 18px; box-shadow: 0 0 0 100vmax rgba(0,0,0,.35); pointer-events: none; }
+.kamera .rahmen-text { grid-row: 1; grid-column: 1; align-self: start; justify-self: center; margin-top: calc(14px + env(safe-area-inset-top, 0px));
+  background: rgba(0,0,0,.6); color: #fff; font-size: 22px; font-weight: 700; padding: 8px 16px; border-radius: 12px; text-align: center; }
+.kamera .leiste { display: flex; align-items: center; justify-content: center; gap: 28px; background: #111;
+  padding: 16px max(16px, env(safe-area-inset-right, 0px)) calc(16px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.ausloeser { width: 104px; height: 104px; border-radius: 50%; border: 8px solid #fff; background: var(--senf); }
+.ausloeser:active { transform: scale(.94); }
+.kamera .abbrechen { background: none; border: 3px solid #fff; color: #fff; border-radius: 14px; padding: 12px 18px; font-size: 20px; font-weight: 700; }
+
+/* --- Einzeltaster: markiertes Ziel --- */
+.scan { outline: 7px solid #1f6fd1 !important; outline-offset: 5px !important; transform: scale(1.03); transition: transform .12s; }
+@media (prefers-reduced-motion: reduce) { .scan { transform: none; } }
+
+/* --- Auswertung --- */
+.bericht { display: grid; gap: 14px; }
+.bericht .zusammenfassung { font-size: 18px; margin: 0; }
+.tabelle-huelle { overflow-x: auto; }
+.tabelle { border-collapse: collapse; width: 100%; font-size: 16px; font-variant-numeric: tabular-nums; }
+.tabelle th, .tabelle td { border-bottom: 2px solid var(--linie); padding: 6px 8px; text-align: left; white-space: nowrap; }
+.tabelle th { font-weight: 700; }
+.balken { display: inline-block; height: 12px; border-radius: 6px; background: var(--gut); vertical-align: middle; margin-right: 6px; }
+.fuss { font-size: 14px; color: var(--holz-hell); margin: 0; }
+
+@media print {
+  body > *:not(#dlg-lehrkraft) { display: none !important; }
+  dialog#dlg-lehrkraft { position: static; border: none; width: auto; max-height: none; }
+  dialog::backdrop { display: none; }
+  #dlg-lehrkraft .dialog-kopf, #dlg-lehrkraft .abschnitt:not(.druck), #dlg-lehrkraft .einstellungen, #dlg-lehrkraft .nicht-drucken { display: none !important; }
+}
 </style>
 </head>
 <body>
@@ -268,7 +330,7 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
   <div class="kopf">
     <h1 class="schild-titel">Kirmes-Kiosk</h1>
     <span class="platz"></span>
-    <button class="rundknopf" id="knopf-vorlesen" aria-label="Aufgabe vorlesen" title="Vorlesen">
+    <button class="rundknopf" id="knopf-vorlesen" data-scan aria-label="Aufgabe vorlesen" title="Vorlesen">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" fill-opacity=".15"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>
     </button>
     <button class="rundknopf" id="knopf-preisliste" aria-label="Preisliste zeigen" title="Preisliste">
@@ -293,14 +355,17 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
       <h2 id="ware-titel">Das möchte ich kaufen:</h2>
     </div>
     <div class="ware" id="ware"></div>
+    <div class="bezahlen" id="bezahlen" hidden></div>
+    <div class="hilfe-reihe" id="hilfe-reihe" hidden></div>
   </section>
 
+  <!-- Kaufen / Rückgeld: Geld legen und fotografieren -->
   <section class="schritt" id="schritt-foto">
-    <h3><span class="nr">1</span><span>Rechne aus. Lege das Geld. Mach ein Foto.</span></h3>
-    <label class="grossknopf" for="kamera" id="knopf-foto">
+    <h3><span class="nr">1</span><span id="foto-auftrag">Rechne aus. Lege das Geld. Mach ein Foto.</span></h3>
+    <button class="grossknopf" id="knopf-foto" data-scan>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5A1.5 1.5 0 0 1 4.5 7h2.6l1.6-2.2h6.6L16.9 7h2.6A1.5 1.5 0 0 1 21 8.5v9A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5z" fill="currentColor" fill-opacity=".18"/><circle cx="12" cy="12.8" r="3.6"/></svg>
       <span>Foto vom Geld</span>
-    </label>
+    </button>
     <input type="file" id="kamera" accept="image/*" capture="environment" hidden>
     <p class="tipp">Geld auf ein weißes Blatt legen · Münzen mit Abstand · kein Schatten, keine Spiegelung · von oben fotografieren</p>
 
@@ -314,14 +379,30 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
     </div>
   </section>
 
+  <!-- Reicht das Geld? -->
+  <section class="schritt" id="schritt-budget" hidden>
+    <h3><span class="nr">?</span><span>Reicht das Geld?</span></h3>
+    <div class="antworten">
+      <button class="grossknopf ja" id="knopf-ja" data-scan>
+        <svg class="gross" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+        <span>Ja, das reicht</span>
+      </button>
+      <button class="grossknopf nein" id="knopf-nein" data-scan>
+        <svg class="gross" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg>
+        <span>Nein, zu wenig</span>
+      </button>
+    </div>
+    <div id="budget-meldung"></div>
+  </section>
+
   <section class="schritt" id="schritt-schild" hidden>
-    <h3><span class="nr">2</span><span>Welches Preis-Schild passt?</span></h3>
+    <h3><span class="nr">2</span><span id="schild-auftrag">Welches Preis-Schild passt?</span></h3>
     <div class="schilder" id="schilder"></div>
     <div id="schild-meldung"></div>
   </section>
 
   <div class="knopfreihe" id="weiter-reihe" hidden>
-    <button class="grossknopf weiter" id="knopf-weiter">
+    <button class="grossknopf weiter" id="knopf-weiter" data-scan>
       <span>Weiter</span>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
     </button>
@@ -333,15 +414,37 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
     <h2>Geschafft!</h2>
     <p class="gruss" id="ende-text"></p>
     <div class="sterne" id="sterne"></div>
-    <button class="grossknopf" id="knopf-neu">Neue Runde</button>
+    <button class="grossknopf" id="knopf-neu" data-scan>Neue Runde</button>
   </section>
 </main>
+
+<!-- Kamera mit Rahmen -->
+<div class="kamera" id="kamera-ansicht" hidden>
+  <video id="video" playsinline muted autoplay></video>
+  <div class="rahmen" aria-hidden="true"></div>
+  <div class="rahmen-text">Das weiße Blatt in den Rahmen</div>
+  <div class="leiste">
+    <button class="abbrechen" id="knopf-kamera-zu" data-scan-kamera>Zurück</button>
+    <button class="ausloeser" id="knopf-ausloesen" data-scan-kamera aria-label="Foto machen"></button>
+    <span style="width:96px"></span>
+  </div>
+</div>
+
+<!-- Neue Stufe -->
+<dialog id="dlg-stufe" class="neu-karte" aria-labelledby="stufe-titel">
+  <div class="dialog-inhalt">
+    <span class="neu-band">Neu ab hier</span>
+    <h2 id="stufe-titel"></h2>
+    <p id="stufe-text"></p>
+    <button class="grossknopf weiter" id="knopf-stufe-ok" data-scan-dialog>Los geht's</button>
+  </div>
+</dialog>
 
 <!-- Preisliste -->
 <dialog id="dlg-preisliste" aria-labelledby="pl-titel">
   <div class="dialog-kopf">
     <h2 id="pl-titel">Preisliste</h2>
-    <button class="mittelknopf" data-schliessen>Schließen</button>
+    <button class="mittelknopf" data-schliessen data-scan-dialog>Schließen</button>
   </div>
   <div class="dialog-inhalt">
     <div class="preisliste" id="preisliste"></div>
@@ -363,35 +466,65 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
         <span class="hilfe">Erscheint in Begrüßung und Lob. Bleibt nur auf diesem Gerät und kommt nicht in den Link.</span>
       </div>
       <div class="feld">
+        <label for="e-modus">Ablauf</label>
+        <select id="e-modus">
+          <option value="stufen">Stufen: steigert sich automatisch</option>
+          <option value="fest">Feste Einstellungen (unten)</option>
+        </select>
+        <span class="hilfe" id="stufe-info"></span>
+      </div>
+      <div class="feld nur-stufen">
+        <label for="e-start">Stufe</label>
+        <select id="e-start"></select>
+        <span class="hilfe">Beim Übernehmen beginnt das Kind auf dieser Stufe.</span>
+      </div>
+      <div class="feld nur-stufen">
+        <label for="e-aufstieg">Nächste Stufe nach</label>
+        <select id="e-aufstieg">
+          <option value="5">5 gelösten Aufgaben</option><option value="8">8 gelösten Aufgaben</option>
+          <option value="10">10 gelösten Aufgaben</option><option value="15">15 gelösten Aufgaben</option>
+        </select>
+        <span class="hilfe">Zählt nur Aufgaben, die mit höchstens 2 Fotos und ohne Hilfe gelöst wurden.</span>
+        <label class="schalter"><input type="checkbox" id="e-abstieg"> Eine Stufe zurück nach 3 schweren Aufgaben in Folge</label>
+      </div>
+
+      <div class="feld nur-fest">
+        <label for="e-art">Aufgabe</label>
+        <select id="e-art">
+          <option value="kaufen">Einkaufen: Geld legen</option>
+          <option value="rueckgeld">Rückgeld legen</option>
+          <option value="budget">Reicht das Geld?</option>
+        </select>
+      </div>
+      <div class="feld nur-fest">
         <label for="e-anzahl">Wie viele Sachen?</label>
         <select id="e-anzahl">
           <option value="1">1 Sache</option><option value="2">2 Sachen</option><option value="3">3 Sachen</option>
           <option value="4">4 Sachen</option><option value="5">5 Sachen</option>
         </select>
       </div>
-      <div class="feld">
-        <label for="e-betrag">Gesamtbetrag</label>
+      <div class="feld nur-fest">
+        <label for="e-betrag">Betrag (Preis bzw. Rückgeld)</label>
         <select id="e-betrag">
           <option value="alle">gerade und ungerade</option>
           <option value="gerade">nur gerade Beträge</option>
           <option value="ungerade">nur ungerade Beträge</option>
         </select>
       </div>
-      <div class="feld">
+      <div class="feld nur-fest">
         <label for="e-max">Höchstens</label>
         <select id="e-max">
           <option value="5">5 €</option><option value="10">10 €</option><option value="12">12 €</option>
           <option value="15">15 €</option><option value="20">20 €</option><option value="30">30 €</option>
         </select>
       </div>
-      <div class="feld">
-        <label for="e-runde">Aufgaben pro Runde</label>
-        <select id="e-runde">
-          <option value="3">3</option><option value="5">5</option><option value="10">10</option>
-          <option value="15">15</option><option value="20">20</option>
+      <div class="feld nur-fest">
+        <label for="e-bezahlt">Bezahlen mit (Rückgeld) / im Geldbeutel (Reicht das Geld?)</label>
+        <select id="e-bezahlt">
+          <option value="10">10 €</option><option value="15">15 €</option><option value="20">20 €</option>
         </select>
       </div>
-      <div class="feld">
+      <div class="feld nur-fest">
         <label for="e-einer">1-€-Münzen</label>
         <select id="e-einer">
           <option value="0">beliebig viele</option>
@@ -401,62 +534,101 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
         </select>
         <span class="hilfe">Übt das Bündeln: zwei 1 € gegen ein 2-€-Stück tauschen.</span>
       </div>
-      <div class="feld">
+      <div class="feld nur-fest">
         <label for="e-schild">Preis-Schild wählen (Schritt 2)</label>
         <select id="e-schild">
           <option value="aus">aus</option>
           <option value="4">ja, 4 Schilder zur Auswahl</option>
           <option value="alle">ja, alle Schilder bis zum Höchstbetrag</option>
         </select>
-        <span class="hilfe">Wenn an: Nach dem Foto nennt die App keinen Betrag. Das Kind bestimmt den Gesamtpreis selbst.</span>
+        <span class="hilfe">Wenn an: Nach dem Foto nennt die App keinen Betrag. Das Kind bestimmt ihn selbst.</span>
       </div>
       <div class="feld">
-        <span class="label">Weitere Hilfen</span>
-        <label class="schalter"><input type="checkbox" id="e-preise"> Preise unter den Sachen zeigen</label>
+        <label for="e-runde">Aufgaben pro Runde</label>
+        <select id="e-runde">
+          <option value="3">3</option><option value="5">5</option><option value="10">10</option>
+          <option value="15">15</option><option value="20">20</option>
+        </select>
+      </div>
+      <div class="feld">
+        <span class="label">Hilfen</span>
+        <label class="schalter"><input type="checkbox" id="e-preise"> Preise immer unter den Sachen zeigen</label>
+        <label class="schalter"><input type="checkbox" id="e-hilfe"> Hilfe anbieten nach 2 und 3 Fehlversuchen</label>
         <label class="schalter"><input type="checkbox" id="e-doppelt"> Gleiche Sachen mehrmals erlauben</label>
         <label class="schalter"><input type="checkbox" id="e-betragzeigen"> Erkanntes Geld als Betrag zeigen (nicht, wenn Preis-Schild wählen an ist)</label>
+      </div>
+      <div class="feld">
+        <span class="label">Bedienung</span>
         <label class="schalter"><input type="checkbox" id="e-ton"> Töne und Vorlesen</label>
+        <label class="schalter"><input type="checkbox" id="e-kamera"> Kamera in der App mit Rahmen</label>
         <label class="schalter"><input type="checkbox" id="e-fotos"> Vorschaubilder im Protokoll speichern</label>
+      </div>
+      <div class="feld">
+        <label for="e-taster">Bedienung mit einem Taster</label>
+        <select id="e-taster">
+          <option value="aus">aus</option>
+          <option value="taste">an: Leertaste / Enter wählt aus</option>
+          <option value="bildschirm">an: Tippen irgendwo wählt aus</option>
+        </select>
+        <select id="e-tempo" aria-label="Tempo">
+          <option value="1500">Markierung springt alle 1,5 s</option>
+          <option value="2500">Markierung springt alle 2,5 s</option>
+          <option value="4000">Markierung springt alle 4 s</option>
+        </select>
+        <span class="hilfe">Die Markierung wandert von Knopf zu Knopf. Für externe Taster: viele senden Leertaste oder Enter.</span>
       </div>
     </div>
 
-    <div class="abschnitt">
+    <div class="abschnitt nicht-drucken">
       <h3>Link mit diesen Einstellungen</h3>
       <p class="leer" style="margin:0">Für TaskCards oder einen QR-Code: Der Link öffnet die App direkt mit diesen Einstellungen. Der Name ist nicht enthalten.</p>
       <div class="linkfeld"><code id="link-text"></code><button class="mittelknopf" id="knopf-link">Kopieren</button></div>
     </div>
 
-    <div class="abschnitt">
-      <h3>Protokoll</h3>
+    <div class="abschnitt druck">
+      <h3>Auswertung für den Förderplan</h3>
+      <div class="knopfreihe nicht-drucken" style="justify-content:flex-start">
+        <select id="a-zeitraum" class="mittelknopf" style="flex:0 0 auto">
+          <option value="7">letzte 7 Tage</option><option value="30">letzte 30 Tage</option><option value="0">alles</option>
+        </select>
+        <button class="mittelknopf" id="knopf-csv" style="flex:0 0 auto">Als Tabelle speichern</button>
+        <button class="mittelknopf" id="knopf-drucken" style="flex:0 0 auto">Drucken</button>
+      </div>
+      <div class="bericht" id="bericht"></div>
+    </div>
+
+    <div class="abschnitt nicht-drucken">
+      <h3>Protokoll der Fotos</h3>
       <div class="statistik" id="statistik"></div>
       <div class="protokoll" id="protokoll"></div>
       <div class="knopfreihe" style="justify-content:flex-start">
-        <button class="mittelknopf warnung" id="knopf-protokoll-loeschen" style="flex:0 0 auto">Protokoll löschen</button>
+        <button class="mittelknopf warnung" id="knopf-protokoll-loeschen" style="flex:0 0 auto">Protokoll und Auswertung löschen</button>
         <span id="loeschen-frage" hidden style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;flex:0 0 auto">
-          Wirklich alles löschen?
+          Wirklich löschen?
           <button class="mittelknopf warnung" id="knopf-loeschen-ja">Ja, löschen</button>
           <button class="mittelknopf" id="knopf-loeschen-nein">Nein</button>
         </span>
       </div>
-      <p class="leer" style="margin:0">Das Protokoll bleibt nur auf diesem Gerät gespeichert. Es enthält keinen Namen.</p>
+      <p class="leer" style="margin:0">Protokoll und Auswertung bleiben nur auf diesem Gerät gespeichert. Sie enthalten keinen Namen.</p>
     </div>
 
-    <div class="abschnitt">
+    <div class="abschnitt nicht-drucken">
       <h3>Datenschutz</h3>
       <ul class="leer" style="margin:0;padding-left:1.2em;display:grid;gap:4px">
         <li>Fotos werden nur im Browser ausgewertet und nirgendwohin geschickt.</li>
-        <li>Name, Einstellungen und Protokoll liegen nur im Speicher dieses Browsers.</li>
+        <li>Name, Einstellungen, Stufe, Protokoll und Auswertung liegen nur im Speicher dieses Browsers.</li>
         <li>Die App lädt nichts von fremden Servern (keine Schriften, keine Statistik, keine Werbung).</li>
         <li>Vorlesen nutzt nur Stimmen, die auf dem Gerät installiert sind.</li>
       </ul>
       <div class="knopfreihe" style="justify-content:flex-start">
         <button class="mittelknopf warnung" id="knopf-alles-loeschen" style="flex:0 0 auto">Alle Daten auf diesem Gerät löschen</button>
         <span id="alles-frage" hidden style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;flex:0 0 auto">
-          Name, Einstellungen und Protokoll löschen?
+          Name, Einstellungen, Stufe, Protokoll und Auswertung löschen?
           <button class="mittelknopf warnung" id="knopf-alles-ja">Ja, alles löschen</button>
           <button class="mittelknopf" id="knopf-alles-nein">Nein</button>
         </span>
       </div>
+      <p class="fuss" id="version"></p>
     </div>
   </div>
 </dialog>
@@ -464,6 +636,8 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
 <script src="erkennung.js"></script>
 <script>
 'use strict';
+const VERSION = '2.0.0';
+const STAND = '18.10.2026';
 
 // ---------------------------------------------------------------------------
 // Waren und Preise (wie auf dem Kirmes-Plakat)
@@ -493,65 +667,113 @@ const PRODUKTE = [
 const bild = p => `bilder/${p.id}.png`;
 
 // ---------------------------------------------------------------------------
+// Stufenplan – wie die "Neu ab hier"-Karten auf den TaskCards
+// ---------------------------------------------------------------------------
+const STUFEN = [
+  { titel: '2 Sachen einkaufen', text: 'Du kaufst 2 Sachen. Rechne die Preise zusammen und lege das Geld.',
+    art: 'kaufen', anzahl: 2, max: 10, einer: 0, schild: 'aus' },
+  { titel: '3 Sachen einkaufen', text: 'Ab jetzt werden 3 Sachen eingekauft!',
+    art: 'kaufen', anzahl: 3, max: 12, einer: 0, schild: 'aus' },
+  { titel: '4 Sachen einkaufen', text: 'Ab jetzt werden 4 Sachen eingekauft!',
+    art: 'kaufen', anzahl: 4, max: 15, einer: 0, schild: 'aus' },
+  { titel: 'Weniger 1-€-Stücke', text: 'Ab jetzt hast du nur noch zwei 1-€-Stücke. Tipp: Statt zwei 1 € kannst du ein 2-€-Stück nehmen.',
+    art: 'kaufen', anzahl: 4, max: 15, einer: 2, schild: 'aus' },
+  { titel: 'Gesamt-Preis finden', text: 'Ab jetzt suchst du nach dem Foto auch das passende Preis-Schild.',
+    art: 'kaufen', anzahl: 4, max: 15, einer: 2, schild: '4' },
+  { titel: 'Größere Beträge', text: 'Jetzt wird es teurer: bis zu 20 €.',
+    art: 'kaufen', anzahl: 4, max: 20, einer: 2, schild: '4' },
+  { titel: 'Rückgeld', text: 'Du bezahlst mit einem 10-€-Schein. Wie viel Geld bekommst du zurück? Lege das Rückgeld.',
+    art: 'rueckgeld', anzahl: 2, max: 9, bezahlt: 10, einer: 0, schild: 'aus' },
+  { titel: 'Reicht das Geld?', text: 'Du hast 10 € dabei. Schau, ob das Geld für alles reicht.',
+    art: 'budget', anzahl: 3, max: 15, bezahlt: 10, einer: 0, schild: 'aus' },
+];
+
+// ---------------------------------------------------------------------------
 // Einstellungen: Standard < gespeichert < Link-Parameter
 // ---------------------------------------------------------------------------
-const STANDARD = { name: '', anzahl: 3, betrag: 'alle', max: 15, runde: 10, einer: 0, schild: 'aus',
-                   preise: false, doppelt: true, betragzeigen: true, ton: true, fotos: false };
+const STANDARD = { name: '', modus: 'stufen', start: 1, aufstieg: 8, abstieg: false,
+                   art: 'kaufen', anzahl: 3, betrag: 'alle', max: 15, bezahlt: 10, runde: 10, einer: 0, schild: 'aus',
+                   preise: false, hilfe: true, doppelt: true, betragzeigen: true, ton: true, kamera: true, fotos: false,
+                   taster: 'aus', tempo: 2500 };
+const SCHALTER = ['abstieg', 'preise', 'hilfe', 'doppelt', 'betragzeigen', 'ton', 'kamera', 'fotos'];
 const speicher = {
   lesen(k, f) { try { const v = localStorage.getItem('kirmes-' + k); return v ? JSON.parse(v) : f; } catch (e) { return f; } },
   schreiben(k, v) { try { localStorage.setItem('kirmes-' + k, JSON.stringify(v)); } catch (e) { /* kein Speicher */ } },
 };
+function clamp(v, a, b) { return Math.max(a, Math.min(b, isNaN(v) ? a : Math.round(v))); }
 function ausLink() {
   const q = new URLSearchParams(location.search), e = {};
+  if (q.has('modus') && ['stufen', 'fest'].includes(q.get('modus'))) e.modus = q.get('modus');
+  if (q.has('stufe')) e.start = clamp(+q.get('stufe'), 1, STUFEN.length);
+  if (q.has('aufstieg')) e.aufstieg = clamp(+q.get('aufstieg'), 1, 50);
+  if (q.has('art') && ['kaufen', 'rueckgeld', 'budget'].includes(q.get('art'))) e.art = q.get('art');
   if (q.has('anzahl')) e.anzahl = clamp(+q.get('anzahl'), 1, 5);
   if (q.has('betrag') && ['alle', 'gerade', 'ungerade'].includes(q.get('betrag'))) e.betrag = q.get('betrag');
   if (q.has('max')) e.max = clamp(+q.get('max'), 3, 50);
+  if (q.has('bezahlt')) e.bezahlt = clamp(+q.get('bezahlt'), 5, 50);
   if (q.has('runde')) e.runde = clamp(+q.get('runde'), 1, 50);
   if (q.has('einer')) e.einer = clamp(+q.get('einer'), 0, 9);
   if (q.has('schild') && ['aus', '4', 'alle'].includes(q.get('schild'))) e.schild = q.get('schild');
-  for (const k of ['preise', 'doppelt', 'betragzeigen', 'ton', 'fotos']) if (q.has(k)) e[k] = q.get(k) === '1';
+  if (q.has('taster') && ['aus', 'taste', 'bildschirm'].includes(q.get('taster'))) e.taster = q.get('taster');
+  if (q.has('tempo')) e.tempo = clamp(+q.get('tempo'), 800, 8000);
+  for (const k of SCHALTER) if (q.has(k)) e[k] = q.get(k) === '1';
+  // Ältere Links (vor den Stufen) hatten feste Werte: dann festen Ablauf nehmen.
+  if (!q.has('modus') && (q.has('anzahl') || q.has('schild') || q.has('einer'))) e.modus = 'fest';
   return e;
 }
-function clamp(v, a, b) { return Math.max(a, Math.min(b, isNaN(v) ? a : Math.round(v))); }
 let E = Object.assign({}, STANDARD, speicher.lesen('einstellungen', {}), ausLink());
+// Stufen-Fortschritt: { nr, geloest, schwerInFolge }
+let S = speicher.lesen('stufe', null) || { nr: E.start, geloest: 0, schwerInFolge: 0 };
+if (new URLSearchParams(location.search).has('stufe')) S = { nr: E.start, geloest: 0, schwerInFolge: 0 };
+
+// Die für die aktuelle Aufgabe gültigen Werte (Stufe oder feste Einstellungen)
+function regeln() {
+  if (E.modus === 'stufen') {
+    const st = STUFEN[clamp(S.nr, 1, STUFEN.length) - 1];
+    return { art: st.art, anzahl: st.anzahl, max: st.max, betrag: 'alle', einer: st.einer, schild: st.schild, bezahlt: st.bezahlt || 10, stufe: S.nr };
+  }
+  return { art: E.art, anzahl: E.anzahl, max: E.max, betrag: E.betrag, einer: E.einer, schild: E.schild, bezahlt: E.bezahlt, stufe: null };
+}
 
 // ---------------------------------------------------------------------------
 // Zustand
 // ---------------------------------------------------------------------------
 const $ = id => document.getElementById(id);
 let runde = { nr: 0, ergebnisse: [] };
-let aufgabe = null;       // { waren: [...], summe }
-let versuche = 0;
-let analyse = null;       // { basis: canvas, objekte, korrigiert }
-let korrigieren = false;
-let geldOk = false;
+let aufgabe = null;   // { art, waren, summe, bezahlt, loesung, regeln, schluessel }
+let versuche = 0, fehlversuche = 0, hilfeStufe = 0;
+let analyse = null;   // { basis, objekte, korrigiert, qualitaet }
+let korrigieren = false, geloest = false;
 
 // ---------------------------------------------------------------------------
 // Aufgaben erzeugen
 // ---------------------------------------------------------------------------
-function passt(summe) {
-  if (summe > E.max) return false;
-  if (E.betrag === 'gerade' && summe % 2) return false;
-  if (E.betrag === 'ungerade' && !(summe % 2)) return false;
-  return true;
+function zieheWaren(n, doppelt) {
+  const pool = PRODUKTE.slice(), waren = [];
+  for (let i = 0; i < n; i++) {
+    const j = Math.floor(Math.random() * pool.length);
+    waren.push(pool[j]); if (!doppelt) pool.splice(j, 1);
+  }
+  return waren;
 }
+function paritaetOk(v, betrag) { return betrag === 'alle' || (betrag === 'gerade' ? v % 2 === 0 : v % 2 === 1); }
 function neueAufgabe() {
-  const n = E.anzahl;
+  const R = regeln();
   let beste = null;
-  for (let t = 0; t < 2000; t++) {
-    const pool = PRODUKTE.slice(), waren = [];
-    for (let i = 0; i < n; i++) {
-      const j = Math.floor(Math.random() * pool.length);
-      waren.push(pool[j]);
-      if (!E.doppelt) pool.splice(j, 1);
-    }
+  const budgetReicht = Math.random() < 0.5;
+  for (let t = 0; t < 3000; t++) {
+    const waren = zieheWaren(R.anzahl, E.doppelt);
     const summe = waren.reduce((s, p) => s + p.preis, 0);
     const schluessel = waren.map(p => p.id).sort().join();
     if (aufgabe && schluessel === aufgabe.schluessel) continue;
-    if (passt(summe)) { beste = { waren, summe, schluessel }; break; }
-    if (!beste || summe < beste.summe) beste = { waren, summe, schluessel }; // Notlösung: kleinste Summe
+    let loesung, ok;
+    if (R.art === 'kaufen') { loesung = summe; ok = summe <= R.max && paritaetOk(summe, R.betrag); }
+    else if (R.art === 'rueckgeld') { loesung = R.bezahlt - summe; ok = loesung >= 1 && loesung <= R.max && paritaetOk(loesung, R.betrag); }
+    else { loesung = summe <= R.bezahlt; ok = (budgetReicht ? summe <= R.bezahlt : summe > R.bezahlt) && summe <= R.bezahlt + 6 && summe >= R.bezahlt - 6; }
+    const kandidat = { art: R.art, waren, summe, bezahlt: R.bezahlt, loesung, regeln: R, schluessel };
+    if (ok) { beste = kandidat; break; }
+    if (!beste) beste = kandidat;
   }
-  // Gleiche Sachen nebeneinander zeigen
   beste.waren.sort((a, b) => a.name.localeCompare(b.name, 'de'));
   return beste;
 }
@@ -559,6 +781,12 @@ function neueAufgabe() {
 // ---------------------------------------------------------------------------
 // Anzeige
 // ---------------------------------------------------------------------------
+const SYMBOL_GUT = `<svg class="symbol" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="var(--gut)"/><path d="M18 33l9 9 19-20" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const SYMBOL_HM = `<svg class="symbol" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="var(--hm)"/><path d="M24 24a8 8 0 1 1 11 7.4c-2 .9-3 2.4-3 4.6v2" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/><circle cx="32" cy="47" r="3.6" fill="#fff"/></svg>`;
+const STERN = f => `<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z" fill="${f ? 'var(--senf)' : 'none'}" stroke="var(--holz)" stroke-width="1.6" stroke-linejoin="round"/></svg>`;
+const meldung = (gut, titel, text, huepfen) => `<div class="meldung ${gut ? 'gut' : 'hm'}${huepfen ? ' huepfen' : ''}">${gut ? SYMBOL_GUT : SYMBOL_HM}<div><strong>${titel}</strong>${text}</div></div>`;
+const scheinChip = w => `<span class="geld schein s${w}">${w} €</span>`;
+
 function zeigeRunde() {
   $('spiel').hidden = false; $('ende').hidden = true;
   $('gruss').textContent = E.name ? `Hallo ${E.name}!` : 'Hallo!';
@@ -570,66 +798,111 @@ function zeigeRunde() {
     punkte.appendChild(d);
   }
 }
-function zeigeAufgabe() {
-  zeigeRunde();
+function preiseSichtbar() { return E.preise || hilfeStufe >= 1; }
+function zeigeWare() {
   const ware = $('ware'); ware.innerHTML = '';
   for (const p of aufgabe.waren) {
     const k = document.createElement('div');
     k.className = 'produkt';
     k.innerHTML = `<img src="${bild(p)}" alt="${p.name}"><div><div class="name">${p.name}</div>` +
-      (E.preise ? `<div style="text-align:center"><span class="preis">${p.preis} €</span></div>` : '') + '</div>';
+      (preiseSichtbar() ? `<div style="text-align:center"><span class="preis">${p.preis} €</span></div>` : '') + '</div>';
     ware.appendChild(k);
   }
-  $('ware-titel').textContent = aufgabe.waren.length === 1 ? 'Das möchte ich kaufen:' : `Das möchte ich kaufen (${aufgabe.waren.length} Sachen):`;
-  // Schritte zurücksetzen
-  versuche = 0; geldOk = false; analyse = null; korrigieren = false;
+}
+function zeigeAufgabe() {
+  zeigeRunde();
+  versuche = 0; fehlversuche = 0; hilfeStufe = 0; geloest = false; analyse = null; korrigieren = false;
+  zeigeWare();
+  const art = aufgabe.art, n = aufgabe.waren.length;
+  $('ware-titel').textContent = art === 'budget' ? `Das möchte ich kaufen (${n} Sachen):` : n === 1 ? 'Das möchte ich kaufen:' : `Das möchte ich kaufen (${n} Sachen):`;
+  const bz = $('bezahlen');
+  if (art === 'rueckgeld') { bz.hidden = false; bz.innerHTML = `<span>Ich bezahle mit:</span>${scheinChip(aufgabe.bezahlt)}`; }
+  else if (art === 'budget') { bz.hidden = false; bz.innerHTML = `<span>Ich habe:</span>${scheinChip(aufgabe.bezahlt)}`; }
+  else { bz.hidden = true; bz.innerHTML = ''; }
+  $('hilfe-reihe').hidden = true; $('hilfe-reihe').innerHTML = '';
+  $('foto-auftrag').textContent = art === 'rueckgeld' ? 'Rechne aus, wie viel du zurückbekommst. Lege das Rückgeld. Mach ein Foto.' : 'Rechne aus. Lege das Geld. Mach ein Foto.';
+  $('schritt-foto').hidden = art === 'budget';
+  $('schritt-budget').hidden = art !== 'budget';
+  $('budget-meldung').innerHTML = '';
+  $('knopf-ja').disabled = false; $('knopf-nein').disabled = false;
   $('ergebnis').hidden = true; $('foto-rahmen').hidden = true; $('meldung').innerHTML = ''; $('erkannt').innerHTML = '';
   $('knopf-korrektur').hidden = true; $('korrektur-hinweis').hidden = true; $('foto-rahmen').classList.remove('korrigieren');
-  $('knopf-foto').hidden = false;
-  $('knopf-foto').querySelector('span').textContent = 'Foto vom Geld';
+  $('knopf-korrektur').textContent = 'Erkennung korrigieren';
+  $('knopf-foto').hidden = false; $('knopf-foto').querySelector('span').textContent = 'Foto vom Geld';
   $('schritt-schild').hidden = true; $('schild-meldung').innerHTML = '';
   $('weiter-reihe').hidden = true;
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  scanNeu();
 }
 
-function geldHtml(objekte) {
-  const sortiert = objekte.filter(o => o.wert !== null && o.wert !== undefined)
-    .sort((a, b) => (b.art === 'schein') - (a.art === 'schein') || b.wert - a.wert);
-  return sortiert.map(o => o.art === 'schein'
-    ? `<span class="geld schein s${o.wert}" title="${o.wert}-€-Schein">${o.wert} €</span>`
-    : o.wert === 0 ? `<span class="geld m0" title="Cent-Münze">ct</span>`
-    : `<span class="geld m${o.wert}" title="${o.wert}-€-Münze">${o.wert} €</span>`).join('');
+// ---------------------------------------------------------------------------
+// Gestufte Hilfe nach Fehlversuchen (ohne die Lösung zu verraten)
+// ---------------------------------------------------------------------------
+function bieteHilfe() {
+  if (!E.hilfe || geloest) return;
+  const reihe = $('hilfe-reihe');
+  if (fehlversuche >= 2 && hilfeStufe === 0 && !E.preise) {
+    reihe.hidden = false;
+    reihe.innerHTML = `<button class="grossknopf leise" id="knopf-hilfe1" data-scan>Hilfe: Preise zeigen</button>`;
+    $('knopf-hilfe1').addEventListener('click', () => { hilfeStufe = 1; zeigeWare(); reihe.innerHTML = ''; reihe.hidden = true; sage('Hier stehen die Preise. Rechne noch einmal.'); bieteHilfe(); scanNeu(); });
+  } else if (fehlversuche >= 3 && hilfeStufe <= 1) {
+    reihe.hidden = false;
+    reihe.innerHTML = `<button class="grossknopf leise" id="knopf-hilfe2" data-scan>Hilfe: Schritt für Schritt</button>`;
+    $('knopf-hilfe2').addEventListener('click', () => {
+      hilfeStufe = 2; zeigeWare();
+      const teile = aufgabe.waren.map(p => `<span class="preis">${p.preis} €</span>`).join('<span>+</span>');
+      reihe.innerHTML = aufgabe.art === 'rueckgeld'
+        ? `<div class="rechenweg">${scheinChip(aufgabe.bezahlt)}<span>−</span><span>(</span>${teile}<span>)</span><span>= ?</span></div>`
+        : `<div class="rechenweg">${teile}<span>= ?</span></div>`;
+      sage(aufgabe.art === 'rueckgeld' ? 'Rechne zuerst die Preise zusammen. Dann rechne: zehn Euro minus diesen Betrag.' : 'Rechne die Preise Schritt für Schritt zusammen.');
+      scanNeu();
+    });
+  }
+  scanNeu();
 }
 
-const SYMBOL_GUT = `<svg class="symbol" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="var(--gut)"/><path d="M18 33l9 9 19-20" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-const SYMBOL_HM = `<svg class="symbol" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="var(--hm)"/><path d="M24 24a8 8 0 1 1 11 7.4c-2 .9-3 2.4-3 4.6v2" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/><circle cx="32" cy="47" r="3.6" fill="#fff"/></svg>`;
-const STERN = f => `<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z" fill="${f ? 'var(--senf)' : 'none'}" stroke="var(--holz)" stroke-width="1.6" stroke-linejoin="round"/></svg>`;
-
 // ---------------------------------------------------------------------------
-// Foto auswerten
+// Foto aufnehmen: Kamera mit Rahmen oder Kamera-App des Geräts
 // ---------------------------------------------------------------------------
+let strom = null, kameraGeht = true;
+$('knopf-foto').addEventListener('click', async () => {
+  if (E.kamera && kameraGeht && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    try {
+      strom = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1440 } }, audio: false });
+      $('video').srcObject = strom;
+      $('kamera-ansicht').hidden = false;
+      document.body.style.overflow = 'hidden';
+      sage('Halte das weiße Blatt in den Rahmen. Dann drück auf den gelben Knopf.');
+      scanNeu();
+      return;
+    } catch (e) { kameraGeht = false; /* z. B. abgelehnt: normale Kamera-App nehmen */ }
+  }
+  $('kamera').click();
+});
+function kameraZu() {
+  if (strom) strom.getTracks().forEach(t => t.stop());
+  strom = null; $('video').srcObject = null;
+  $('kamera-ansicht').hidden = true; document.body.style.overflow = '';
+  scanNeu();
+}
+$('knopf-kamera-zu').addEventListener('click', kameraZu);
+$('knopf-ausloesen').addEventListener('click', () => {
+  const v = $('video');
+  if (!v.videoWidth) return;
+  const f = Math.min(1, 900 / Math.max(v.videoWidth, v.videoHeight));
+  const c = document.createElement('canvas');
+  c.width = Math.round(v.videoWidth * f); c.height = Math.round(v.videoHeight * f);
+  c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
+  kameraZu();
+  werteAus(c);
+});
 $('kamera').addEventListener('change', async ev => {
   const datei = ev.target.files && ev.target.files[0];
   ev.target.value = '';
   if (!datei) return;
-  $('ergebnis').hidden = false; $('lade').hidden = false; $('foto-rahmen').hidden = true;
-  $('meldung').innerHTML = ''; $('erkannt').innerHTML = ''; $('knopf-korrektur').hidden = true;
-  try {
-    const basis = await ladeBild(datei, 900);
-    await new Promise(r => setTimeout(r, 30)); // Ladeanzeige zeichnen lassen
-    const daten = basis.getContext('2d').getImageData(0, 0, basis.width, basis.height);
-    const erg = KirmesErkennung.erkenne(daten.data, basis.width, basis.height);
-    analyse = { basis, objekte: erg.objekte, korrigiert: false };
-    versuche++;
-    $('lade').hidden = true; $('foto-rahmen').hidden = false; $('knopf-korrektur').hidden = false;
-    pruefeGeld(true);
-  } catch (e) {
-    console.error(e);
-    $('lade').hidden = true;
-    $('meldung').innerHTML = `<div class="meldung hm">${SYMBOL_HM}<div><strong>Das Foto ging nicht.</strong>Bitte noch einmal fotografieren.</div></div>`;
-  }
+  try { werteAus(await ladeBild(datei, 900)); }
+  catch (e) { $('ergebnis').hidden = false; $('meldung').innerHTML = meldung(false, 'Das Foto ging nicht.', 'Bitte noch einmal fotografieren.'); }
 });
-
 async function ladeBild(datei, maxSeite) {
   let quelle;
   try { quelle = await createImageBitmap(datei, { imageOrientation: 'from-image' }); }
@@ -643,6 +916,44 @@ async function ladeBild(datei, maxSeite) {
   c.width = Math.round(w0 * f); c.height = Math.round(h0 * f);
   c.getContext('2d').drawImage(quelle, 0, 0, c.width, c.height);
   return c;
+}
+
+// ---------------------------------------------------------------------------
+// Auswertung im Hintergrund (Web Worker), sonst direkt
+// ---------------------------------------------------------------------------
+let worker = null, auftragNr = 0;
+const offen = new Map();
+try {
+  worker = new Worker('worker.js');
+  worker.onmessage = e => { const f = offen.get(e.data.id); if (f) { offen.delete(e.data.id); f(e.data); } };
+  worker.onerror = () => { worker = null; offen.forEach(f => f({ fehler: 'worker' })); offen.clear(); };
+} catch (e) { worker = null; }
+function erkenneGeld(daten, w, h) {
+  const direkt = () => ({ ergebnis: KirmesErkennung.erkenne(daten.data, w, h), qualitaet: KirmesErkennung.qualitaet(daten.data, w, h) });
+  if (!worker) return new Promise(ok => setTimeout(() => ok(direkt()), 30));
+  return new Promise(ok => {
+    const id = ++auftragNr, kopie = new Uint8ClampedArray(daten.data);
+    const zeit = setTimeout(() => { offen.delete(id); ok(direkt()); }, 20000);
+    offen.set(id, antwort => { clearTimeout(zeit); ok(antwort.fehler ? direkt() : antwort); });
+    worker.postMessage({ id, puffer: kopie.buffer, breite: w, hoehe: h }, [kopie.buffer]);
+  });
+}
+async function werteAus(basis) {
+  $('ergebnis').hidden = false; $('lade').hidden = false; $('foto-rahmen').hidden = true;
+  $('meldung').innerHTML = ''; $('erkannt').innerHTML = ''; $('knopf-korrektur').hidden = true;
+  $('ergebnis').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  try {
+    const daten = basis.getContext('2d').getImageData(0, 0, basis.width, basis.height);
+    const { ergebnis, qualitaet } = await erkenneGeld(daten, basis.width, basis.height);
+    analyse = { basis, objekte: ergebnis.objekte, korrigiert: false, qualitaet };
+    versuche++;
+    $('lade').hidden = true; $('foto-rahmen').hidden = false; $('knopf-korrektur').hidden = false;
+    pruefeGeld(true);
+  } catch (e) {
+    console.error(e);
+    $('lade').hidden = true;
+    $('meldung').innerHTML = meldung(false, 'Das Foto ging nicht.', 'Bitte noch einmal fotografieren.');
+  }
 }
 
 function zeichneFoto() {
@@ -663,8 +974,7 @@ function zeichneFoto() {
     const text = o.art === 'unklar' ? '?' : (o.wert === 0 ? 'ct' : `${o.wert} €`) + (o.sicher === false ? '?' : '');
     g.font = `700 ${Math.round(22 * s)}px Andika, sans-serif`;
     const tw = g.measureText(text).width + 14 * s, th = 30 * s;
-    const lx = o.x - tw / 2, ly = o.y - th / 2;
-    g.fillStyle = farbe; roundRect(g, lx, ly, tw, th, 8 * s); g.fill();
+    g.fillStyle = farbe; roundRect(g, o.x - tw / 2, o.y - th / 2, tw, th, 8 * s); g.fill();
     g.fillStyle = '#fff'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(text, o.x, o.y + 1 * s);
   }
 }
@@ -672,44 +982,61 @@ function roundRect(g, x, y, w, h, r) {
   g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r);
   g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath();
 }
+function geldHtml(objekte) {
+  return objekte.filter(o => o.wert !== null && o.wert !== undefined)
+    .sort((a, b) => (b.art === 'schein') - (a.art === 'schein') || b.wert - a.wert)
+    .map(o => o.art === 'schein' ? scheinChip(o.wert)
+      : o.wert === 0 ? `<span class="geld m0" title="Cent-Münze">ct</span>`
+      : `<span class="geld m${o.wert}" title="${o.wert}-€-Münze">${o.wert} €</span>`).join('');
+}
+
+const QUALITAET = {
+  dunkel: ['Das Foto ist zu dunkel.', 'Mach mehr Licht an oder geh näher ans Fenster. Dann noch ein Foto.'],
+  unscharf: ['Das Foto ist verwackelt.', 'Halte das Tablet ganz ruhig. Dann noch ein Foto.'],
+  kein_papier: ['Ich sehe kein weißes Blatt.', 'Leg das Geld auf das weiße Blatt und fotografiere von oben.'],
+};
 
 function pruefeGeld(neu) {
   zeichneFoto();
+  const R = aufgabe.regeln, rueck = aufgabe.art === 'rueckgeld';
   const objekte = analyse.objekte.filter(o => o.wert !== null);
   const summe = objekte.reduce((s, o) => s + o.wert, 0);
   const einer = objekte.filter(o => o.art === 'muenze' && o.wert === 1).length;
-  const soll = aufgabe.summe;
+  const soll = aufgabe.loesung;
   const name = E.name ? `, ${E.name}` : '';
-  // Kommt danach der Schritt "Preis-Schild wählen", darf kein Betrag genannt werden –
-  // sonst verrät die App die Lösung.
-  const verdeckt = E.schild !== 'aus';
+  // Kommt danach "Preis-Schild wählen", wird kein Betrag genannt – sonst verrät die App die Lösung.
+  const verdeckt = R.schild !== 'aus';
   const betragZeigen = E.betragzeigen && !verdeckt;
-  // Unklare Stellen (verschmolzene Münzen, starker Glanz): lieber ein neues Foto
-  // erbitten als das Kind zu Unrecht zu korrigieren. Nach einer Korrektur von Hand
-  // entscheidet die Lehrkraft.
+  // Unklare Stellen: lieber neues Foto erbitten als zu Unrecht korrigieren. Nach einer
+  // Korrektur von Hand entscheidet die Lehrkraft.
   const unsicher = !analyse.korrigiert && analyse.objekte.some(o => o.art === 'unklar' || o.sicher === false);
-  let html, gut = false, sprich, grund = '';
-  if (!objekte.length && !unsicher) {
-    html = `<div class="meldung hm">${SYMBOL_HM}<div><strong>Ich sehe kein Geld.</strong>Leg das Geld auf ein weißes Blatt und fotografiere von oben.</div></div>`;
+  const q = !analyse.korrigiert && analyse.qualitaet && !analyse.qualitaet.ok ? QUALITAET[analyse.qualitaet.grund] : null;
+  let html, gut = false, sprich, grund = '', zaehlt = true;
+  if (summe !== soll && q && (unsicher || !objekte.length)) {
+    grund = 'Foto: ' + q[0].replace(/\.$/, ''); zaehlt = false;
+    html = meldung(false, q[0], q[1]); sprich = q[0] + ' ' + q[1];
+  } else if (!objekte.length && !unsicher) {
+    grund = 'kein Geld erkannt'; zaehlt = false;
+    html = meldung(false, 'Ich sehe kein Geld.', 'Leg das Geld auf ein weißes Blatt und fotografiere von oben.');
     sprich = 'Ich sehe kein Geld. Leg das Geld auf ein weißes Blatt und fotografiere von oben.';
-  } else if (summe === soll && E.einer > 0 && einer > E.einer) {
-    html = `<div class="meldung hm">${SYMBOL_HM}<div><strong>Der Betrag stimmt!</strong>Aber du hast ${einer} Ein-Euro-Münzen. Erlaubt sind höchstens ${E.einer === 1 ? 'eine' : E.einer}. Tausche zwei 1 € gegen ein 2-€-Stück.</div></div>`;
+  } else if (summe === soll && R.einer > 0 && einer > R.einer) {
     grund = 'zu viele 1-€-Münzen';
-    sprich = `Der Betrag stimmt. Aber du hast zu viele Ein-Euro-Münzen. Tausche zwei Ein-Euro-Münzen gegen ein Zwei-Euro-Stück.`;
+    html = meldung(false, rueck ? 'Das Rückgeld stimmt!' : 'Der Betrag stimmt!', `Aber du hast ${einer} Ein-Euro-Münzen. Erlaubt sind höchstens ${R.einer === 1 ? 'eine' : R.einer}. Tausche zwei 1 € gegen ein 2-€-Stück.`);
+    sprich = 'Der Betrag stimmt. Aber du hast zu viele Ein-Euro-Münzen. Tausche zwei Ein-Euro-Münzen gegen ein Zwei-Euro-Stück.';
   } else if (summe !== soll && unsicher) {
-    grund = 'Foto unklar';
-    html = `<div class="meldung hm">${SYMBOL_HM}<div><strong>Ich bin mir nicht sicher.</strong>Bei den Stellen mit ? kann ich das Geld nicht gut erkennen. Leg die Münzen mit etwas Abstand. Kein Schatten, keine Spiegelung. Mach bitte noch ein Foto.</div></div>`;
+    grund = 'Foto unklar'; zaehlt = false;
+    html = meldung(false, 'Ich bin mir nicht sicher.', 'Bei den Stellen mit ? kann ich das Geld nicht gut erkennen. Leg die Münzen mit etwas Abstand. Kein Schatten, keine Spiegelung. Mach bitte noch ein Foto.');
     sprich = 'Ich bin mir nicht sicher. Leg die Münzen mit etwas Abstand, ohne Schatten und ohne Spiegelung. Mach bitte noch ein Foto.';
   } else if (summe === soll) {
     gut = true;
-    const satz = verdeckt ? 'Dein Geld passt genau.' : `Das sind genau ${soll} €.`;
-    html = `<div class="meldung gut huepfen">${SYMBOL_GUT}<div><strong>Super${name}!</strong>${satz}</div></div>`;
-    sprich = `Super${name}! ${verdeckt ? 'Dein Geld passt genau.' : `Das sind genau ${soll} Euro.`}`;
+    const satz = verdeckt ? (rueck ? 'Dein Rückgeld passt genau.' : 'Dein Geld passt genau.') : (rueck ? `Das sind genau ${soll} € Rückgeld.` : `Das sind genau ${soll} €.`);
+    html = meldung(true, `Super${name}!`, satz, true);
+    sprich = `Super${name}! ${verdeckt ? satz : satz.replace('€', 'Euro')}`;
   } else {
     // Bewusst kein "zu viel / zu wenig": sonst wird geraten (Münze weg, neues Foto …).
     const zusatz = 'Rechne noch einmal und zähle dein Geld.';
     const betrag = betragZeigen ? `Ich sehe ${summe} €. ` : '';
-    html = `<div class="meldung hm">${SYMBOL_HM}<div><strong>Das passt noch nicht.</strong>${betrag}${zusatz}</div></div>`;
+    html = meldung(false, 'Das passt noch nicht.', betrag + zusatz);
     sprich = `Das passt noch nicht. ${betragZeigen ? `Ich sehe ${summe} Euro. ` : ''}${zusatz}`;
   }
   $('meldung').innerHTML = html;
@@ -717,16 +1044,20 @@ function pruefeGeld(neu) {
     ? `<span>Erkannt:</span>${geldHtml(objekte)}${!verdeckt && (gut || (betragZeigen && !unsicher)) ? `<strong style="margin-left:6px">= ${summe} €</strong>` : ''}`
     : '';
   $('knopf-foto').querySelector('span').textContent = gut ? 'Neues Foto' : 'Noch ein Foto';
-  geldOk = gut;
-  protokolliere(summe, gut, !neu, grund); // Korrektur ersetzt den letzten Eintrag
-  if (gut) { jubel(); }
+  if (neu && !gut && zaehlt) fehlversuche++;
+  if (!neu && !gut) { /* Korrektur von Hand: Fehlversuche nicht erneut zählen */ }
+  geloest = gut;
+  protokolliere(summe, gut, !neu, grund);
+  if (gut) jubel();
   sage(sprich);
   if (gut) {
-    if (E.schild !== 'aus') zeigeSchilder(); else $('weiter-reihe').hidden = false;
+    $('hilfe-reihe').hidden = true;
+    if (R.schild !== 'aus') zeigeSchilder(); else $('weiter-reihe').hidden = false;
   } else {
     $('schritt-schild').hidden = true; $('weiter-reihe').hidden = true;
+    bieteHilfe();
   }
-  if (neu) $('ergebnis').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  scanNeu();
 }
 
 // Korrektur durch die Lehrkraft: Markierungen antippen
@@ -761,13 +1092,13 @@ $('foto').addEventListener('click', ev => {
 });
 
 // ---------------------------------------------------------------------------
-// Schritt 2: Preis-Schild wählen
+// Preis-Schild wählen
 // ---------------------------------------------------------------------------
 function zeigeSchilder() {
-  const soll = aufgabe.summe;
+  const soll = aufgabe.loesung, R = aufgabe.regeln, rueck = aufgabe.art === 'rueckgeld';
   let werte;
-  if (E.schild === 'alle') {
-    werte = []; for (let i = 1; i <= Math.max(E.max, soll); i++) werte.push(i);
+  if (R.schild === 'alle') {
+    werte = []; for (let i = 1; i <= Math.max(R.max, soll); i++) werte.push(i);
   } else {
     const set = new Set([soll]);
     const nah = [soll - 1, soll + 1, soll - 2, soll + 2, soll + 10, soll - 10, soll + 3].filter(v => v >= 1 && v <= 30);
@@ -775,50 +1106,102 @@ function zeigeSchilder() {
     werte = [...set].sort((a, b) => a - b);
   }
   const box = $('schilder');
-  box.className = 'schilder' + (E.schild === 'alle' ? ' alle' : '');
-  box.innerHTML = werte.map(v => `<button class="preisschild" data-wert="${v}" aria-label="${v} Euro"><small>Gesamt-Preis:</small><span>${v} €</span></button>`).join('');
+  box.className = 'schilder' + (R.schild === 'alle' ? ' alle' : '');
+  const label = rueck ? 'Rückgeld:' : 'Gesamt-Preis:';
+  box.innerHTML = werte.map(v => `<button class="preisschild" data-scan data-wert="${v}" aria-label="${v} Euro"><small>${label}</small><span>${v} €</span></button>`).join('');
+  $('schild-auftrag').textContent = rueck ? 'Welches Schild passt zum Rückgeld?' : 'Welches Preis-Schild passt?';
   $('schild-meldung').innerHTML = '';
   $('schritt-schild').hidden = false;
   $('schritt-schild').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  setTimeout(() => sage('Welches Preis-Schild passt?'), 1600);
+  setTimeout(() => sage(rueck ? 'Welches Schild passt zum Rückgeld?' : 'Welches Preis-Schild passt?'), 1600);
+  scanNeu();
 }
 $('schilder').addEventListener('click', ev => {
-  const k = ev.target.closest('.preisschild'); if (!k || !geldOk) return;
-  const v = +k.dataset.wert, soll = aufgabe.summe;
+  const k = ev.target.closest('.preisschild'); if (!k || !geloest) return;
+  const v = +k.dataset.wert, soll = aufgabe.loesung, rueck = aufgabe.art === 'rueckgeld';
   if (v === soll) {
-    $('schilder').querySelectorAll('.preisschild').forEach(b => b.classList.toggle('falsch', +b.dataset.wert !== soll));
+    $('schilder').querySelectorAll('.preisschild').forEach(b => { b.classList.toggle('falsch', +b.dataset.wert !== soll); b.disabled = true; });
     k.classList.add('richtig');
-    $('schild-meldung').innerHTML = `<div class="meldung gut huepfen">${SYMBOL_GUT}<div><strong>Richtig!</strong>Gesamt-Preis: ${soll} €</div></div>`;
-    sage(`Richtig! Der Gesamt-Preis ist ${soll} Euro.`);
+    $('schild-meldung').innerHTML = meldung(true, 'Richtig!', `${rueck ? 'Rückgeld' : 'Gesamt-Preis'}: ${soll} €`, true);
+    sage(`Richtig! ${rueck ? 'Das Rückgeld' : 'Der Gesamt-Preis'} ist ${soll} Euro.`);
     jubel();
     $('weiter-reihe').hidden = false;
     $('weiter-reihe').scrollIntoView({ behavior: 'smooth', block: 'end' });
   } else {
-    k.classList.add('falsch');
-    $('schild-meldung').innerHTML = `<div class="meldung hm">${SYMBOL_HM}<div><strong>Schau noch mal.</strong>Zähle dein Geld auf dem Foto.</div></div>`;
+    k.classList.add('falsch'); k.disabled = true;
+    $('schild-meldung').innerHTML = meldung(false, 'Schau noch mal.', 'Zähle dein Geld auf dem Foto.');
     sage('Schau noch mal. Zähle dein Geld auf dem Foto.');
   }
+  scanNeu();
 });
 
 // ---------------------------------------------------------------------------
-// Runde
+// Reicht das Geld?
+// ---------------------------------------------------------------------------
+function budgetAntwort(ja) {
+  if (geloest) return;
+  versuche++;
+  const richtig = ja === aufgabe.loesung, name = E.name ? `, ${E.name}` : '';
+  if (richtig) {
+    geloest = true;
+    $('budget-meldung').innerHTML = meldung(true, `Super${name}!`, ja ? 'Das Geld reicht.' : 'Das Geld reicht nicht.', true);
+    sage(`Super${name}! ${ja ? 'Das Geld reicht.' : 'Das Geld reicht nicht.'}`);
+    $('knopf-ja').disabled = true; $('knopf-nein').disabled = true;
+    jubel(); $('weiter-reihe').hidden = false;
+  } else {
+    fehlversuche++;
+    $('budget-meldung').innerHTML = meldung(false, 'Schau noch einmal.', 'Rechne die Preise zusammen und vergleiche mit deinem Geld.');
+    sage('Schau noch einmal. Rechne die Preise zusammen und vergleiche mit deinem Geld.');
+    bieteHilfe();
+  }
+  protokolliere(null, richtig, false, ja ? 'Antwort: reicht' : 'Antwort: reicht nicht');
+  scanNeu();
+}
+$('knopf-ja').addEventListener('click', () => budgetAntwort(true));
+$('knopf-nein').addEventListener('click', () => budgetAntwort(false));
+
+// ---------------------------------------------------------------------------
+// Runde, Stufen
 // ---------------------------------------------------------------------------
 $('knopf-weiter').addEventListener('click', () => {
-  runde.ergebnisse.push({ versuche });
+  const leicht = versuche <= 2 && hilfeStufe === 0;
+  merkeAufgabe(leicht);
+  runde.ergebnisse.push({ versuche, leicht });
+  let neueStufe = false;
+  if (E.modus === 'stufen') {
+    if (leicht) { S.geloest++; S.schwerInFolge = 0; } else S.schwerInFolge++;
+    if (S.geloest >= E.aufstieg && S.nr < STUFEN.length) { S = { nr: S.nr + 1, geloest: 0, schwerInFolge: 0 }; neueStufe = true; }
+    else if (E.abstieg && S.schwerInFolge >= 3 && S.nr > 1) { S = { nr: S.nr - 1, geloest: 0, schwerInFolge: 0 }; neueStufe = 'zurueck'; }
+    speicher.schreiben('stufe', S);
+  }
   runde.nr++;
   if (runde.nr >= E.runde) return zeigeEnde();
   aufgabe = neueAufgabe();
   zeigeAufgabe();
-  setTimeout(vorlesenAufgabe, 400);
+  if (neueStufe) zeigeStufenKarte(neueStufe === 'zurueck');
+  else setTimeout(vorlesenAufgabe, 400);
 });
+function zeigeStufenKarte(zurueck) {
+  const st = STUFEN[S.nr - 1];
+  $('stufe-titel').textContent = st.titel;
+  $('stufe-text').textContent = zurueck ? 'Wir üben das noch ein bisschen. ' + st.text
+    : `${E.name ? 'Hallo ' + E.name + ', das' : 'Das'} klappt schon super! Du bist bereit für eine Neuerung: ${st.text}`;
+  $('dlg-stufe').querySelector('.neu-band').textContent = zurueck ? 'Noch einmal üben' : 'Neu ab hier';
+  $('dlg-stufe').showModal();
+  if (!zurueck) jubel(true);
+  sage($('stufe-text').textContent);
+  scanNeu();
+}
+$('knopf-stufe-ok').addEventListener('click', () => { $('dlg-stufe').close(); setTimeout(vorlesenAufgabe, 300); scanNeu(); });
 function zeigeEnde() {
   $('spiel').hidden = true; $('ende').hidden = false;
-  const beimErsten = runde.ergebnisse.filter(e => e.versuche === 1).length;
-  $('ende-text').textContent = `${E.name ? E.name + ', du' : 'Du'} hast ${E.runde} Aufgaben geschafft. ${beimErsten} davon beim ersten Foto!`;
-  $('sterne').innerHTML = runde.ergebnisse.map(e => STERN(e.versuche === 1)).join('');
+  const leicht = runde.ergebnisse.filter(e => e.leicht).length;
+  $('ende-text').textContent = `${E.name ? E.name + ', du' : 'Du'} hast ${E.runde} Aufgaben geschafft. ${leicht} davon ganz ohne Hilfe!`;
+  $('sterne').innerHTML = runde.ergebnisse.map(e => STERN(e.leicht)).join('');
   jubel(true);
   sage(`Geschafft! ${E.name ? E.name + ', du' : 'Du'} hast alle Aufgaben geschafft.`);
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  scanNeu();
 }
 $('knopf-neu').addEventListener('click', starteRunde);
 function starteRunde() {
@@ -838,17 +1221,18 @@ function sage(text) {
     // (mit dem Namen) an einen Server schicken.
     const stimme = speechSynthesis.getVoices().find(v => v.lang && v.lang.startsWith('de') && v.localService);
     if (!stimme) return;
-    const u = new SpeechSynthesisUtterance(text);
+    const u = new SpeechSynthesisUtterance(text.replace(/€/g, 'Euro'));
     u.lang = stimme.lang; u.voice = stimme; u.rate = 0.9;
     speechSynthesis.speak(u);
   } catch (e) { /* kein Vorlesen möglich */ }
 }
-// Manche Browser laden die Stimmenliste erst später.
 try { if ('speechSynthesis' in window) { speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices(); } } catch (e) { /* egal */ }
 function vorlesenAufgabe() {
   if (!aufgabe) return;
   const liste = aufgabe.waren.map(p => p.name.replace('-', ' ')).join(', ');
-  sage(`Ich möchte kaufen: ${liste}. Rechne aus, wie viel alles kostet. Lege das Geld und mach ein Foto.`);
+  if (aufgabe.art === 'rueckgeld') sage(`Ich möchte kaufen: ${liste}. Ich bezahle mit ${aufgabe.bezahlt} Euro. Wie viel bekomme ich zurück? Lege das Rückgeld und mach ein Foto.`);
+  else if (aufgabe.art === 'budget') sage(`Ich möchte kaufen: ${liste}. Ich habe ${aufgabe.bezahlt} Euro. Reicht das Geld?`);
+  else sage(`Ich möchte kaufen: ${liste}. Rechne aus, wie viel alles kostet. Lege das Geld und mach ein Foto.`);
 }
 $('knopf-vorlesen').addEventListener('click', () => {
   if (!$('ende').hidden) return sage($('ende-text').textContent);
@@ -873,64 +1257,181 @@ function jubel(gross) {
 }
 
 // ---------------------------------------------------------------------------
-// Protokoll (nur auf diesem Gerät)
+// Bedienung mit einem Taster: Markierung wandert von Knopf zu Knopf
+// ---------------------------------------------------------------------------
+let scanIndex = -1, scanTimer = null, scanZiel = null;
+function scanZiele() {
+  if (!$('dlg-lehrkraft').hidden && $('dlg-lehrkraft').open) return [];
+  if (!$('kamera-ansicht').hidden) return [...document.querySelectorAll('[data-scan-kamera]')];
+  for (const d of ['dlg-stufe', 'dlg-preisliste']) if ($(d).open) return [...$(d).querySelectorAll('[data-scan-dialog]')];
+  return [...document.querySelectorAll('[data-scan]')].filter(el => !el.disabled && el.offsetParent !== null && !el.closest('[hidden]'));
+}
+function scanMarkiere(el) {
+  if (scanZiel) scanZiel.classList.remove('scan');
+  scanZiel = el;
+  if (el) { el.classList.add('scan'); el.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+}
+function scanSchritt() {
+  if (E.taster === 'aus') { scanMarkiere(null); return; }
+  const ziele = scanZiele();
+  if (!ziele.length) { scanMarkiere(null); return; }
+  scanIndex = (scanIndex + 1) % ziele.length;
+  scanMarkiere(ziele[scanIndex]);
+}
+function scanNeu() {
+  clearInterval(scanTimer); scanTimer = null;
+  if (E.taster === 'aus') { scanMarkiere(null); return; }
+  scanIndex = -1;
+  setTimeout(scanSchritt, 50);
+  scanTimer = setInterval(scanSchritt, E.tempo);
+}
+function scanWaehle() {
+  if (!scanZiel || !document.contains(scanZiel)) return;
+  const el = scanZiel;
+  scanMarkiere(null);
+  el.click();
+  scanNeu();
+}
+document.addEventListener('keydown', ev => {
+  if (E.taster === 'aus' || $('dlg-lehrkraft').open) return;
+  if (ev.key === ' ' || ev.key === 'Enter') { ev.preventDefault(); scanWaehle(); }
+}, true);
+document.addEventListener('pointerdown', ev => {
+  if (E.taster !== 'bildschirm' || $('dlg-lehrkraft').open) return;
+  if (ev.target.closest('#knopf-lehrkraft')) return;   // Lehrkraft-Knopf bleibt normal bedienbar
+  ev.preventDefault(); ev.stopPropagation();
+  scanWaehle();
+}, true);
+document.addEventListener('click', ev => {
+  // Im Bildschirm-Taster-Modus zählen nur Auswahlen über die Markierung.
+  if (E.taster !== 'bildschirm' || $('dlg-lehrkraft').open || !ev.isTrusted) return;
+  if (ev.target.closest('#knopf-lehrkraft')) return;
+  ev.preventDefault(); ev.stopPropagation();
+}, true);
+
+// ---------------------------------------------------------------------------
+// Protokoll (pro Foto) und Auswertung (pro Aufgabe) – nur auf diesem Gerät
 // ---------------------------------------------------------------------------
 function protokolliere(erkannt, richtig, ersetzen, grund) {
   const liste = speicher.lesen('protokoll', []);
   if (ersetzen && liste.length) liste.shift();
   let foto = '';
-  if (E.fotos) try {
+  if (E.fotos && analyse && aufgabe.art !== 'budget') try {
     const c = document.createElement('canvas'), q = $('foto'), f = 240 / Math.max(q.width, q.height);
     c.width = Math.round(q.width * f); c.height = Math.round(q.height * f);
     c.getContext('2d').drawImage(q, 0, 0, c.width, c.height);
     foto = c.toDataURL('image/jpeg', 0.6);
   } catch (e) { /* ohne Vorschaubild */ }
   liste.unshift({
-    zeit: Date.now(), waren: aufgabe.waren.map(p => p.name), soll: aufgabe.summe,
-    erkannt, richtig, grund, versuch: versuche, korrigiert: analyse.korrigiert, foto,
+    zeit: Date.now(), art: aufgabe.art, waren: aufgabe.waren.map(p => p.name), soll: aufgabe.art === 'budget' ? null : aufgabe.loesung,
+    erkannt, richtig, grund, versuch: versuche, korrigiert: !!(analyse && analyse.korrigiert), foto,
   });
   speicher.schreiben('protokoll', liste.slice(0, 60));
 }
+function merkeAufgabe(leicht) {
+  const liste = speicher.lesen('aufgaben', []);
+  liste.push({ zeit: Date.now(), art: aufgabe.art, stufe: aufgabe.regeln.stufe, betrag: aufgabe.art === 'budget' ? aufgabe.summe : aufgabe.loesung,
+               anzahl: aufgabe.waren.length, versuche, hilfe: hilfeStufe, leicht });
+  speicher.schreiben('aufgaben', liste.slice(-1500));
+}
+const ARTNAME = { kaufen: 'Einkaufen', rueckgeld: 'Rückgeld', budget: 'Reicht das Geld?' };
+function bereich(b) { return b <= 5 ? 'bis 5 €' : b <= 10 ? '6–10 €' : b <= 15 ? '11–15 €' : b <= 20 ? '16–20 €' : 'über 20 €'; }
+function aufgabenImZeitraum() {
+  const tage = +$('a-zeitraum').value, ab = tage ? Date.now() - tage * 864e5 : 0;
+  return speicher.lesen('aufgaben', []).filter(a => a.zeit >= ab);
+}
+function gruppiere(liste, schluessel) {
+  const m = new Map();
+  for (const a of liste) { const k = schluessel(a); if (!m.has(k)) m.set(k, []); m.get(k).push(a); }
+  return [...m.entries()].map(([k, l]) => ({
+    name: k, n: l.length, leicht: l.filter(a => a.leicht).length,
+    ersterVersuch: l.filter(a => a.versuche === 1).length,
+    schnitt: l.reduce((s, a) => s + a.versuche, 0) / l.length, hilfe: l.filter(a => a.hilfe > 0).length,
+  }));
+}
+function tabelle(titel, zeilen) {
+  if (!zeilen.length) return '';
+  const pz = (a, b) => Math.round(100 * a / b);
+  return `<div class="tabelle-huelle"><table class="tabelle"><thead><tr><th>${titel}</th><th>Aufgaben</th><th>ohne Hilfe gelöst</th><th>beim 1. Versuch</th><th>Ø Versuche</th><th>mit Hilfe</th></tr></thead><tbody>` +
+    zeilen.map(z => `<tr><td>${z.name}</td><td>${z.n}</td><td><span class="balken" style="width:${pz(z.leicht, z.n) * 0.6}px"></span>${pz(z.leicht, z.n)} %</td><td>${pz(z.ersterVersuch, z.n)} %</td><td>${z.schnitt.toLocaleString('de-DE', { maximumFractionDigits: 1 })}</td><td>${z.hilfe}</td></tr>`).join('') +
+    '</tbody></table></div>';
+}
+function zeigeBericht() {
+  const liste = aufgabenImZeitraum(), box = $('bericht');
+  if (!liste.length) { box.innerHTML = '<p class="leer">Im gewählten Zeitraum wurden noch keine Aufgaben gelöst.</p>'; return; }
+  const ohne = liste.filter(a => a.leicht).length, pz = Math.round(100 * ohne / liste.length);
+  const nachBereich = gruppiere(liste, a => bereich(a.betrag)).sort((a, b) => ['bis 5 €', '6–10 €', '11–15 €', '16–20 €', 'über 20 €'].indexOf(a.name) - ['bis 5 €', '6–10 €', '11–15 €', '16–20 €', 'über 20 €'].indexOf(b.name));
+  const sicher = nachBereich.filter(z => z.n >= 3 && z.leicht / z.n >= 0.8).map(z => z.name);
+  const schwer = nachBereich.filter(z => z.n >= 3 && z.leicht / z.n < 0.6).map(z => z.name);
+  const tage = new Set(liste.map(a => new Date(a.zeit).toDateString())).size;
+  const stufen = liste.filter(a => a.stufe).map(a => a.stufe);
+  let text = `${liste.length} Aufgaben an ${tage} ${tage === 1 ? 'Tag' : 'Tagen'}, davon ${pz} % ohne Hilfe gelöst (höchstens 2 Fotos).`;
+  if (stufen.length) text += ` Stufe zuletzt: ${stufen[stufen.length - 1]} („${STUFEN[stufen[stufen.length - 1] - 1].titel}“).`;
+  if (sicher.length) text += ` Sicher: ${sicher.join(', ')}.`;
+  if (schwer.length) text += ` Noch schwierig: ${schwer.join(', ')}.`;
+  box.innerHTML = `<p class="zusammenfassung">${text}</p>` +
+    tabelle('Aufgabe / Stufe', gruppiere(liste, a => a.stufe ? `Stufe ${a.stufe}: ${STUFEN[a.stufe - 1].titel}` : ARTNAME[a.art] || a.art).sort((a, b) => a.name.localeCompare(b.name, 'de', { numeric: true }))) +
+    tabelle('Betrag', nachBereich) +
+    tabelle('Anzahl Sachen', gruppiere(liste, a => `${a.anzahl} ${a.anzahl === 1 ? 'Sache' : 'Sachen'}`).sort((a, b) => a.name.localeCompare(b.name, 'de', { numeric: true }))) +
+    `<p class="fuss">Stand ${new Date().toLocaleDateString('de-DE')} · Kirmes-Kiosk ${VERSION}. „Ohne Hilfe gelöst“: mit höchstens 2 Fotos bzw. Antworten und ohne die Hilfe-Knöpfe.</p>`;
+}
+$('a-zeitraum').addEventListener('change', zeigeBericht);
+$('knopf-drucken').addEventListener('click', () => { zeigeBericht(); window.print(); });
+$('knopf-csv').addEventListener('click', () => {
+  const liste = aufgabenImZeitraum();
+  const kopf = ['Datum', 'Uhrzeit', 'Aufgabe', 'Stufe', 'Betrag (€)', 'Sachen', 'Versuche', 'Hilfe', 'ohne Hilfe gelöst'];
+  const zeilen = liste.map(a => { const d = new Date(a.zeit); return [d.toLocaleDateString('de-DE'), d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }),
+    ARTNAME[a.art] || a.art, a.stufe || '', a.betrag, a.anzahl, a.versuche, ['nein', 'Preise', 'Schritt für Schritt'][a.hilfe] || a.hilfe, a.leicht ? 'ja' : 'nein']; });
+  const csv = '﻿' + [kopf, ...zeilen].map(z => z.map(v => `"${String(v).replace(/"/g, '""')}"`).join(';')).join('\r\n');
+  const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  const a = document.createElement('a'); a.href = url; a.download = `kirmes-kiosk-auswertung-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000);
+});
 function zeigeProtokoll() {
   const liste = speicher.lesen('protokoll', []);
   const richtig = liste.filter(e => e.richtig).length;
   $('statistik').innerHTML = liste.length
-    ? `<span>Fotos: <strong>${liste.length}</strong></span><span>richtig: <strong>${richtig}</strong></span><span>noch nicht: <strong>${liste.length - richtig}</strong></span><span>korrigiert: <strong>${liste.filter(e => e.korrigiert).length}</strong></span>`
+    ? `<span>Einträge: <strong>${liste.length}</strong></span><span>richtig: <strong>${richtig}</strong></span><span>noch nicht: <strong>${liste.length - richtig}</strong></span><span>korrigiert: <strong>${liste.filter(e => e.korrigiert).length}</strong></span>`
     : '';
   $('protokoll').innerHTML = liste.length ? liste.map(e => {
     const d = new Date(e.zeit);
     const wann = d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' }) + ', ' + d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    const zeile3 = e.art === 'budget' ? `Reicht das Geld? · ${e.grund || ''}`
+      : `${e.art === 'rueckgeld' ? 'Rückgeld' : 'Preis'} ${e.soll} € · erkannt ${e.erkannt} € · ${e.versuch}. Foto${e.grund ? ' · ' + e.grund : ''}${e.korrigiert ? ' · von Hand korrigiert' : ''}`;
     return `<div class="eintrag">${e.foto ? `<img src="${e.foto}" alt="Foto vom Geld">` : '<span></span>'}<div>
       <div><span class="status ${e.richtig ? 'ok' : 'nein'}">${e.richtig ? 'richtig' : 'noch nicht richtig'}</span> · ${wann}</div>
-      <div>${e.waren.join(', ')}</div>
-      <div>Preis ${e.soll} € · erkannt ${e.erkannt} € · ${e.versuch}. Foto${e.grund ? ' · ' + e.grund : ''}${e.korrigiert ? ' · von Hand korrigiert' : ''}</div></div></div>`;
-  }).join('') : '<p class="leer">Noch keine Fotos.</p>';
+      <div>${e.waren.join(', ')}</div><div>${zeile3}</div></div></div>`;
+  }).join('') : '<p class="leer">Noch keine Einträge.</p>';
 }
-function escapeHtml(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
 $('knopf-protokoll-loeschen').addEventListener('click', () => { $('loeschen-frage').hidden = false; });
 $('knopf-loeschen-nein').addEventListener('click', () => { $('loeschen-frage').hidden = true; });
+$('knopf-loeschen-ja').addEventListener('click', () => {
+  speicher.schreiben('protokoll', []); speicher.schreiben('aufgaben', []);
+  $('loeschen-frage').hidden = true; zeigeProtokoll(); zeigeBericht();
+});
 $('knopf-alles-loeschen').addEventListener('click', () => { $('alles-frage').hidden = false; });
 $('knopf-alles-nein').addEventListener('click', () => { $('alles-frage').hidden = true; });
 $('knopf-alles-ja').addEventListener('click', () => {
   try { Object.keys(localStorage).filter(k => k.startsWith('kirmes-')).forEach(k => localStorage.removeItem(k)); } catch (e) { /* kein Speicher */ }
   E = Object.assign({}, STANDARD, ausLink());
+  S = { nr: E.start, geloest: 0, schwerInFolge: 0 };
   $('alles-frage').hidden = true;
   $('dlg-lehrkraft').close();
   starteRunde();
 });
-$('knopf-loeschen-ja').addEventListener('click', () => {
-  speicher.schreiben('protokoll', []); $('loeschen-frage').hidden = true; zeigeProtokoll();
-});
 
 // ---------------------------------------------------------------------------
-// Dialoge
+// Dialoge, Preisliste, Lehrkraft-Bereich
 // ---------------------------------------------------------------------------
-document.querySelectorAll('[data-schliessen]').forEach(b => b.addEventListener('click', () => b.closest('dialog').close()));
-document.querySelectorAll('dialog').forEach(d => d.addEventListener('click', ev => { if (ev.target === d) d.close(); }));
+document.querySelectorAll('[data-schliessen]').forEach(b => b.addEventListener('click', () => { b.closest('dialog').close(); scanNeu(); }));
+document.querySelectorAll('dialog').forEach(d => d.addEventListener('click', ev => { if (ev.target === d && d.id !== 'dlg-stufe') { d.close(); scanNeu(); } }));
+$('dlg-lehrkraft').addEventListener('close', scanNeu);
 
 $('preisliste').innerHTML = PRODUKTE.slice().sort((a, b) => a.preis - b.preis || a.name.localeCompare(b.name, 'de')).map(p =>
   `<div class="produkt"><img src="${bild(p)}" alt="" loading="lazy"><div style="text-align:center"><div class="name">${p.name}</div><span class="preis">${p.preis} €</span></div></div>`).join('');
-$('knopf-preisliste').addEventListener('click', () => $('dlg-preisliste').showModal());
+$('knopf-preisliste').addEventListener('click', () => { $('dlg-preisliste').showModal(); scanNeu(); });
+
+$('e-start').innerHTML = STUFEN.map((st, i) => `<option value="${i + 1}">Stufe ${i + 1}: ${st.titel}</option>`).join('');
 
 // Lehrkraft-Bereich: gedrückt halten (damit Kinder ihn nicht aus Versehen öffnen)
 (function () {
@@ -940,35 +1441,50 @@ $('knopf-preisliste').addEventListener('click', () => $('dlg-preisliste').showMo
   k.addEventListener('pointerdown', start); k.addEventListener('pointerup', stop);
   k.addEventListener('pointerleave', stop); k.addEventListener('pointercancel', stop);
   k.addEventListener('contextmenu', ev => ev.preventDefault());
-  k.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); oeffneLehrkraft(); } });
+  k.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); ev.stopPropagation(); oeffneLehrkraft(); } });
 })();
 function oeffneLehrkraft() {
-  $('e-name').value = E.name; $('e-anzahl').value = E.anzahl; $('e-betrag').value = E.betrag;
-  setzeAuswahl($('e-max'), E.max); setzeAuswahl($('e-runde'), E.runde); setzeAuswahl($('e-einer'), E.einer);
-  $('e-schild').value = E.schild;
-  for (const k of ['preise', 'doppelt', 'betragzeigen', 'ton', 'fotos']) $('e-' + k).checked = !!E[k];
-  aktualisiereLink(); zeigeProtokoll(); $('loeschen-frage').hidden = true; $('alles-frage').hidden = true;
+  clearInterval(scanTimer); scanMarkiere(null);
+  $('e-name').value = E.name; $('e-modus').value = E.modus;
+  setzeAuswahl($('e-start'), S.nr); setzeAuswahl($('e-aufstieg'), E.aufstieg);
+  $('e-art').value = E.art; $('e-anzahl').value = E.anzahl; $('e-betrag').value = E.betrag;
+  setzeAuswahl($('e-max'), E.max); setzeAuswahl($('e-bezahlt'), E.bezahlt); setzeAuswahl($('e-runde'), E.runde); setzeAuswahl($('e-einer'), E.einer);
+  $('e-schild').value = E.schild; $('e-taster').value = E.taster; setzeAuswahl($('e-tempo'), E.tempo);
+  for (const k of SCHALTER) $('e-' + k).checked = !!E[k];
+  $('stufe-info').textContent = `Aktuell: Stufe ${S.nr} („${STUFEN[S.nr - 1].titel}“), ${S.geloest} von ${E.aufstieg} Aufgaben bis zur nächsten Stufe.`;
+  $('version').textContent = `Kirmes-Kiosk ${VERSION} · Stand ${STAND}${navigator.serviceWorker && navigator.serviceWorker.controller ? ' · offline verfügbar' : ''}`;
+  modusAnzeigen(); aktualisiereLink(); zeigeProtokoll(); zeigeBericht();
+  $('loeschen-frage').hidden = true; $('alles-frage').hidden = true;
   $('dlg-lehrkraft').showModal();
 }
+function modusAnzeigen() {
+  const stufen = $('e-modus').value === 'stufen';
+  document.querySelectorAll('.nur-stufen').forEach(el => { el.hidden = !stufen; });
+  document.querySelectorAll('.nur-fest').forEach(el => { el.hidden = stufen; });
+}
+$('e-modus').addEventListener('change', modusAnzeigen);
 function setzeAuswahl(sel, wert) {
   if (![...sel.options].some(o => +o.value === +wert)) sel.add(new Option(String(wert), String(wert)));
   sel.value = String(wert);
 }
 function leseFormular() {
-  return {
-    name: $('e-name').value.trim().slice(0, 30), anzahl: +$('e-anzahl').value, betrag: $('e-betrag').value,
-    max: +$('e-max').value, runde: +$('e-runde').value, einer: +$('e-einer').value, schild: $('e-schild').value,
-    preise: $('e-preise').checked, doppelt: $('e-doppelt').checked,
-    betragzeigen: $('e-betragzeigen').checked, ton: $('e-ton').checked, fotos: $('e-fotos').checked,
+  const f = {
+    name: $('e-name').value.trim().slice(0, 30), modus: $('e-modus').value, start: +$('e-start').value, aufstieg: +$('e-aufstieg').value,
+    art: $('e-art').value, anzahl: +$('e-anzahl').value, betrag: $('e-betrag').value, max: +$('e-max').value, bezahlt: +$('e-bezahlt').value,
+    runde: +$('e-runde').value, einer: +$('e-einer').value, schild: $('e-schild').value, taster: $('e-taster').value, tempo: +$('e-tempo').value,
   };
+  for (const k of SCHALTER) f[k] = $('e-' + k).checked;
+  return f;
 }
 function aktualisiereLink() {
   const f = leseFormular(), q = new URLSearchParams();
-  q.set('anzahl', f.anzahl); q.set('betrag', f.betrag); q.set('max', f.max); q.set('runde', f.runde);
-  if (f.einer) q.set('einer', f.einer);
-  if (f.schild !== 'aus') q.set('schild', f.schild);
-  for (const k of ['preise', 'doppelt', 'betragzeigen', 'ton', 'fotos']) if (f[k] !== STANDARD[k]) q.set(k, f[k] ? '1' : '0');
-  const basis = location.protocol.startsWith('http') ? location.origin + location.pathname : 'https://DEIN-NAME.github.io/kirmes-kiosk/';
+  q.set('modus', f.modus);
+  if (f.modus === 'stufen') { q.set('stufe', f.start); q.set('aufstieg', f.aufstieg); }
+  else { q.set('art', f.art); q.set('anzahl', f.anzahl); q.set('betrag', f.betrag); q.set('max', f.max); if (f.art !== 'kaufen') q.set('bezahlt', f.bezahlt); if (f.einer) q.set('einer', f.einer); if (f.schild !== 'aus') q.set('schild', f.schild); }
+  q.set('runde', f.runde);
+  if (f.taster !== 'aus') { q.set('taster', f.taster); q.set('tempo', f.tempo); }
+  for (const k of SCHALTER) if (f[k] !== STANDARD[k]) q.set(k, f[k] ? '1' : '0');
+  const basis = location.protocol.startsWith('http') ? location.origin + location.pathname : 'https://walteroelf.github.io/kirmes-kiosk/';
   $('link-text').textContent = basis + '?' + q.toString();
 }
 $('dlg-lehrkraft').addEventListener('input', aktualisiereLink);
@@ -983,13 +1499,24 @@ $('knopf-link').addEventListener('click', async () => {
   setTimeout(() => { $('knopf-link').textContent = 'Kopieren'; }, 1800);
 });
 $('knopf-uebernehmen').addEventListener('click', () => {
-  E = leseFormular();
-  speicher.schreiben('einstellungen', E);
+  const f = leseFormular();
+  const stufeGeaendert = f.start !== S.nr || f.modus !== E.modus;
+  E = f;
+  if (stufeGeaendert) S = { nr: E.start, geloest: 0, schwerInFolge: 0 };
+  speicher.schreiben('einstellungen', E); speicher.schreiben('stufe', S);
   $('dlg-lehrkraft').close();
   starteRunde();
 });
 
+// ---------------------------------------------------------------------------
+// Offline-Fähigkeit (Service Worker)
+// ---------------------------------------------------------------------------
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => { /* ohne Offline-Modus */ }); });
+}
+
 // Start
+speicher.schreiben('stufe', S);
 starteRunde();
 </script>
 </body>
