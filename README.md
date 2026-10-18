@@ -73,9 +73,13 @@ Bitte keine Fotos auf GitHub hochladen, auf denen Kinder zu erkennen sind. Für 
 
 ## Wie die Erkennung arbeitet
 
+0. **Weißabgleich über das Papier**: Die App schätzt an jeder Stelle die Farbe des Blatts und rechnet sie auf neutrales Weiß um. Das gleicht Farbstich (Glühbirne, Neonröhre, Fensterlicht) und Schatten aus.
 1. Alles, was sich vom hellen Papier abhebt, wird als Fläche ausgeschnitten.
 2. Ovale Flächen sind Münzen. **1 €**: Ring golden, Mitte silbern. **2 €**: Mitte golden, Ring silbern. Einfarbig goldene Münzen sind Cent-Münzen und zählen 0 €.
 3. Sich berührende Münzen werden an der engsten Stelle getrennt.
 4. Große rechteckige, bedruckte Flächen sind Scheine, die Farbe entscheidet: 5 € grau-grün, 10 € rot, 20 € blau, 50 € orange.
 
-Getestet mit 15 Fotos von Spielgeld auf der Unterlage: alle Beträge richtig erkannt. 10-€- und 20-€-Scheine waren auf den Testfotos nicht dabei; ihre Erkennung ist deshalb noch nicht an echtem Spielgeld geprüft.
+5. Farben werden als Median gemessen; Glanzlichter und tiefe Schatten zählen nicht mit. Verdeckt ein Glanzfleck die Mitte, entscheidet der Ring allein.
+6. **Unsichere Stellen** (verschmolzene Münzen, starker Glanz, scheinbar „ganz goldene“ Münzen) werden gestrichelt mit **?** markiert. Passt der Betrag dann nicht, sagt die App nicht „falsch“, sondern bittet um ein neues Foto.
+
+Getestet mit 15 Fotos von Spielgeld auf der Unterlage, jeweils in 9 Lichtvarianten (Original, warmes, kaltes und grünliches Licht, dunkel mit Bildrauschen, Schattenverlauf, harte Schattenkante, Spiegelungen auf allen Münzen, alles zusammen). Von 135 Fällen: 119 richtig erkannt, 12-mal um ein neues Foto gebeten, 4-mal ein falsches Urteil (fast nur in der Extremvariante „alles zusammen“ oder wenn ein Preisschild mit im Bild lag). 1 € und 2 € wurden in keinem Fall vertauscht. 10-€- und 20-€-Scheine waren auf den Testfotos nicht dabei; ihre Erkennung ist deshalb noch nicht an echtem Spielgeld geprüft.

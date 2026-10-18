@@ -302,7 +302,7 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
       <span>Foto vom Geld</span>
     </label>
     <input type="file" id="kamera" accept="image/*" capture="environment" hidden>
-    <p class="tipp">Geld auf ein weißes Blatt legen · Münzen nicht übereinander · von oben fotografieren</p>
+    <p class="tipp">Geld auf ein weißes Blatt legen · Münzen mit Abstand · kein Schatten, keine Spiegelung · von oben fotografieren</p>
 
     <div class="ergebnis" id="ergebnis" hidden>
       <div class="lade" id="lade" hidden>Ich zähle das Geld …</div>
@@ -653,14 +653,15 @@ function zeichneFoto() {
   g.drawImage(b, 0, 0);
   const s = Math.max(b.width, b.height) / 900;
   for (const o of analyse.objekte) {
-    if (o.wert === null) continue;
-    const farbe = o.art === 'schein' ? '#1f6fd1' : o.wert === 0 ? '#8a5a00' : o.wert === 2 ? '#d1561f' : '#15803d';
+    const unklar = o.art === 'unklar' || o.sicher === false;
+    const farbe = o.art === 'unklar' ? '#b45309' : o.art === 'schein' ? '#1f6fd1' : o.wert === 0 ? '#8a5a00' : o.wert === 2 ? '#d1561f' : '#15803d';
     g.save(); g.translate(o.x, o.y); g.rotate(o.winkel);
+    if (unklar) g.setLineDash([9 * s, 6 * s]);
     g.lineWidth = 5 * s; g.strokeStyle = '#fff';
     g.beginPath(); g.ellipse(0, 0, o.a * 1.05 + 3 * s, o.b * 1.05 + 3 * s, 0, 0, Math.PI * 2); g.stroke();
     g.lineWidth = 3.5 * s; g.strokeStyle = farbe; g.stroke();
     g.restore();
-    const text = o.wert === 0 ? 'ct' : `${o.wert} €`;
+    const text = o.art === 'unklar' ? '?' : (o.wert === 0 ? 'ct' : `${o.wert} €`) + (o.sicher === false ? '?' : '');
     g.font = `700 ${Math.round(22 * s)}px Andika, sans-serif`;
     const tw = g.measureText(text).width + 14 * s, th = 30 * s;
     const lx = o.x - tw / 2, ly = o.y - th / 2;
@@ -684,14 +685,22 @@ function pruefeGeld(neu) {
   // sonst verrät die App die Lösung.
   const verdeckt = E.schild !== 'aus';
   const betragZeigen = E.betragzeigen && !verdeckt;
+  // Unklare Stellen (verschmolzene Münzen, starker Glanz): lieber ein neues Foto
+  // erbitten als das Kind zu Unrecht zu korrigieren. Nach einer Korrektur von Hand
+  // entscheidet die Lehrkraft.
+  const unsicher = !analyse.korrigiert && analyse.objekte.some(o => o.art === 'unklar' || o.sicher === false);
   let html, gut = false, sprich, grund = '';
-  if (!objekte.length) {
+  if (!objekte.length && !unsicher) {
     html = `<div class="meldung hm">${SYMBOL_HM}<div><strong>Ich sehe kein Geld.</strong>Leg das Geld auf ein weißes Blatt und fotografiere von oben.</div></div>`;
     sprich = 'Ich sehe kein Geld. Leg das Geld auf ein weißes Blatt und fotografiere von oben.';
   } else if (summe === soll && E.einer > 0 && einer > E.einer) {
     html = `<div class="meldung hm">${SYMBOL_HM}<div><strong>Der Betrag stimmt!</strong>Aber du hast ${einer} Ein-Euro-Münzen. Erlaubt sind höchstens ${E.einer === 1 ? 'eine' : E.einer}. Tausche zwei 1 € gegen ein 2-€-Stück.</div></div>`;
     grund = 'zu viele 1-€-Münzen';
     sprich = `Der Betrag stimmt. Aber du hast zu viele Ein-Euro-Münzen. Tausche zwei Ein-Euro-Münzen gegen ein Zwei-Euro-Stück.`;
+  } else if (summe !== soll && unsicher) {
+    grund = 'Foto unklar';
+    html = `<div class="meldung hm">${SYMBOL_HM}<div><strong>Ich bin mir nicht sicher.</strong>Bei den Stellen mit ? kann ich das Geld nicht gut erkennen. Leg die Münzen mit etwas Abstand. Kein Schatten, keine Spiegelung. Mach bitte noch ein Foto.</div></div>`;
+    sprich = 'Ich bin mir nicht sicher. Leg die Münzen mit etwas Abstand, ohne Schatten und ohne Spiegelung. Mach bitte noch ein Foto.';
   } else if (summe === soll) {
     gut = true;
     const satz = verdeckt ? 'Dein Geld passt genau.' : `Das sind genau ${soll} €.`;
@@ -706,7 +715,7 @@ function pruefeGeld(neu) {
   }
   $('meldung').innerHTML = html;
   $('erkannt').innerHTML = objekte.length
-    ? `<span>Erkannt:</span>${geldHtml(objekte)}${!verdeckt && (betragZeigen || gut) ? `<strong style="margin-left:6px">= ${summe} €</strong>` : ''}`
+    ? `<span>Erkannt:</span>${geldHtml(objekte)}${!verdeckt && (gut || (betragZeigen && !unsicher)) ? `<strong style="margin-left:6px">= ${summe} €</strong>` : ''}`
     : '';
   $('knopf-foto').querySelector('span').textContent = gut ? 'Neues Foto' : 'Noch ein Foto';
   geldOk = gut;
@@ -742,7 +751,7 @@ $('foto').addEventListener('click', ev => {
     const i = folge.indexOf(treffer.wert);
     const neu = folge[(i + 1) % folge.length];
     if (neu === null) analyse.objekte.splice(analyse.objekte.indexOf(treffer), 1);
-    else { treffer.wert = neu; treffer.art = neu >= 5 ? 'schein' : 'muenze'; }
+    else { treffer.wert = neu; treffer.art = neu >= 5 ? 'schein' : 'muenze'; treffer.sicher = true; }
   } else {
     const typ = analyse.objekte.find(o => o.art === 'muenze');
     const a = typ ? typ.a : c.width * 0.04, b = typ ? typ.b : c.width * 0.04;
