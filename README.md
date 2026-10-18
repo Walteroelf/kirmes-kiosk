@@ -104,16 +104,18 @@ GitHub Pages ist der Webhoster: Beim Aufruf verarbeitet GitHub wie jeder Webserv
 3. Sich berührende Münzen werden an der engsten Stelle getrennt.
 4. Große rechteckige, bedruckte Flächen sind Scheine; die Farbe entscheidet: 5 € grau-grün, 10 € rot, 20 € blau, 50 € orange. Ein Schein ist etwa 18-mal so groß wie eine Münze – deutlich größere Flächen oder zwei Scheinfarben in einer Fläche gelten als „überlappende Scheine“ → neues Foto.
 5. **Münzen auf Scheinen** werden über ihre goldenen Teile gefunden.
+   Einfarbig goldene Kreise (gedruckte Münz-Bildchen auf der Unterlage, Cent-Münzen) werden ignoriert – die Aufgaben rechnen nur mit ganzen Euro.
+   Nah fotografierte Münzen: Die App erkennt die Münzgröße und passt den Weißabgleich daran an.
 6. Farben werden als Median gemessen; Glanzlichter zählen nicht. Verdeckt Glanz die Mitte, entscheidet der Ring.
 7. Unsichere Stellen → **?** und Bitte um ein neues Foto.
 
 ## Tests
 
-**Automatisch (bei jeder Änderung auf GitHub):** `node tests/test.js` erzeugt rund 100 künstliche Szenen (normal, 5-/10-/20-€-Scheine, zwei Scheine, überlappende Scheine, Münze auf Schein, sich berührende Münzen, warmes und kaltes Licht, Schattenverlauf, Schattenkante, Spiegelungen, dunkel, unscharf, viele Münzen) und prüft den Fotocheck. Stand Version 2.0.0: 88 von 102 Szenen richtig, 13-mal Bitte um neues Foto, 1 falsches Urteil (bei überlappenden Scheinen).
+**Automatisch (bei jeder Änderung auf GitHub):** `node tests/test.js` erzeugt rund 150 künstliche Szenen (normal, 5-/10-/20-€-Scheine, zwei Scheine, überlappende Scheine, Münze auf Schein, sich berührende Münzen, warmes und kaltes Licht, Schattenverlauf, Schattenkante, Spiegelungen, dunkel, unscharf, viele Münzen, **nah fotografiert** – auch mit Schein, Tischkante, warmem Licht und **Kopfzeile der Unterlage mit gedruckten Münz-Bildchen** und Preisschild) und prüft den Fotocheck. Stand Version 2.0.2: 140 von 146 Szenen richtig, 5-mal Bitte um neues Foto, 1 falsches Urteil (bei überlappenden Scheinen).
 
 **Echte Fotos:** `tests/pruefen.html` öffnen (z. B. `…/kirmes-kiosk/tests/pruefen.html`), Fotos hineinziehen. Steht der richtige Betrag im Dateinamen (`12euro.jpg`), wird automatisch verglichen. Nichts wird hochgeladen. Bitte keine Fotos mit Kindern ins Repository legen.
 
-Bisher an 15 echten Spielgeld-Fotos geprüft (14 richtig, 1-mal neues Foto). 10-€- und 20-€-Scheine sowie Münzen auf Scheinen sind bisher nur an künstlichen Szenen getestet.
+Bisher an 15 echten Spielgeld-Fotos geprüft (14 richtig, 1-mal neues Foto, auch bei warmem, kaltem und grünlichem Licht). 10-€- und 20-€-Scheine sowie Münzen auf Scheinen sind bisher nur an künstlichen Szenen getestet.
 
 ## Neue Version veröffentlichen
 

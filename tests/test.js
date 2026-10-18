@@ -40,6 +40,15 @@ const gruppen = [
   ['dunkel',            6, { dunkel: 0.55, rauschen: 12 }, 1],
   ['leicht unscharf',   6, { unschaerfe: 1 }, 1],
   ['viele Münzen',      6, { muenzen: 10, groesse: 20 }, 1],
+  // Kamera in der App, nah fotografiert (900 x 675, Videobild leicht weich)
+  ['nah dran',          8, { w: 900, h: 675, nah: true, groesse: 55, muenzen: 4, unschaerfe: 1, perspektive: 0.85 }, 0],
+  ['sehr nah',          6, { w: 900, h: 675, nah: true, groesse: 85, muenzen: 3, unschaerfe: 1, perspektive: 0.9 }, 0],
+  ['nah + Tischkante',  6, { w: 900, h: 675, nah: true, groesse: 55, muenzen: 4, unschaerfe: 1, tischkante: 0.18, tisch: [168, 112, 62] }, 0],
+  ['nah + Schein',      6, { w: 900, h: 675, nah: true, groesse: 40, muenzen: 3, scheine: [5], unschaerfe: 1 }, 1],
+  ['nah + warmes Licht', 6, { w: 900, h: 675, nah: true, groesse: 55, muenzen: 4, unschaerfe: 1, kanal: [1.12, 0.97, 0.72], verlauf: 0.3 }, 0],
+  // Unterlage mit gedruckten Münz-Bildchen in der Kopfzeile und Preisschild im Bild
+  ['Kopfzeile + Schild', 6, { kopfzeile: true, preisschild: true, muenzen: 5 }, 0],
+  ['nah + Kopfzeile',   6, { w: 900, h: 675, nah: true, groesse: 45, muenzen: 4, unschaerfe: 1, kopfzeile: true }, 0],
 ];
 
 let gesamt = { richtig: 0, nachfrage: 0, falsch: 0, n: 0 }, fehlgeschlagen = [];

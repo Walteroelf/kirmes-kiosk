@@ -19,24 +19,51 @@
   function szene(nr, o) {
     o = Object.assign({ w: 800, h: 600, muenzen: 6, scheine: [], beruehren: false, aufSchein: false,
       kanal: [1, 1, 1], verlauf: 0, schattenkante: 0, glanz: 0, unschaerfe: 0, rauschen: 6, dunkel: 1,
-      ohnePapier: false, perspektive: null, groesse: null, scheineUeberlappen: false }, o);
+      ohnePapier: false, perspektive: null, groesse: null, scheineUeberlappen: false,
+      nah: false, tischkante: 0, tisch: [132, 118, 100], linien: true, kopfzeile: false, preisschild: false }, o);
     const R = zufallsquelle(nr + 1), w = o.w, h = o.h;
     const rgba = new Float32Array(w * h * 4);
     const persp = o.perspektive || (0.68 + R() * 0.3);       // b/a der Münzen
     const a1 = o.groesse || (20 + R() * 10);                  // Halbachse 1 €
     // Tisch und Papier
-    const rand = o.ohnePapier ? 0 : 0.06;
+    const rand = o.ohnePapier ? 0 : o.nah ? -1 : 0.06;          // nah: Blatt füllt das ganze Bild
     for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-      const i = (y * w + x) * 4, aufPapier = !o.ohnePapier && x > w * rand && x < w * (1 - rand) && y > h * rand && y < h * (1 - rand);
-      const c = aufPapier ? [240, 240, 236] : [132, 118, 100];
+      const i = (y * w + x) * 4, aufPapier = !o.ohnePapier && x > w * Math.max(rand, o.tischkante) && x < w * (1 - rand) && y > h * rand && y < h * (1 - rand);
+      const c = aufPapier ? [240, 240, 236] : o.tisch;
       for (let k = 0; k < 3; k++) rgba[i + k] = c[k];
     }
     // Linien der Unterlage
-    if (!o.ohnePapier) for (let x = Math.round(w * 0.1); x < w * 0.9; x++) for (const y of [Math.round(h * 0.16), Math.round(h * 0.85)]) {
+    if (!o.ohnePapier && o.linien) for (let x = Math.round(w * 0.1); x < w * 0.9; x++) for (const y of [Math.round(h * 0.16), Math.round(h * 0.85)]) {
       const i = (y * w + x) * 4; rgba[i] = rgba[i + 1] = rgba[i + 2] = 40;
     }
 
     const plaetze = [];
+    // Kopfzeile der Unterlage: gedruckte (flache) gelbe Münz-Bildchen und ein kleines Schein-Bildchen
+    if (o.kopfzeile) {
+      const r0 = a1 * 0.45, y0 = h * 0.08;
+      for (const [k, cx] of [0.08, 0.13, 0.85, 0.9].entries()) {
+        for (let y = Math.floor(y0 - r0); y <= y0 + r0; y++) for (let x = Math.floor(w * cx - r0); x <= w * cx + r0; x++) {
+          const d = Math.hypot(x - w * cx, y - y0) / r0; if (d > 1) continue;
+          const i = (y * w + x) * 4, c = d > 0.88 ? [60, 50, 20] : [236, 200, 70];
+          for (let q = 0; q < 3; q++) rgba[i + q] = c[q];
+        }
+      }
+      for (let y = Math.round(y0 - r0); y < y0 + r0; y++) for (let x = Math.round(w * 0.16); x < w * 0.16 + r0 * 3; x++) {
+        const i = (y * w + x) * 4; rgba[i] = 170; rgba[i + 1] = 190; rgba[i + 2] = 215;
+      }
+      plaetze.push({ x: w * 0.12, y: y0, r: r0 * 4 }, { x: w * 0.87, y: y0, r: r0 * 3 });
+    }
+    // Preisschild: hellgrüne Karte mit schwarzem Rahmen und großer Zahl
+    if (o.preisschild) {
+      const pw = w * 0.32, ph = h * 0.16, px = w * 0.34, py = h * 0.78;
+      for (let y = Math.round(py); y < py + ph; y++) for (let x = Math.round(px); x < px + pw; x++) {
+        const rnd = x - px < 4 || px + pw - x < 4 || y - py < 4 || py + ph - y < 4;
+        const ziffer = x > px + pw * 0.4 && x < px + pw * 0.48 && y > py + ph * 0.35 && y < py + ph * 0.85;
+        const i = (y * w + x) * 4, c = rnd || ziffer ? [25, 25, 25] : [214, 236, 196];
+        for (let q = 0; q < 3; q++) rgba[i + q] = c[q];
+      }
+      plaetze.push({ x: px + pw / 2, y: py + ph / 2, r: Math.max(pw, ph) / 2 });
+    }
     function frei(x, y, r) { return plaetze.every(p => Math.hypot(p.x - x, p.y - y) > p.r + r + 6); }
     let summe = 0;
     const scheinFlaechen = [];
@@ -69,7 +96,9 @@
       } else if (o.beruehren && m === 1 && liste.length) {
         x = liste[0].x + liste[0].a + a - 1; y = liste[0].y;
       } else {
-        do { x = w * 0.12 + R() * w * 0.76; y = h * 0.22 + R() * h * 0.58; t++; } while (!frei(x, y, a) && t < 400);
+        const x0 = Math.max(w * 0.12, w * o.tischkante + a + 10), y0 = o.nah ? b + 10 : h * 0.22;
+        const bx = Math.max(10, (o.nah ? w - a - 10 : w * 0.88) - x0), by = Math.max(10, (o.nah ? h - b - 10 : h * 0.8) - y0);
+        do { x = x0 + R() * bx; y = y0 + R() * by; t++; } while (!frei(x, y, a) && t < 400);
       }
       plaetze.push({ x, y, r: a }); liste.push({ x, y, a, b, wert }); summe += wert;
     }

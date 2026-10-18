@@ -24,7 +24,7 @@
  */
 (function (global) {
   'use strict';
-  let MIN_GOLD = 0.09;
+  let MIN_GOLD = 0.09, OPT = {};
   let RING = { innen: 0.45, von: 0.75, bis: 0.93 };
 
   function erkenne(rgba, w, h, opt) {
@@ -34,7 +34,10 @@
     const n = w * h, minDim = Math.min(w, h);
     // Weißabgleich über das Papier: gleicht Farbstich (Glühbirne, Neonröhre)
     // und Schatten aus, bevor irgendetwas gemessen wird.
-    if (opt.weissabgleich !== false) rgba = weissabgleich(rgba, w, h);
+    OPT = opt;
+    const original = rgba;
+    const mitWB = opt.weissabgleich !== false;
+    if (mitWB) rgba = weissabgleich(rgba, w, h);
     const L = new Float32Array(n), S = new Float32Array(n);
     for (let i = 0, p = 0; i < n; i++, p += 4) {
       const r = rgba[p], g = rgba[p + 1], b = rgba[p + 2];
@@ -54,7 +57,12 @@
       werte.sort((a, b) => a - b);
       kHell[ty * kx + tx] = werte[Math.floor(werte.length * 0.85)] || 255;
     }
-    function papier(x, y) {
+    // Nach dem Weißabgleich ist das Papier etwa 235 hell. Die Kachel-Schätzung gleicht Reste
+    // aus (wichtig für Preisschilder & Co.), darf aber nicht unter PAPIER_MIN fallen – sonst
+    // hält sie eine große, nah fotografierte Münze für Papier.
+    const PAPIER_MIN = mitWB ? (opt.papierMin || 205) : 0;
+    function papier(x, y) { return Math.max(PAPIER_MIN, papierKachel(x, y)); }
+    function papierKachel(x, y) {
       const fx = Math.min(kx - 1, Math.max(0, x / kachel - 0.5)), fy = Math.min(ky - 1, Math.max(0, y / kachel - 0.5));
       const x0 = Math.floor(fx), y0 = Math.floor(fy), x1 = Math.min(kx - 1, x0 + 1), y1 = Math.min(ky - 1, y0 + 1);
       const ax = fx - x0, ay = fy - y0;
@@ -75,9 +83,21 @@
     fuelleLoecher(fg, w, h, n * 0.03);
 
     // --- 3. Typische Münzgröße aus einem ersten Durchgang ------------------
-    const probe = vermesse(fg, roh, w, h).filter(istMuenzform).filter(o => muenzFarbe(rgba, w, h, o));
+    // Nur echte 1-/2-€-Münzen bestimmen die typische Größe – nicht gedruckte gelbe Bildchen ("ganz golden").
+    const probe = vermesse(fg, roh, w, h).filter(istMuenzform).filter(o => { const f = muenzFarbe(rgba, w, h, o); return f && f.wert !== 0; });
     const medB = probe.length ? median(probe.map(o => o.b)) : minDim * 0.035;
     const medN = probe.length ? median(probe.map(o => o.n)) : Math.PI * Math.pow(minDim * 0.04, 2);
+    // Nah fotografiert (große Münzen): Der Weißabgleich braucht ein Fenster, das größer ist als
+    // ein halber Schein (ca. 3 Münzradien) – sonst wird ein Schein für Papier gehalten.
+    // Dann einmal mit passendem Fenster neu rechnen.
+    if (mitWB && !opt._zweiterDurchgang && probe.length >= 1) {
+      const noetig = Math.min(0.4, 3 * medB / minDim);
+      if (noetig > (opt.wbFenster || 0.13) + 0.02) {
+        const r2 = erkenne(original, w, h, Object.assign({}, opt, { wbFenster: noetig, _zweiterDurchgang: true }));
+        OPT = opt;
+        return r2;
+      }
+    }
 
     // --- 4. Scheine: empfindlichere Maske, Textur zusammenziehen, Münzen wegöffnen
     const objekte = [];
@@ -89,11 +109,15 @@
     const rZu = Math.max(2, Math.round(medB * (opt.sZu || 0.25)));
     fgS = erodiere(dilatiere(fgS, w, h, rZu), w, h, rZu);
     fuelleLoecher(fgS, w, h, n * 0.05);
-    fgS = oeffneScheibe(fgS, w, h, Math.round(medB * (opt.sAuf || 1.2)));
+    const rAuf = Math.round(medB * (opt.sAuf || 1.2));
+    fgS = oeffneScheibe(fgS, w, h, rAuf);
     const scheinMaske = new Uint8Array(n);
     const sk = vermesse(fgS, roh, w, h);
     for (const o of sk) {
       if (o.n < Math.max(medN * 3, n * 0.012) || o.n > n * 0.5) continue;
+      // Am Bildrand (auch knapp davor, weil das Öffnen Ränder abträgt): Tisch, Unterlage – oder nur ein halber Schein.
+      const m = rAuf + 3;
+      if (o.rand || o.x0 <= m || o.y0 <= m || o.x1 >= w - 1 - m || o.y1 >= h - 1 - m) continue;
       if (o.rechteckig < 0.65 || o.seiten < 1.2 || o.seiten > 4) continue;
       if (o.dichte < 0.33) continue;  // fast nur helles Papier (z. B. Preisschild)
       // Ein Spielgeld-Schein (120 x 62 mm) ist etwa 18-mal so groß wie eine Münze.
@@ -120,7 +144,7 @@
       const med = median(muenzen.map(o => o.a));
       muenzen = muenzen.filter(o => o.a > med * 0.6 && o.a < med * 1.6);
     }
-    const geteilt = [], erledigt = new Set(muenzen);
+    const geteilt = [], erledigt = new Set(muenzen), ignoriert = [];
     for (const o of kand) {
       if (muenzen.indexOf(o) >= 0 || o.rand) continue;
       if ((o.n < medN * 1.2 && o.seiten < 2.2) || o.n > medN * 7 || o.dichte < 0.8) continue;
@@ -130,6 +154,9 @@
     }
     for (const m of muenzen.concat(geteilt)) {
       const f = muenzFarbe(rgba, w, h, m);
+      // Ganz golden = keine 1-/2-€-Münze: gedruckte Münz-Bildchen der Unterlage oder Cent-Münzen.
+      // Die Aufgaben rechnen nur mit ganzen Euro, also nicht markieren und nicht zählen.
+      if (f && f.wert === 0) { ignoriert.push(lage(m)); continue; }
       if (f) objekte.push(Object.assign({ art: 'muenze' }, lage(m), f, m.geteilt ? { geteilt: true } : {}));
       else if (!m.geteilt && goldAnteil(rgba, kand.lab, m, w, h) > 0.12) objekte.push(Object.assign({ art: 'unklar', wert: null }, lage(m)));
     }
@@ -144,7 +171,7 @@
     // keiner Münze sicher zugeordnet werden konnten (verschmolzen, starker Glanz …).
     for (const o of kand) {
       if (erledigt.has(o) || o.rand || o.n < medN * 0.5 || o.n > medN * 10) continue;
-      if (objekte.some(m => Math.hypot(m.x - o.x, m.y - o.y) < Math.max(m.a, o.b))) continue;
+      if (objekte.concat(ignoriert).some(m => Math.hypot(m.x - o.x, m.y - o.y) < Math.max(m.a, o.b))) continue;
       if (goldAnteil(rgba, kand.lab, o, w, h) > 0.12) objekte.push(Object.assign({ art: 'unklar', wert: null }, lage(o)));
     }
 
@@ -167,7 +194,14 @@
     for (const o of vermesse(gm, roh, w, h)) {
       if (o.n < medN * 0.45 || o.n > medN * 1.8 || o.seiten > 2.6 || o.fuell < 0.75) continue;
       const f = muenzFarbe(rgba, w, h, o);
-      if (f) funde.push(Object.assign({ art: 'muenze', aufSchein: true }, lage(o), f, { sicher: false }));
+      if (f && f.wert !== 0) { funde.push(Object.assign({ art: 'muenze', aufSchein: true }, lage(o), f, { sicher: false })); continue; }
+      // Ganz golden: bei einer 2-€-Münze findet die Goldmaske nur die Mitte. Größeren Kreis prüfen:
+      // silberner Ring außen herum -> 2 €.
+      if (f && f.wert === 0) {
+        const gross = Object.assign({}, o, { a: o.a / 0.73, b: o.b / 0.73 });
+        const f2 = muenzFarbe(rgba, w, h, gross);
+        if (f2 && f2.wert === 2) funde.push(Object.assign({ art: 'muenze', aufSchein: true }, lage(gross), f2, { sicher: false }));
+      }
     }
     return funde;
   }
@@ -269,7 +303,7 @@
       }
       liste.push({ k, n: s.n, x: mx, y: my, a, b, winkel, seiten: a / b,
         rechteckig: s.n / ((u1 - u0 + 1) * (v1 - v0 + 1)), fuell: s.n / (Math.PI * a * b),
-        dichte: s.roh / s.n, rand: s.rand, minFlaeche });
+        dichte: s.roh / s.n, rand: s.rand, minFlaeche, x0: s.x0, y0: s.y0, x1: s.x1, y1: s.y1 });
     }
     liste.lab = lab;
     return liste;
@@ -314,7 +348,7 @@
     let wert, sicher = true;
     if (diff > grenze) wert = 2;
     else if (diff < -grenze) wert = 1;
-    else if (Math.min(gi, ga) > 0.17) { wert = 0; sicher = false; } // ganz golden: Cent-Münze – oder Glanz; lieber nachfragen
+    else if (Math.min(gi, ga) > 0.17) wert = 0;      // ganz golden: Cent-Münze oder gedrucktes Bildchen
     else { wert = diff >= 0 ? 2 : 1; sicher = false; }
     return { wert, sicher, goldInnen: +gi.toFixed(3), goldRing: +ga.toFixed(3) };
   }
@@ -428,7 +462,9 @@
   function weissabgleich(rgba, w, h) {
     const f = Math.max(1, Math.round(Math.min(w, h) / 160));          // auf ~160 px verkleinern
     const sw = Math.ceil(w / f), sh = Math.ceil(h / f);
-    const r = Math.max(4, Math.round(Math.min(sw, sh) * 0.13));       // Fenster > halbe Scheinbreite
+    // Fenster deutlich größer als eine nah fotografierte Münze bzw. ein halber Schein,
+    // sonst wird die Münze selbst für Papier gehalten und verschwindet.
+    const r = Math.max(4, Math.round(Math.min(sw, sh) * (OPT.wbFenster || 0.13)));
     const papier = [0, 1, 2].map(c => {
       const klein = new Float32Array(sw * sh);
       for (let y = 0; y < sh; y++) for (let x = 0; x < sw; x++) {
@@ -476,23 +512,27 @@
   function median(a) { const s = a.slice().sort((x, y) => x - y); return s.length ? s[Math.floor(s.length / 2)] : 0; }
 
   // Abstandstransformation (Chamfer 3-4): Abstand jedes Pixels zum nächsten Pixel mit m==0.
-  function abstand(m, w, h) {
+  // randNull: Bereich außerhalb des Bildes zählt als Hintergrund (für Erosion richtig).
+  // Für die Dilatation (über das Negativ) muss er false sein – sonst wächst vom Bildrand
+  // ein Streifen nach innen, der Münzen in Randnähe verschluckt.
+  function abstand(m, w, h, randNull) {
+    if (randNull === undefined) randNull = true;
     const D = new Float32Array(w * h), INF = 1e9;
     for (let i = 0; i < w * h; i++) D[i] = m[i] ? INF : 0;
     for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
       const i = y * w + x; if (!D[i]) continue;
       let v = D[i];
-      if (x > 0) v = Math.min(v, D[i - 1] + 3); else v = Math.min(v, 3);
+      if (x > 0) v = Math.min(v, D[i - 1] + 3); else if (randNull) v = Math.min(v, 3);
       if (y > 0) { v = Math.min(v, D[i - w] + 3); if (x > 0) v = Math.min(v, D[i - w - 1] + 4); if (x < w - 1) v = Math.min(v, D[i - w + 1] + 4); }
-      else v = Math.min(v, 3);
+      else if (randNull) v = Math.min(v, 3);
       D[i] = v;
     }
     for (let y = h - 1; y >= 0; y--) for (let x = w - 1; x >= 0; x--) {
       const i = y * w + x; if (!D[i]) continue;
       let v = D[i];
-      if (x < w - 1) v = Math.min(v, D[i + 1] + 3); else v = Math.min(v, 3);
+      if (x < w - 1) v = Math.min(v, D[i + 1] + 3); else if (randNull) v = Math.min(v, 3);
       if (y < h - 1) { v = Math.min(v, D[i + w] + 3); if (x < w - 1) v = Math.min(v, D[i + w + 1] + 4); if (x > 0) v = Math.min(v, D[i + w - 1] + 4); }
-      else v = Math.min(v, 3);
+      else if (randNull) v = Math.min(v, 3);
       D[i] = v;
     }
     for (let i = 0; i < w * h; i++) D[i] /= 3;
@@ -507,7 +547,7 @@
   function dilatiere(m, w, h, r) {
     const inv = new Uint8Array(w * h);
     for (let i = 0; i < w * h; i++) inv[i] = m[i] ? 0 : 1;
-    const D = abstand(inv, w, h), out = new Uint8Array(w * h);
+    const D = abstand(inv, w, h, false), out = new Uint8Array(w * h);
     for (let i = 0; i < w * h; i++) out[i] = D[i] <= r + 0.5 ? 1 : 0;
     return out;
   }
