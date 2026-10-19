@@ -215,7 +215,7 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
 .preisliste .produkt .name { font-size: 15px; }
 
 .einstellungen { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px 22px; }
-.feld { display: grid; gap: 6px; font-size: 17px; }
+.feld { display: grid; gap: 6px; font-size: 17px; align-content: start; }
 .feld label, .feld .label { font-weight: 700; }
 .feld select, .feld input[type="text"] {
   font: inherit; font-size: 18px; padding: 10px 12px; border-radius: 12px; border: 3px solid var(--linie);
@@ -642,14 +642,10 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
         </select>
         <span class="hilfe">Übt das Bündeln: zwei 1 € gegen ein 2-€-Stück tauschen.</span>
       </div>
-      <div class="feld nur-fest">
-        <label for="e-schild">Preis-Schild wählen (Schritt 2)</label>
-        <select id="e-schild">
-          <option value="aus">aus</option>
-          <option value="4">ja, 4 Schilder zur Auswahl</option>
-          <option value="alle">ja, alle Schilder bis zum Höchstbetrag</option>
-        </select>
-        <span class="hilfe">Wenn an: Nach dem Foto nennt die App keinen Betrag. Das Kind bestimmt ihn selbst.</span>
+      <div class="feld">
+        <span class="label">Gesamtbetrag wählen</span>
+        <label class="schalter"><input type="checkbox" id="e-schild"> Am Ende den Gesamtbetrag aus 4 Möglichkeiten wählen</label>
+        <span class="hilfe">Gilt auf jeder Stufe und bei festen Einstellungen. Wenn an, nennt die App vorher keinen Betrag – das Kind bestimmt ihn selbst.</span>
       </div>
       <div class="feld">
         <label for="e-runde">Aufgaben pro Runde</label>
@@ -744,7 +740,7 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
 <script src="erkennung.js"></script>
 <script>
 'use strict';
-const VERSION = '2.1.0';
+const VERSION = '2.2.0';
 const STAND = '19.10.2026';
 
 // ---------------------------------------------------------------------------
@@ -779,31 +775,31 @@ const bild = p => `bilder/${p.id}.png`;
 // ---------------------------------------------------------------------------
 const STUFEN = [
   { titel: '2 Sachen einkaufen', text: 'Du kaufst 2 Sachen. Rechne die Preise zusammen und lege das Geld.',
-    art: 'kaufen', anzahl: 2, max: 10, einer: 0, schild: 'aus' },
+    art: 'kaufen', anzahl: 2, max: 10, einer: 0 },
   { titel: '3 Sachen einkaufen', text: 'Ab jetzt werden 3 Sachen eingekauft!',
-    art: 'kaufen', anzahl: 3, max: 12, einer: 0, schild: 'aus' },
+    art: 'kaufen', anzahl: 3, max: 12, einer: 0 },
   { titel: '4 Sachen einkaufen', text: 'Ab jetzt werden 4 Sachen eingekauft!',
-    art: 'kaufen', anzahl: 4, max: 15, einer: 0, schild: 'aus' },
+    art: 'kaufen', anzahl: 4, max: 15, einer: 0 },
   { titel: 'Weniger 1-€-Stücke', text: 'Ab jetzt hast du nur noch zwei 1-€-Stücke. Tipp: Statt zwei 1 € kannst du ein 2-€-Stück nehmen.',
-    art: 'kaufen', anzahl: 4, max: 15, einer: 2, schild: 'aus' },
-  { titel: 'Gesamt-Preis finden', text: 'Ab jetzt suchst du nach dem Foto auch das passende Preis-Schild.',
-    art: 'kaufen', anzahl: 4, max: 15, einer: 2, schild: '4' },
+    art: 'kaufen', anzahl: 4, max: 15, einer: 2 },
+  { titel: '5 Sachen einkaufen', text: 'Ab jetzt werden 5 Sachen eingekauft!',
+    art: 'kaufen', anzahl: 5, max: 15, einer: 2 },
   { titel: 'Größere Beträge', text: 'Jetzt wird es teurer: bis zu 20 €.',
-    art: 'kaufen', anzahl: 4, max: 20, einer: 2, schild: '4' },
+    art: 'kaufen', anzahl: 4, max: 20, einer: 2 },
   { titel: 'Rückgeld', text: 'Du bezahlst mit einem 10-€-Schein. Wie viel Geld bekommst du zurück? Lege das Rückgeld.',
-    art: 'rueckgeld', anzahl: 2, max: 9, bezahlt: 10, einer: 0, schild: 'aus' },
+    art: 'rueckgeld', anzahl: 2, max: 9, bezahlt: 10, einer: 0 },
   { titel: 'Reicht das Geld?', text: 'Du hast 10 € dabei. Schau, ob das Geld für alles reicht.',
-    art: 'budget', anzahl: 3, max: 15, bezahlt: 10, einer: 0, schild: 'aus' },
+    art: 'budget', anzahl: 3, max: 15, bezahlt: 10, einer: 0 },
 ];
 
 // ---------------------------------------------------------------------------
 // Einstellungen: Standard < gespeichert < Link-Parameter
 // ---------------------------------------------------------------------------
 const STANDARD = { name: '', geld: 'foto', modus: 'stufen', start: 1, aufstieg: 8, abstieg: false,
-                   art: 'kaufen', anzahl: 3, betrag: 'alle', max: 15, bezahlt: 10, runde: 10, einer: 0, schild: 'aus',
+                   art: 'kaufen', anzahl: 3, betrag: 'alle', max: 15, bezahlt: 10, runde: 10, einer: 0, schild: false,
                    preise: false, hilfe: true, doppelt: true, betragzeigen: true, ton: true, kamera: true, fotos: false,
                    taster: 'aus', tempo: 2500 };
-const SCHALTER = ['abstieg', 'preise', 'hilfe', 'doppelt', 'betragzeigen', 'ton', 'kamera', 'fotos'];
+const SCHALTER = ['abstieg', 'preise', 'hilfe', 'doppelt', 'betragzeigen', 'ton', 'kamera', 'fotos', 'schild'];
 const speicher = {
   lesen(k, f) { try { const v = localStorage.getItem('kirmes-' + k); return v ? JSON.parse(v) : f; } catch (e) { return f; } },
   schreiben(k, v) { try { localStorage.setItem('kirmes-' + k, JSON.stringify(v)); } catch (e) { /* kein Speicher */ } },
@@ -822,15 +818,16 @@ function ausLink() {
   if (q.has('bezahlt')) e.bezahlt = clamp(+q.get('bezahlt'), 5, 50);
   if (q.has('runde')) e.runde = clamp(+q.get('runde'), 1, 50);
   if (q.has('einer')) e.einer = clamp(+q.get('einer'), 0, 9);
-  if (q.has('schild') && ['aus', '4', 'alle'].includes(q.get('schild'))) e.schild = q.get('schild');
   if (q.has('taster') && ['aus', 'taste', 'bildschirm'].includes(q.get('taster'))) e.taster = q.get('taster');
   if (q.has('tempo')) e.tempo = clamp(+q.get('tempo'), 800, 8000);
   for (const k of SCHALTER) if (q.has(k)) e[k] = q.get(k) === '1';
+  if (q.has('schild')) e.schild = ['1', '4', 'alle'].includes(q.get('schild'));   // auch alte Links (schild=4)
   // Ältere Links (vor den Stufen) hatten feste Werte: dann festen Ablauf nehmen.
-  if (!q.has('modus') && (q.has('anzahl') || q.has('schild') || q.has('einer'))) e.modus = 'fest';
+  if (!q.has('modus') && (q.has('anzahl') || q.has('einer'))) e.modus = 'fest';
   return e;
 }
 let E = Object.assign({}, STANDARD, speicher.lesen('einstellungen', {}), ausLink());
+if (typeof E.schild !== 'boolean') E.schild = E.schild === '4' || E.schild === 'alle';
 // Stufen-Fortschritt: { nr, geloest, schwerInFolge }
 let S = speicher.lesen('stufe', null) || { nr: E.start, geloest: 0, schwerInFolge: 0 };
 if (new URLSearchParams(location.search).has('stufe')) S = { nr: E.start, geloest: 0, schwerInFolge: 0 };
@@ -839,9 +836,9 @@ if (new URLSearchParams(location.search).has('stufe')) S = { nr: E.start, geloes
 function regeln() {
   if (E.modus === 'stufen') {
     const st = STUFEN[clamp(S.nr, 1, STUFEN.length) - 1];
-    return { art: st.art, anzahl: st.anzahl, max: st.max, betrag: 'alle', einer: st.einer, schild: st.schild, bezahlt: st.bezahlt || 10, stufe: S.nr };
+    return { art: st.art, anzahl: st.anzahl, max: st.max, betrag: 'alle', einer: st.einer, schild: E.schild ? '4' : 'aus', bezahlt: st.bezahlt || 10, stufe: S.nr };
   }
-  return { art: E.art, anzahl: E.anzahl, max: E.max, betrag: E.betrag, einer: E.einer, schild: E.schild, bezahlt: E.bezahlt, stufe: null };
+  return { art: E.art, anzahl: E.anzahl, max: E.max, betrag: E.betrag, einer: E.einer, schild: E.schild ? '4' : 'aus', bezahlt: E.bezahlt, stufe: null };
 }
 
 // ---------------------------------------------------------------------------
@@ -1395,8 +1392,9 @@ $('schilder').addEventListener('click', ev => {
     $('weiter-reihe').scrollIntoView({ behavior: 'smooth', block: 'end' });
   } else {
     k.classList.add('falsch'); k.disabled = true;
-    $('schild-meldung').innerHTML = meldung(false, 'Schau noch mal.', 'Zähle dein Geld auf dem Foto.');
-    sage('Schau noch mal. Zähle dein Geld auf dem Foto.');
+    const wo = analyse && analyse.virtuell ? 'im Feld' : 'auf dem Foto';
+    $('schild-meldung').innerHTML = meldung(false, 'Schau noch mal.', `Zähle dein Geld ${wo}.`);
+    sage(`Schau noch mal. Zähle dein Geld ${wo}.`);
   }
   scanNeu();
 });
@@ -1745,7 +1743,7 @@ function oeffneLehrkraft() {
   setzeAuswahl($('e-start'), S.nr); setzeAuswahl($('e-aufstieg'), E.aufstieg);
   $('e-art').value = E.art; $('e-anzahl').value = E.anzahl; $('e-betrag').value = E.betrag;
   setzeAuswahl($('e-max'), E.max); setzeAuswahl($('e-bezahlt'), E.bezahlt); setzeAuswahl($('e-runde'), E.runde); setzeAuswahl($('e-einer'), E.einer);
-  $('e-schild').value = E.schild; $('e-taster').value = E.taster; setzeAuswahl($('e-tempo'), E.tempo);
+  $('e-taster').value = E.taster; setzeAuswahl($('e-tempo'), E.tempo);
   for (const k of SCHALTER) $('e-' + k).checked = !!E[k];
   $('stufe-info').textContent = `Aktuell: Stufe ${S.nr} („${STUFEN[S.nr - 1].titel}“), ${S.geloest} von ${E.aufstieg} Aufgaben bis zur nächsten Stufe.`;
   $('version').textContent = `Kirmes-Kiosk ${VERSION} · Stand ${STAND}${navigator.serviceWorker && navigator.serviceWorker.controller ? ' · offline verfügbar' : ''}`;
@@ -1767,7 +1765,7 @@ function leseFormular() {
   const f = {
     name: $('e-name').value.trim().slice(0, 30), geld: $('e-geld').value, modus: $('e-modus').value, start: +$('e-start').value, aufstieg: +$('e-aufstieg').value,
     art: $('e-art').value, anzahl: +$('e-anzahl').value, betrag: $('e-betrag').value, max: +$('e-max').value, bezahlt: +$('e-bezahlt').value,
-    runde: +$('e-runde').value, einer: +$('e-einer').value, schild: $('e-schild').value, taster: $('e-taster').value, tempo: +$('e-tempo').value,
+    runde: +$('e-runde').value, einer: +$('e-einer').value, taster: $('e-taster').value, tempo: +$('e-tempo').value,
   };
   for (const k of SCHALTER) f[k] = $('e-' + k).checked;
   return f;
@@ -1777,7 +1775,7 @@ function aktualisiereLink() {
   q.set('modus', f.modus);
   if (f.geld !== 'foto') q.set('geld', f.geld);
   if (f.modus === 'stufen') { q.set('stufe', f.start); q.set('aufstieg', f.aufstieg); }
-  else { q.set('art', f.art); q.set('anzahl', f.anzahl); q.set('betrag', f.betrag); q.set('max', f.max); if (f.art !== 'kaufen') q.set('bezahlt', f.bezahlt); if (f.einer) q.set('einer', f.einer); if (f.schild !== 'aus') q.set('schild', f.schild); }
+  else { q.set('art', f.art); q.set('anzahl', f.anzahl); q.set('betrag', f.betrag); q.set('max', f.max); if (f.art !== 'kaufen') q.set('bezahlt', f.bezahlt); if (f.einer) q.set('einer', f.einer); }
   q.set('runde', f.runde);
   if (f.taster !== 'aus') { q.set('taster', f.taster); q.set('tempo', f.tempo); }
   for (const k of SCHALTER) if (f[k] !== STANDARD[k]) q.set(k, f[k] ? '1' : '0');

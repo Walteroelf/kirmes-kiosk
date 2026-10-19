@@ -35,7 +35,7 @@ Es gibt zwei Wege, das Geld zu legen (umschaltbar im Lehrkraft-Bereich unter **�
 - **Einkaufen**: Sachen ansehen, Preise zusammenrechnen, Geld legen, Foto.
 - **Rückgeld**: „Ich bezahle mit 10 €“ – das Rückgeld legen und fotografieren.
 - **Reicht das Geld?**: „Ich habe 10 €“ – mit großem Knopf *Ja, das reicht* / *Nein, zu wenig* antworten.
-- **Preis-Schild wählen** (ab Stufe 5): nach dem Foto das passende Schild antippen. Solange dieser Schritt aktiv ist, nennt die App vorher keinen Betrag.
+- **Gesamtbetrag wählen** (per Haken im Lehrkraft-Bereich, unabhängig von Stufe und Schwierigkeit): Am Ende wählt das Kind den Gesamtbetrag bzw. das Rückgeld aus 4 Preis-Schildern. Solange der Haken gesetzt ist, nennt die App vorher keinen Betrag.
 - Knöpfe oben: **Vorlesen** (Lautsprecher), **Preisliste** (Preisschild-Symbol).
 
 ### Kamera mit Rahmen
@@ -63,25 +63,26 @@ Nach dem **2. Fehlversuch** erscheint *Hilfe: Preise zeigen*, nach dem **3.** *H
 | 2 | 3 Sachen (bis 12 €) |
 | 3 | 4 Sachen (bis 15 €) |
 | 4 | Weniger 1-€-Stücke: höchstens zwei 1 € (Bündeln) |
-| 5 | Gesamt-Preis finden: Preis-Schild wählen |
+| 5 | 5 Sachen einkaufen (bis 15 €, höchstens zwei 1 €) |
 | 6 | Größere Beträge bis 20 € |
 | 7 | Rückgeld (bezahlt mit 10 €) |
 | 8 | Reicht das Geld? (10 € dabei) |
 
-Nach einer einstellbaren Zahl gelöster Aufgaben (Standard 8; gezählt werden Aufgaben mit höchstens 2 Fotos und ohne Hilfe) erscheint die Karte **„Neu ab hier“** mit Lob, und die nächste Stufe beginnt. Optional geht es nach 3 schweren Aufgaben in Folge eine Stufe zurück. Statt Stufen kann im Lehrkraft-Bereich auch **„Feste Einstellungen“** gewählt werden (Aufgabe, Anzahl Sachen, gerade/ungerade, Höchstbetrag, Bezahlen mit, 1-€-Münzen, Preis-Schild).
+Nach einer einstellbaren Zahl gelöster Aufgaben (Standard 8; gezählt werden Aufgaben mit höchstens 2 Fotos und ohne Hilfe) erscheint die Karte **„Neu ab hier“** mit Lob, und die nächste Stufe beginnt. Optional geht es nach 3 schweren Aufgaben in Folge eine Stufe zurück. Statt Stufen kann im Lehrkraft-Bereich auch **„Feste Einstellungen“** gewählt werden (Aufgabe, Anzahl Sachen, gerade/ungerade, Höchstbetrag, Bezahlen mit, 1-€-Münzen). Ob am Ende der Gesamtbetrag aus 4 Möglichkeiten gewählt wird, stellt ein eigener Haken ein – er gilt für jede Stufe und für feste Einstellungen.
 
 ## Lehrkraft-Bereich
 
 **Öffnen:** Zahnrad oben rechts antippen. Es erscheint ein Code aus vier Zahlen, **als Wörter geschrieben** (z. B. „acht · drei · fünf · neun“), der mit dem Zahlenfeld eingetippt wird (also 8 3 5 9). Der Code ist jedes Mal neu; bei einer falschen Eingabe kommt sofort ein neuer. Kinder, die (noch) nicht lesen, können den Bereich so nicht öffnen.
 
 - **Geld legen**: fotografieren oder auf dem Gerät ziehen (auch per Link: `…?geld=ziehen`)
+- **Gesamtbetrag wählen**: Haken an/aus – am Ende den Gesamtbetrag aus 4 Möglichkeiten wählen (Link: `…&schild=1`)
 
 - Name (optional, nur auf diesem Gerät), Ablauf (Stufen oder fest), Aufgaben pro Runde
 - Hilfen, Töne und Vorlesen, Kamera mit Rahmen, Vorschaubilder im Protokoll
 - **Bedienung mit einem Taster**: Eine blaue Markierung wandert von Knopf zu Knopf (1,5 / 2,5 / 4 Sekunden). Auswählen mit Leertaste/Enter (viele Taster für das iPad senden diese Tasten) oder durch Tippen irgendwo auf den Bildschirm. Alternativ hat das iPad selbst die „Schaltersteuerung“ (Einstellungen → Bedienungshilfen).
 - **Link mit diesen Einstellungen** für TaskCards oder einen QR-Code, z. B.
   `…/kirmes-kiosk/?modus=stufen&stufe=4&aufstieg=8&runde=10`
-  oder fest: `…/kirmes-kiosk/?modus=fest&art=kaufen&anzahl=4&betrag=ungerade&max=15&einer=2&schild=4&runde=10`
+  oder fest: `…/kirmes-kiosk/?modus=fest&art=kaufen&anzahl=4&betrag=ungerade&max=15&einer=2&schild=1&runde=10`
   Der Name kommt absichtlich nicht in den Link.
 - **Auswertung für den Förderplan**: Zusammenfassung („… davon 85 % ohne Hilfe gelöst. Sicher: bis 10 €. Noch schwierig: 16–20 €.“) und Tabellen nach Stufe, Betrag und Anzahl der Sachen, für 7 Tage, 30 Tage oder alles. **Drucken** oder **Als Tabelle speichern** (CSV, öffnet in Excel/Numbers).
 - **Protokoll der Fotos** mit Ergebnis, auf Wunsch mit Vorschaubild.
