@@ -740,7 +740,7 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
 <script src="erkennung.js"></script>
 <script>
 'use strict';
-const VERSION = '2.2.0';
+const VERSION = '2.2.1';
 const STAND = '19.10.2026';
 
 // ---------------------------------------------------------------------------
@@ -1494,9 +1494,13 @@ try { if ('speechSynthesis' in window) { speechSynthesis.getVoices(); speechSynt
 function vorlesenAufgabe() {
   if (!aufgabe) return;
   const liste = aufgabe.waren.map(p => p.name.replace('-', ' ')).join(', ');
-  if (aufgabe.art === 'rueckgeld') sage(`Ich möchte kaufen: ${liste}. Ich bezahle mit ${aufgabe.bezahlt} Euro. Wie viel bekomme ich zurück? Lege das Rückgeld und mach ein Foto.`);
+  // Im Zieh-Modus gibt es kein Foto: dann "zieh das Geld in das Feld".
+  const legen = E.geld === 'ziehen'
+    ? (aufgabe.art === 'rueckgeld' ? 'Zieh das Rückgeld in das Feld. Dann tippe auf Fertig.' : 'Zieh das Geld in das Feld. Dann tippe auf Fertig.')
+    : (aufgabe.art === 'rueckgeld' ? 'Lege das Rückgeld und mach ein Foto.' : 'Lege das Geld und mach ein Foto.');
+  if (aufgabe.art === 'rueckgeld') sage(`Ich möchte kaufen: ${liste}. Ich bezahle mit ${aufgabe.bezahlt} Euro. Wie viel bekomme ich zurück? ${legen}`);
   else if (aufgabe.art === 'budget') sage(`Ich möchte kaufen: ${liste}. Ich habe ${aufgabe.bezahlt} Euro. Reicht das Geld?`);
-  else sage(`Ich möchte kaufen: ${liste}. Rechne aus, wie viel alles kostet. Lege das Geld und mach ein Foto.`);
+  else sage(`Ich möchte kaufen: ${liste}. Rechne aus, wie viel alles kostet. ${legen}`);
 }
 $('knopf-vorlesen').addEventListener('click', () => {
   if (!$('ende').hidden) return sage($('ende-text').textContent);
