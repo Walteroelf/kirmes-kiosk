@@ -23,9 +23,14 @@ Alles läuft im Browser: kein Server, kein Konto, keine KI-Dienste. Die Fotos ve
 1. Die App-Adresse in Safari öffnen.
 2. **Teilen → Zum Home-Bildschirm**. Danach startet die App wie ein normales Programm und läuft auch ohne WLAN.
 3. Beim ersten Foto fragt das iPad, ob die App die Kamera benutzen darf: **Erlauben**.
-4. Den **Zahnrad-Knopf gut 1 Sekunde gedrückt halten** → Lehrkraft-Bereich.
+4. Auf das **Zahnrad** oben rechts tippen und den angezeigten **Code** eintippen → Lehrkraft-Bereich (siehe unten).
 
 ## Was das Kind macht
+
+Es gibt zwei Wege, das Geld zu legen (umschaltbar im Lehrkraft-Bereich unter **„Geld legen“**):
+
+- **Spielgeld legen und fotografieren** (haptisch, mit echtem Spielgeld und Kamera).
+- **Geld auf dem Gerät ins Feld ziehen** (virtuell, ohne Kamera): Links liegen 1-€- und 2-€-Münzen sowie 5-, 10- und 20-€-Scheine. Das Kind zieht sie mit dem Finger in das große Feld oder tippt sie einfach an (leichter bei motorischen Schwierigkeiten). Geld im Feld antippen oder herausziehen legt es zurück. Mit **Fertig** prüft die App. Gilt „höchstens zwei 1-€-Stücke“, zeigt die 1-€-Münze, wie viele noch übrig sind. Alles andere (Stufen, Preis-Schild, Hilfen, Auswertung) funktioniert genauso wie beim Fotografieren.
 
 - **Einkaufen**: Sachen ansehen, Preise zusammenrechnen, Geld legen, Foto.
 - **Rückgeld**: „Ich bezahle mit 10 €“ – das Rückgeld legen und fotografieren.
@@ -66,6 +71,10 @@ Nach dem **2. Fehlversuch** erscheint *Hilfe: Preise zeigen*, nach dem **3.** *H
 Nach einer einstellbaren Zahl gelöster Aufgaben (Standard 8; gezählt werden Aufgaben mit höchstens 2 Fotos und ohne Hilfe) erscheint die Karte **„Neu ab hier“** mit Lob, und die nächste Stufe beginnt. Optional geht es nach 3 schweren Aufgaben in Folge eine Stufe zurück. Statt Stufen kann im Lehrkraft-Bereich auch **„Feste Einstellungen“** gewählt werden (Aufgabe, Anzahl Sachen, gerade/ungerade, Höchstbetrag, Bezahlen mit, 1-€-Münzen, Preis-Schild).
 
 ## Lehrkraft-Bereich
+
+**Öffnen:** Zahnrad oben rechts antippen. Es erscheint ein Code aus vier Zahlen, **als Wörter geschrieben** (z. B. „acht · drei · fünf · neun“), der mit dem Zahlenfeld eingetippt wird (also 8 3 5 9). Der Code ist jedes Mal neu; bei einer falschen Eingabe kommt sofort ein neuer. Kinder, die (noch) nicht lesen, können den Bereich so nicht öffnen.
+
+- **Geld legen**: fotografieren oder auf dem Gerät ziehen (auch per Link: `…?geld=ziehen`)
 
 - Name (optional, nur auf diesem Gerät), Ablauf (Stufen oder fest), Aufgaben pro Runde
 - Hilfen, Töne und Vorlesen, Kamera mit Rahmen, Vorschaubilder im Protokoll

@@ -329,6 +329,55 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
   dialog::backdrop { display: none; }
   #dlg-lehrkraft .dialog-kopf, #dlg-lehrkraft .abschnitt:not(.druck), #dlg-lehrkraft .einstellungen, #dlg-lehrkraft .nicht-drucken { display: none !important; }
 }
+
+/* --- Geld auf dem Gerät ziehen --- */
+.kasse { display: grid; grid-template-columns: minmax(150px, 210px) 1fr; gap: 16px; align-items: stretch; }
+.geldvorrat { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-content: start;
+  background: var(--himmel); border: 3px solid var(--linie); border-radius: 18px; padding: 12px; }
+.geldvorrat .vorrat-titel { grid-column: 1 / -1; margin: 0; font-weight: 700; font-size: 17px; }
+.vorrat { position: relative; border: none; background: none; padding: 4px; display: grid; place-items: center; touch-action: none; }
+.vorrat:disabled { opacity: .3; }
+.vorrat .rest { position: absolute; top: -4px; right: -4px; min-width: 28px; height: 28px; border-radius: 14px; background: var(--markise);
+  color: #fff; font-size: 15px; font-weight: 700; display: grid; place-items: center; padding: 0 6px; }
+.schein-zeile { grid-column: 1 / -1; }
+.spielgeld { display: inline-grid; place-items: center; font-family: var(--anzeige); font-weight: 900; color: #2b2b2b; user-select: none; -webkit-user-select: none; }
+.spielgeld.m1, .spielgeld.m2 { width: 74px; height: 74px; border-radius: 50%; font-size: 22px; }
+.spielgeld.m1 { background: radial-gradient(circle, #dfe2e6 0 54%, #d9a83a 56%); box-shadow: inset 0 0 0 3px #9b7a2a, 0 3px 0 rgba(0,0,0,.25); }
+.spielgeld.m2 { background: radial-gradient(circle, #e8b948 0 56%, #c9ccd1 58%); box-shadow: inset 0 0 0 3px #8d9096, 0 3px 0 rgba(0,0,0,.25); }
+.spielgeld.schein { width: 100%; max-width: 170px; height: 70px; border-radius: 8px; font-size: 26px; box-shadow: 0 3px 0 rgba(0,0,0,.25);
+  border: 2px solid rgba(0,0,0,.18); }
+.spielgeld.s5 { background: linear-gradient(135deg, #c3cdbf, #9fae9b); }
+.spielgeld.s10 { background: linear-gradient(135deg, #f0aaa4, #d9827b); }
+.spielgeld.s20 { background: linear-gradient(135deg, #b4d0ee, #7fa6d6); }
+.ablage-feld { position: relative; min-height: 260px; border: 4px dashed var(--holz-hell); border-radius: 22px; background: var(--teller);
+  padding: 14px; display: flex; flex-wrap: wrap; align-content: flex-start; gap: 12px; }
+.ablage-feld.drueber { border-color: var(--gut); background: var(--gut-hell); }
+.ablage-leer { position: absolute; inset: 0; display: grid; place-items: center; color: var(--holz-hell); font-size: 22px; font-weight: 700;
+  text-align: center; padding: 16px; pointer-events: none; }
+.stueck { border: none; background: none; padding: 0; touch-action: none; }
+.stueck .spielgeld.schein { width: 150px; }
+.zieh-geist { position: fixed; z-index: 60; pointer-events: none; transform: translate(-50%, -50%) scale(1.08); opacity: .92; }
+.zieh-geist .spielgeld.schein { width: 150px; }
+@media (max-width: 620px) {
+  .kasse { grid-template-columns: 1fr; }
+  .geldvorrat { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .schein-zeile { grid-column: auto; }
+  .spielgeld.schein { height: 58px; font-size: 21px; }
+}
+
+/* --- Code für den Lehrkraft-Bereich --- */
+.code-dialog { width: min(440px, calc(100vw - 24px)); }
+.code-woerter { margin: 0; font-family: var(--anzeige); font-size: 28px; text-align: center; letter-spacing: .01em; }
+.code-punkte { display: flex; justify-content: center; gap: 14px; }
+.code-punkte span { width: 22px; height: 22px; border-radius: 50%; border: 3px solid var(--holz); }
+.code-punkte span.voll { background: var(--holz); }
+.ziffernblock { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.ziffernblock button { min-height: 64px; border-radius: 14px; border: 3px solid var(--holz); background: var(--tresen); font-size: 28px; font-weight: 700; }
+.ziffernblock button.klein { font-size: 17px; }
+.code-fehler { margin: 0; min-height: 1.4em; text-align: center; color: var(--hm); font-weight: 700; }
+.wackeln { animation: wackeln .35s; }
+@keyframes wackeln { 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+@media (prefers-reduced-motion: reduce) { .wackeln { animation: none; } }
 </style>
 </head>
 <body>
@@ -343,8 +392,8 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
     <button class="rundknopf" id="knopf-preisliste" aria-label="Preisliste zeigen" title="Preisliste">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12V4h8l10 10-8 8L3 12z" fill="currentColor" fill-opacity=".15"/><circle cx="7.5" cy="7.5" r="1.6" fill="currentColor"/></svg>
     </button>
-    <button class="rundknopf" id="knopf-lehrkraft" aria-label="Lehrkraft-Bereich (gedrückt halten)" title="Lehrkraft-Bereich: gedrückt halten">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg>
+    <button class="rundknopf" id="knopf-lehrkraft" aria-label="Einstellungen (Lehrkraft)" title="Einstellungen (Lehrkraft)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" fill="currentColor" fill-opacity=".15"/></svg>
     </button>
   </div>
 </header>
@@ -369,12 +418,36 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
   <!-- Kaufen / Rückgeld: Geld legen und fotografieren -->
   <section class="schritt" id="schritt-foto">
     <h3><span class="nr">1</span><span id="foto-auftrag">Rechne aus. Lege das Geld. Mach ein Foto.</span></h3>
+    <div id="foto-teil">
     <button class="grossknopf" id="knopf-foto" data-scan>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5A1.5 1.5 0 0 1 4.5 7h2.6l1.6-2.2h6.6L16.9 7h2.6A1.5 1.5 0 0 1 21 8.5v9A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5z" fill="currentColor" fill-opacity=".18"/><circle cx="12" cy="12.8" r="3.6"/></svg>
       <span>Foto vom Geld</span>
     </button>
     <input type="file" id="kamera" accept="image/*" capture="environment" hidden>
     <p class="tipp">Geld auf ein weißes Blatt legen · Münzen mit Abstand · kein Schatten, keine Spiegelung · von oben fotografieren</p>
+    </div>
+
+    <!-- Geld auf dem Gerät ziehen (statt Spielgeld fotografieren) -->
+    <div id="zieh-teil" hidden>
+      <div class="kasse">
+        <div class="geldvorrat" id="geldvorrat">
+          <p class="vorrat-titel">Dein Geld:</p>
+          <button class="vorrat" data-wert="1" data-scan aria-label="1 Euro nehmen"><span class="spielgeld m1">1 €</span><span class="rest" hidden></span></button>
+          <button class="vorrat" data-wert="2" data-scan aria-label="2 Euro nehmen"><span class="spielgeld m2">2 €</span></button>
+          <button class="vorrat schein-zeile" data-wert="5" data-scan aria-label="5-Euro-Schein nehmen"><span class="spielgeld schein s5">5 €</span></button>
+          <button class="vorrat schein-zeile" data-wert="10" data-scan aria-label="10-Euro-Schein nehmen"><span class="spielgeld schein s10">10 €</span></button>
+          <button class="vorrat schein-zeile" data-wert="20" data-scan aria-label="20-Euro-Schein nehmen"><span class="spielgeld schein s20">20 €</span></button>
+        </div>
+        <div class="ablage-feld" id="ablage-feld" aria-label="Bezahl-Feld">
+          <span class="ablage-leer" id="ablage-leer">Zieh das Geld hierher</span>
+        </div>
+      </div>
+      <div class="knopfreihe">
+        <button class="grossknopf weiter" id="knopf-fertig" data-scan>Fertig</button>
+        <button class="grossknopf leise" id="knopf-leeren">Alles zurück</button>
+      </div>
+      <p class="tipp">Geld ins Feld ziehen oder antippen · Geld im Feld antippen legt es zurück</p>
+    </div>
 
     <div class="ergebnis" id="ergebnis" hidden>
       <div class="lade" id="lade" hidden>Ich zähle das Geld …</div>
@@ -447,6 +520,26 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
   </div>
 </dialog>
 
+<!-- Code für den Lehrkraft-Bereich -->
+<dialog id="dlg-code" class="code-dialog" aria-labelledby="code-titel">
+  <div class="dialog-kopf">
+    <h2 id="code-titel">Einstellungen</h2>
+    <button class="mittelknopf" id="knopf-code-zu">Abbrechen</button>
+  </div>
+  <div class="dialog-inhalt">
+    <p class="leer" style="margin:0;text-align:center">Bitte diese Zahlen eintippen:</p>
+    <p class="code-woerter" id="code-woerter"></p>
+    <div class="code-punkte" id="code-punkte" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+    <div class="ziffernblock" id="ziffernblock">
+      <button data-ziffer="1">1</button><button data-ziffer="2">2</button><button data-ziffer="3">3</button>
+      <button data-ziffer="4">4</button><button data-ziffer="5">5</button><button data-ziffer="6">6</button>
+      <button data-ziffer="7">7</button><button data-ziffer="8">8</button><button data-ziffer="9">9</button>
+      <button class="klein" data-ziffer="zurueck" aria-label="Letzte Zahl löschen">Löschen</button><button data-ziffer="0">0</button><span></span>
+    </div>
+    <p class="code-fehler" id="code-fehler" aria-live="polite"></p>
+  </div>
+</dialog>
+
 <!-- Preisliste -->
 <dialog id="dlg-preisliste" aria-labelledby="pl-titel">
   <div class="dialog-kopf">
@@ -479,6 +572,14 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
           <option value="fest">Feste Einstellungen (unten)</option>
         </select>
         <span class="hilfe" id="stufe-info"></span>
+      </div>
+      <div class="feld">
+        <label for="e-geld">Geld legen</label>
+        <select id="e-geld">
+          <option value="foto">Spielgeld legen und fotografieren</option>
+          <option value="ziehen">Geld auf dem Gerät ins Feld ziehen</option>
+        </select>
+        <span class="hilfe">Ohne Kamera: Münzen und Scheine werden auf dem Bildschirm ins Feld gezogen oder angetippt.</span>
       </div>
       <div class="feld nur-stufen">
         <label for="e-start">Stufe</label>
@@ -643,8 +744,8 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
 <script src="erkennung.js"></script>
 <script>
 'use strict';
-const VERSION = '2.0.2';
-const STAND = '18.10.2026';
+const VERSION = '2.1.0';
+const STAND = '19.10.2026';
 
 // ---------------------------------------------------------------------------
 // Waren und Preise (wie auf dem Kirmes-Plakat)
@@ -698,7 +799,7 @@ const STUFEN = [
 // ---------------------------------------------------------------------------
 // Einstellungen: Standard < gespeichert < Link-Parameter
 // ---------------------------------------------------------------------------
-const STANDARD = { name: '', modus: 'stufen', start: 1, aufstieg: 8, abstieg: false,
+const STANDARD = { name: '', geld: 'foto', modus: 'stufen', start: 1, aufstieg: 8, abstieg: false,
                    art: 'kaufen', anzahl: 3, betrag: 'alle', max: 15, bezahlt: 10, runde: 10, einer: 0, schild: 'aus',
                    preise: false, hilfe: true, doppelt: true, betragzeigen: true, ton: true, kamera: true, fotos: false,
                    taster: 'aus', tempo: 2500 };
@@ -711,6 +812,7 @@ function clamp(v, a, b) { return Math.max(a, Math.min(b, isNaN(v) ? a : Math.rou
 function ausLink() {
   const q = new URLSearchParams(location.search), e = {};
   if (q.has('modus') && ['stufen', 'fest'].includes(q.get('modus'))) e.modus = q.get('modus');
+  if (q.has('geld') && ['foto', 'ziehen'].includes(q.get('geld'))) e.geld = q.get('geld');
   if (q.has('stufe')) e.start = clamp(+q.get('stufe'), 1, STUFEN.length);
   if (q.has('aufstieg')) e.aufstieg = clamp(+q.get('aufstieg'), 1, 50);
   if (q.has('art') && ['kaufen', 'rueckgeld', 'budget'].includes(q.get('art'))) e.art = q.get('art');
@@ -827,7 +929,12 @@ function zeigeAufgabe() {
   else if (art === 'budget') { bz.hidden = false; bz.innerHTML = `<span>Ich habe:</span>${scheinChip(aufgabe.bezahlt)}`; }
   else { bz.hidden = true; bz.innerHTML = ''; }
   $('hilfe-reihe').hidden = true; $('hilfe-reihe').innerHTML = '';
-  $('foto-auftrag').textContent = art === 'rueckgeld' ? 'Rechne aus, wie viel du zurückbekommst. Lege das Rückgeld. Mach ein Foto.' : 'Rechne aus. Lege das Geld. Mach ein Foto.';
+  const ziehen = E.geld === 'ziehen';
+  $('foto-auftrag').textContent = ziehen
+    ? (art === 'rueckgeld' ? 'Rechne aus, wie viel du zurückbekommst. Zieh das Rückgeld in das Feld. Dann tippe auf Fertig.' : 'Rechne aus. Zieh das Geld in das Feld. Dann tippe auf Fertig.')
+    : (art === 'rueckgeld' ? 'Rechne aus, wie viel du zurückbekommst. Lege das Rückgeld. Mach ein Foto.' : 'Rechne aus. Lege das Geld. Mach ein Foto.');
+  $('foto-teil').hidden = ziehen; $('zieh-teil').hidden = !ziehen;
+  kasseLeeren(); kasseSperren(false);
   $('schritt-foto').hidden = art === 'budget';
   $('schritt-budget').hidden = art !== 'budget';
   $('budget-meldung').innerHTML = '';
@@ -1012,6 +1119,7 @@ async function werteAus(basis) {
 }
 
 function zeichneFoto() {
+  if (!analyse.basis) return;   // Geld wurde auf dem Gerät gezogen: kein Foto
   const c = $('foto'), b = analyse.basis;
   c.width = b.width; c.height = b.height;
   const g = c.getContext('2d');
@@ -1090,13 +1198,14 @@ function pruefeGeld(neu) {
   } else {
     // Bewusst kein "zu viel / zu wenig": sonst wird geraten (Münze weg, neues Foto …).
     const zusatz = 'Rechne noch einmal und zähle dein Geld.';
-    const betrag = betragZeigen ? `Ich sehe ${summe} €. ` : '';
+    const sehe = analyse.virtuell ? 'Du hast' : 'Ich sehe';
+    const betrag = betragZeigen ? `${sehe} ${summe} €${analyse.virtuell ? ' hingelegt' : ''}. ` : '';
     html = meldung(false, 'Das passt noch nicht.', betrag + zusatz);
-    sprich = `Das passt noch nicht. ${betragZeigen ? `Ich sehe ${summe} Euro. ` : ''}${zusatz}`;
+    sprich = `Das passt noch nicht. ${betragZeigen ? `${sehe} ${summe} Euro${analyse.virtuell ? ' hingelegt' : ''}. ` : ''}${zusatz}`;
   }
   $('meldung').innerHTML = html;
   $('erkannt').innerHTML = objekte.length
-    ? `<span>Erkannt:</span>${geldHtml(objekte)}${!verdeckt && (gut || (betragZeigen && !unsicher)) ? `<strong style="margin-left:6px">= ${summe} €</strong>` : ''}`
+    ? `<span>${analyse.virtuell ? 'Dein Geld:' : 'Erkannt:'}</span>${geldHtml(objekte)}${!verdeckt && (gut || (betragZeigen && !unsicher)) ? `<strong style="margin-left:6px">= ${summe} €</strong>` : ''}`
     : '';
   $('knopf-foto').querySelector('span').textContent = gut ? 'Neues Foto' : 'Noch ein Foto';
   if (neu && !gut && zaehlt) fehlversuche++;
@@ -1107,6 +1216,7 @@ function pruefeGeld(neu) {
   sage(sprich);
   if (gut) {
     $('hilfe-reihe').hidden = true;
+    kasseSperren(true);
     if (R.schild !== 'aus') zeigeSchilder(); else $('weiter-reihe').hidden = false;
   } else {
     $('schritt-schild').hidden = true; $('weiter-reihe').hidden = true;
@@ -1114,6 +1224,107 @@ function pruefeGeld(neu) {
   }
   scanNeu();
 }
+
+// ---------------------------------------------------------------------------
+// Geld auf dem Gerät: aus dem Vorrat ins Feld ziehen oder antippen
+// ---------------------------------------------------------------------------
+let abgelegt = [];        // Werte im Feld, z. B. [2, 1, 5]
+let ziehen = null;        // laufender Zieh-Vorgang
+let klickSperre = null;   // das gerade gezogene Stück: dessen Klick nach dem Ziehen nicht als Tipp zählen
+function einerErlaubt() { const R = aufgabe && aufgabe.regeln; return R && R.einer > 0 ? R.einer : Infinity; }
+function zeigeKasse() {
+  const feld = $('ablage-feld');
+  feld.querySelectorAll('.stueck').forEach(el => el.remove());
+  for (const [i, w] of abgelegt.entries()) {
+    const b = document.createElement('button');
+    b.className = 'stueck'; b.dataset.index = i; b.setAttribute('aria-label', `${w} Euro zurücklegen`);
+    b.innerHTML = geldStueck(w);
+    feld.appendChild(b);
+  }
+  $('ablage-leer').hidden = abgelegt.length > 0;
+  // Bündeln üben: nur so viele 1-€-Stücke wie erlaubt
+  const max = einerErlaubt(), einer = abgelegt.filter(w => w === 1).length;
+  const v1 = $('geldvorrat').querySelector('[data-wert="1"]'), rest = v1.querySelector('.rest');
+  if (max === Infinity) { rest.hidden = true; v1.disabled = gesperrt; }
+  else { rest.hidden = false; rest.textContent = Math.max(0, max - einer); v1.disabled = gesperrt || einer >= max; }
+}
+function geldStueck(w) { return w >= 5 ? `<span class="spielgeld schein s${w}">${w} €</span>` : `<span class="spielgeld m${w}">${w} €</span>`; }
+let gesperrt = false;
+function kasseSperren(an) {
+  gesperrt = an;
+  $('geldvorrat').querySelectorAll('.vorrat').forEach(b => { b.disabled = an; });
+  $('knopf-fertig').disabled = an; $('knopf-leeren').disabled = an;
+  zeigeKasse();
+}
+function kasseLeeren() { abgelegt = []; if (aufgabe) zeigeKasse(); }
+function legeHin(w) {
+  if (gesperrt) return;
+  if (w === 1 && abgelegt.filter(x => x === 1).length >= einerErlaubt()) return;
+  abgelegt.push(w); zeigeKasse();
+}
+function nimmZurueck(i) { if (gesperrt) return; abgelegt.splice(i, 1); zeigeKasse(); scanNeu(); }
+$('geldvorrat').addEventListener('click', ev => {
+  const b = ev.target.closest('.vorrat'); if (!b || b.disabled) return;
+  if (klickSperre === b) { klickSperre = null; return; }
+  legeHin(+b.dataset.wert);
+});
+$('ablage-feld').addEventListener('click', ev => {
+  const b = ev.target.closest('.stueck'); if (!b) return;
+  if (klickSperre === b) { klickSperre = null; return; }
+  nimmZurueck(+b.dataset.index);
+});
+function ueberFeld(x, y) { const r = $('ablage-feld').getBoundingClientRect(); return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom; }
+document.addEventListener('pointerdown', ev => {
+  if (E.taster === 'bildschirm') return;
+  const quelle = ev.target.closest('#geldvorrat .vorrat, #ablage-feld .stueck');
+  if (!quelle || quelle.disabled || gesperrt) return;
+  ziehen = { quelle, x0: ev.clientX, y0: ev.clientY, aktiv: false, geist: null,
+             wert: quelle.classList.contains('vorrat') ? +quelle.dataset.wert : abgelegt[+quelle.dataset.index],
+             ausFeld: quelle.classList.contains('stueck'), index: +quelle.dataset.index };
+});
+document.addEventListener('pointermove', ev => {
+  if (!ziehen) return;
+  if (!ziehen.aktiv) {
+    if (Math.hypot(ev.clientX - ziehen.x0, ev.clientY - ziehen.y0) < 10) return;
+    ziehen.aktiv = true;
+    const g = document.createElement('div'); g.className = 'zieh-geist'; g.innerHTML = geldStueck(ziehen.wert);
+    document.body.appendChild(g); ziehen.geist = g;
+    if (ziehen.ausFeld) ziehen.quelle.style.opacity = '.3';
+  }
+  ev.preventDefault();
+  ziehen.geist.style.left = ev.clientX + 'px'; ziehen.geist.style.top = ev.clientY + 'px';
+  $('ablage-feld').classList.toggle('drueber', ueberFeld(ev.clientX, ev.clientY));
+}, { passive: false });
+function zieheEnde(ev) {
+  if (!ziehen) return;
+  const z = ziehen; ziehen = null;
+  $('ablage-feld').classList.remove('drueber');
+  if (!z.aktiv) return;              // nur angetippt: das erledigt "click"
+  // Nur wenn über dem angefassten Stück losgelassen wird, schickt der Browser danach noch einen Klick.
+  const unten = document.elementFromPoint(ev.clientX, ev.clientY);
+  if (unten && z.quelle.contains(unten)) { klickSperre = z.quelle; setTimeout(() => { if (klickSperre === z.quelle) klickSperre = null; }, 400); }
+  z.geist.remove(); z.quelle.style.opacity = '';
+  const drin = ev.type !== 'pointercancel' && ueberFeld(ev.clientX, ev.clientY);
+  if (!z.ausFeld && drin) legeHin(z.wert);
+  else if (z.ausFeld && !drin) nimmZurueck(z.index);
+}
+document.addEventListener('pointerup', zieheEnde);
+document.addEventListener('pointercancel', zieheEnde);
+$('knopf-leeren').addEventListener('click', () => { kasseLeeren(); scanNeu(); });
+$('knopf-fertig').addEventListener('click', () => {
+  if (gesperrt) return;
+  $('ergebnis').hidden = false; $('foto-rahmen').hidden = true; $('knopf-korrektur').hidden = true; $('lade').hidden = true;
+  if (!abgelegt.length) {
+    $('meldung').innerHTML = meldung(false, 'Das Feld ist noch leer.', 'Zieh zuerst Geld in das Feld.');
+    $('erkannt').innerHTML = ''; sage('Zieh zuerst Geld in das Feld.');
+    return;
+  }
+  analyse = { basis: null, virtuell: true, korrigiert: true, qualitaet: { ok: true },
+              objekte: abgelegt.map(w => ({ art: w >= 5 ? 'schein' : 'muenze', wert: w, sicher: true })) };
+  versuche++;
+  pruefeGeld(true);
+  $('ergebnis').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+});
 
 // Korrektur durch die Lehrkraft: Markierungen antippen
 $('knopf-korrektur').addEventListener('click', () => {
@@ -1315,8 +1526,9 @@ function jubel(gross) {
 // Bedienung mit einem Taster: Markierung wandert von Knopf zu Knopf
 // ---------------------------------------------------------------------------
 let scanIndex = -1, scanTimer = null, scanZiel = null;
+function lehrkraftOffen() { return $('dlg-lehrkraft').open || $('dlg-code').open; }
 function scanZiele() {
-  if (!$('dlg-lehrkraft').hidden && $('dlg-lehrkraft').open) return [];
+  if (lehrkraftOffen()) return [];
   if (!$('kamera-ansicht').hidden) return [...document.querySelectorAll('[data-scan-kamera]')];
   for (const d of ['dlg-stufe', 'dlg-preisliste']) if ($(d).open) return [...$(d).querySelectorAll('[data-scan-dialog]')];
   return [...document.querySelectorAll('[data-scan]')].filter(el => !el.disabled && el.offsetParent !== null && !el.closest('[hidden]'));
@@ -1348,18 +1560,18 @@ function scanWaehle() {
   scanNeu();
 }
 document.addEventListener('keydown', ev => {
-  if (E.taster === 'aus' || $('dlg-lehrkraft').open) return;
+  if (E.taster === 'aus' || lehrkraftOffen()) return;
   if (ev.key === ' ' || ev.key === 'Enter') { ev.preventDefault(); scanWaehle(); }
 }, true);
 document.addEventListener('pointerdown', ev => {
-  if (E.taster !== 'bildschirm' || $('dlg-lehrkraft').open) return;
+  if (E.taster !== 'bildschirm' || lehrkraftOffen()) return;
   if (ev.target.closest('#knopf-lehrkraft')) return;   // Lehrkraft-Knopf bleibt normal bedienbar
   ev.preventDefault(); ev.stopPropagation();
   scanWaehle();
 }, true);
 document.addEventListener('click', ev => {
   // Im Bildschirm-Taster-Modus zählen nur Auswahlen über die Markierung.
-  if (E.taster !== 'bildschirm' || $('dlg-lehrkraft').open || !ev.isTrusted) return;
+  if (E.taster !== 'bildschirm' || lehrkraftOffen() || !ev.isTrusted) return;
   if (ev.target.closest('#knopf-lehrkraft')) return;
   ev.preventDefault(); ev.stopPropagation();
 }, true);
@@ -1371,7 +1583,7 @@ function protokolliere(erkannt, richtig, ersetzen, grund) {
   const liste = speicher.lesen('protokoll', []);
   if (ersetzen && liste.length) liste.shift();
   let foto = '';
-  if (E.fotos && analyse && aufgabe.art !== 'budget') try {
+  if (E.fotos && analyse && analyse.basis && aufgabe.art !== 'budget') try {
     const c = document.createElement('canvas'), q = $('foto'), f = 240 / Math.max(q.width, q.height);
     c.width = Math.round(q.width * f); c.height = Math.round(q.height * f);
     c.getContext('2d').drawImage(q, 0, 0, c.width, c.height);
@@ -1488,19 +1700,48 @@ $('knopf-preisliste').addEventListener('click', () => { $('dlg-preisliste').show
 
 $('e-start').innerHTML = STUFEN.map((st, i) => `<option value="${i + 1}">Stufe ${i + 1}: ${st.titel}</option>`).join('');
 
-// Lehrkraft-Bereich: gedrückt halten (damit Kinder ihn nicht aus Versehen öffnen)
-(function () {
-  const k = $('knopf-lehrkraft'); let timer = null;
-  const start = () => { timer = setTimeout(oeffneLehrkraft, 1200); };
-  const stop = () => { clearTimeout(timer); };
-  k.addEventListener('pointerdown', start); k.addEventListener('pointerup', stop);
-  k.addEventListener('pointerleave', stop); k.addEventListener('pointercancel', stop);
-  k.addEventListener('contextmenu', ev => ev.preventDefault());
-  k.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); ev.stopPropagation(); oeffneLehrkraft(); } });
-})();
+// Lehrkraft-Bereich nur mit Code: 4 Zahlen, als Wörter angezeigt, jedes Mal neu.
+// Ein Kind, das (noch) nicht liest, kann damit nichts anfangen.
+const ZAHLWORT = ['null', 'eins', 'zwei', 'drei', 'vier', 'fünf', 'sechs', 'sieben', 'acht', 'neun'];
+let code = '', eingabe = '';
+function neuerCode() {
+  const z = new Uint8Array(4);
+  try { crypto.getRandomValues(z); } catch (e) { for (let i = 0; i < 4; i++) z[i] = Math.floor(Math.random() * 256); }
+  code = [...z].map(v => String(v % 10)).join('');
+  $('code-woerter').textContent = [...code].map(c => ZAHLWORT[+c]).join(' · ');
+  eingabe = ''; zeigeEingabe();
+}
+function zeigeEingabe() { $('code-punkte').querySelectorAll('span').forEach((p, i) => p.classList.toggle('voll', i < eingabe.length)); }
+function codeTaste(t) {
+  if (t === 'zurueck') { eingabe = eingabe.slice(0, -1); zeigeEingabe(); return; }
+  if (eingabe.length >= 4) return;
+  eingabe += t; zeigeEingabe();
+  if (eingabe.length < 4) return;
+  if (eingabe === code) {
+    $('dlg-code').close(); $('code-fehler').textContent = '';
+    oeffneLehrkraft();
+  } else {
+    $('code-fehler').textContent = 'Falsch. Hier ist ein neuer Code.';
+    const k = $('dlg-code').querySelector('.dialog-inhalt');
+    k.classList.remove('wackeln'); void k.offsetWidth; k.classList.add('wackeln');
+    setTimeout(neuerCode, 350);
+  }
+}
+$('knopf-lehrkraft').addEventListener('click', () => {
+  clearInterval(scanTimer); scanMarkiere(null);
+  neuerCode(); $('code-fehler').textContent = '';
+  $('dlg-code').showModal();
+});
+$('ziffernblock').addEventListener('click', ev => { const b = ev.target.closest('[data-ziffer]'); if (b) codeTaste(b.dataset.ziffer); });
+$('dlg-code').addEventListener('keydown', ev => {
+  if (/^[0-9]$/.test(ev.key)) { ev.preventDefault(); codeTaste(ev.key); }
+  else if (ev.key === 'Backspace') { ev.preventDefault(); codeTaste('zurueck'); }
+});
+$('knopf-code-zu').addEventListener('click', () => $('dlg-code').close());
+$('dlg-code').addEventListener('close', () => { code = ''; eingabe = ''; scanNeu(); });
 function oeffneLehrkraft() {
   clearInterval(scanTimer); scanMarkiere(null);
-  $('e-name').value = E.name; $('e-modus').value = E.modus;
+  $('e-name').value = E.name; $('e-modus').value = E.modus; $('e-geld').value = E.geld;
   setzeAuswahl($('e-start'), S.nr); setzeAuswahl($('e-aufstieg'), E.aufstieg);
   $('e-art').value = E.art; $('e-anzahl').value = E.anzahl; $('e-betrag').value = E.betrag;
   setzeAuswahl($('e-max'), E.max); setzeAuswahl($('e-bezahlt'), E.bezahlt); setzeAuswahl($('e-runde'), E.runde); setzeAuswahl($('e-einer'), E.einer);
@@ -1524,7 +1765,7 @@ function setzeAuswahl(sel, wert) {
 }
 function leseFormular() {
   const f = {
-    name: $('e-name').value.trim().slice(0, 30), modus: $('e-modus').value, start: +$('e-start').value, aufstieg: +$('e-aufstieg').value,
+    name: $('e-name').value.trim().slice(0, 30), geld: $('e-geld').value, modus: $('e-modus').value, start: +$('e-start').value, aufstieg: +$('e-aufstieg').value,
     art: $('e-art').value, anzahl: +$('e-anzahl').value, betrag: $('e-betrag').value, max: +$('e-max').value, bezahlt: +$('e-bezahlt').value,
     runde: +$('e-runde').value, einer: +$('e-einer').value, schild: $('e-schild').value, taster: $('e-taster').value, tempo: +$('e-tempo').value,
   };
@@ -1534,6 +1775,7 @@ function leseFormular() {
 function aktualisiereLink() {
   const f = leseFormular(), q = new URLSearchParams();
   q.set('modus', f.modus);
+  if (f.geld !== 'foto') q.set('geld', f.geld);
   if (f.modus === 'stufen') { q.set('stufe', f.start); q.set('aufstieg', f.aufstieg); }
   else { q.set('art', f.art); q.set('anzahl', f.anzahl); q.set('betrag', f.betrag); q.set('max', f.max); if (f.art !== 'kaufen') q.set('bezahlt', f.bezahlt); if (f.einer) q.set('einer', f.einer); if (f.schild !== 'aus') q.set('schild', f.schild); }
   q.set('runde', f.runde);
