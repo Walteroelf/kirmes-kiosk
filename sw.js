@@ -4,7 +4,7 @@
  * Bilder und Schriften: aus dem Speicher (ändern sich nicht).
  * Bei einer neuen Version VERSION erhöhen – dann wird alles neu geladen.
  */
-const VERSION = '2.3.0';
+const VERSION = '2.4.0';
 const CACHE = 'kirmes-kiosk-' + VERSION;
 const DATEIEN = [
   './',
