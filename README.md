@@ -14,7 +14,7 @@ Alles läuft im Browser: kein Server, kein Konto, keine KI-Dienste. Die Fotos ve
 | `erkennung.js` | Die Geld-Erkennung und der Fotocheck |
 | `worker.js` | Führt die Erkennung im Hintergrund aus, damit nichts einfriert |
 | `sw.js`, `manifest.webmanifest`, `icons/` | Offline-Fähigkeit und App-Symbol für den Home-Bildschirm |
-| `bilder/` | Produktbilder |
+| `bilder/` | Produktbilder: eigens für diese App gezeichnete Vektorgrafiken (SVG), keine fremden Bilder |
 | `schriften/` | Schriften Andika und Grandstander (SIL Open Font License), lokal eingebunden |
 | `tests/` | Automatischer Test mit künstlichen Szenen und eine Prüfseite für echte Fotos |
 
@@ -95,6 +95,10 @@ Nach einer einstellbaren Zahl gelöster Aufgaben (Standard 8; gezählt werden Au
 - Münzen mit etwas Abstand; Scheine nebeneinander, nicht übereinander
 - Kein Schatten, keine Spiegelung; möglichst von oben
 - Kein Preisschild mit aufs Foto (das Schild wählt das Kind in der App)
+
+## Bilder und Rechte
+
+Alle 20 Produktbilder und das App-Symbol wurden eigens für diese App neu gezeichnet (SVG-Vektorgrafiken im Ordner `bilder/`). Sie enthalten keine Bilder aus anderen Programmen oder Sammlungen (z. B. Worksheet Crafter), deren Lizenz eine Veröffentlichung in einer App oder auf einer Website nicht erlaubt. Die Schriften stehen unter der SIL Open Font License.
 
 ## Datenschutz
 
