@@ -14,9 +14,25 @@ Alles läuft im Browser: kein Server, kein Konto, keine KI-Dienste. Die Fotos ve
 | `erkennung.js` | Die Geld-Erkennung und der Fotocheck |
 | `worker.js` | Führt die Erkennung im Hintergrund aus, damit nichts einfriert |
 | `sw.js`, `manifest.webmanifest`, `icons/` | Offline-Fähigkeit und App-Symbol für den Home-Bildschirm |
-| `bilder/` | Produktbilder: eigens für diese App gezeichnete Vektorgrafiken (SVG), keine fremden Bilder |
+| `bilder/` | Produktbilder: eigens für diese App gezeichnete Vektorgrafiken (SVG), keine fremden Bilder; `bilder/spielwaren/` und `bilder/baeckerei/` für die weiteren Läden |
 | `schriften/` | Schriften Andika und Grandstander (SIL Open Font License), lokal eingebunden |
 | `tests/` | Automatischer Test mit künstlichen Szenen und eine Prüfseite für echte Fotos |
+
+## Drei Läden
+
+Im Lehrkraft-Bereich unter **„Laden“** (oder per Link `…?laden=…`) wählbar. Jeder Laden hat eigene Waren, eigene Stufen, eigenen Fortschritt und eine eigene Auswertung.
+
+| Laden | Zahlenraum | Geld im Vorrat | Geld legen |
+|---|---|---|---|
+| **Kirmes-Kiosk** (`laden=kirmes`, Standard) | ganze Euro bis ca. 30 € | 1 €, 2 €, 5 €, 10 €, 20 € | fotografieren oder ziehen |
+| **Spielwarenladen** (`laden=spielwaren`) | ganze Euro bis ca. 200 € | zusätzlich 50 € und 100 € | ziehen |
+| **Bäckerei** (`laden=baeckerei`) | Euro und Cent bis ca. 10 € | 10 ct, 20 ct, 50 ct, 1 €, 2 €, 5 € | ziehen |
+
+**Spielwarenladen** – 20 Spielsachen von 3 € (Seifenblasen) bis 149 € (Fahrrad). Stufen: 2 Spielsachen bis 30 € → bis 60 € → 3 bis 100 € → Große Scheine (bis 150 €) → 4 bis 200 € → Rückgeld von 50 € → Rückgeld von 100 € → Reicht das Geld? (100 €).
+
+**Bäckerei** – 20 Backwaren und Getränke von 0,40 € (Brötchen) bis 4,20 € (Vollkornbrot), alle Preise in 10-Cent-Schritten. Stufen: 1 Sache (bis 2 €) → 2 Sachen (bis 3 €) → 3 (bis 5 €) → 4 (bis 8 €) → 5 (bis 10 €) → Rückgeld von 5 € → Rückgeld von 10 € → Reicht das Geld? (5 €).
+
+Die Kamera-Erkennung kennt nur 1-€-/2-€-Münzen und 5-/10-/20-€-Scheine; darum wird in Spielwarenladen und Bäckerei das Geld immer auf dem Gerät ins Feld gezogen.
 
 ## Auf dem iPad einrichten
 
@@ -98,7 +114,7 @@ Nach einer einstellbaren Zahl gelöster Aufgaben (Standard 8; gezählt werden Au
 
 ## Bilder und Rechte
 
-Alle 20 Produktbilder und das App-Symbol wurden eigens für diese App neu gezeichnet (SVG-Vektorgrafiken im Ordner `bilder/`). Sie enthalten keine Bilder aus anderen Programmen oder Sammlungen (z. B. Worksheet Crafter), deren Lizenz eine Veröffentlichung in einer App oder auf einer Website nicht erlaubt. Die Schriften stehen unter der SIL Open Font License.
+Alle Produktbilder (je 20 für Kirmes-Kiosk, Spielwarenladen und Bäckerei) und das App-Symbol wurden eigens für diese App neu gezeichnet (SVG-Vektorgrafiken im Ordner `bilder/`). Sie enthalten keine Bilder aus anderen Programmen oder Sammlungen (z. B. Worksheet Crafter), deren Lizenz eine Veröffentlichung in einer App oder auf einer Website nicht erlaubt. Die Schriften stehen unter der SIL Open Font License.
 
 ## Datenschutz
 
