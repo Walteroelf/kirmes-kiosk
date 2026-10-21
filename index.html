@@ -389,6 +389,15 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
   background: radial-gradient(circle at 35% 30%, #f8e29a, #d8ac3c 70%, #b8892a); box-shadow: inset 0 0 0 3px #a07a20, 0 3px 0 rgba(0,0,0,.25); }
 .spielgeld.c10 { width: 56px; height: 56px; font-size: 17px; } .spielgeld.c20 { width: 62px; height: 62px; font-size: 18px; } .spielgeld.c50 { width: 68px; height: 68px; font-size: 19px; }
 .geldvorrat { grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); }
+
+/* --- Fotorealistisches Spielgeld (geld.js) --- */
+.geldbild, .geldchip { display: inline-block; line-height: 0; }
+.geldbild svg, .geldchip svg { display: block; max-width: 100%; height: auto; }
+.vorrat.schein-zeile .geldbild svg { width: 150px; }
+.bezahlen .geldchip svg { width: 130px; }
+.zieh-geist .geldbild svg { filter: drop-shadow(0 6px 6px rgba(0,0,0,.3)); }
+.ablage-feld { align-items: center; }
+@media (max-width: 620px) { .vorrat.schein-zeile .geldbild svg { width: 120px; } }
 </style>
 </head>
 <body>
@@ -751,9 +760,10 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
 </dialog>
 
 <script src="erkennung.js"></script>
+<script src="geld.js"></script>
 <script>
 'use strict';
-const VERSION = '3.0.1';
+const VERSION = '3.1.0';
 const STAND = '21.10.2026';
 
 // ---------------------------------------------------------------------------
@@ -1034,7 +1044,7 @@ const SYMBOL_GUT = `<svg class="symbol" viewBox="0 0 64 64"><circle cx="32" cy="
 const SYMBOL_HM = `<svg class="symbol" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="var(--hm)"/><path d="M24 24a8 8 0 1 1 11 7.4c-2 .9-3 2.4-3 4.6v2" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/><circle cx="32" cy="47" r="3.6" fill="#fff"/></svg>`;
 const STERN = f => `<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z" fill="${f ? 'var(--senf)' : 'none'}" stroke="var(--holz)" stroke-width="1.6" stroke-linejoin="round"/></svg>`;
 const meldung = (gut, titel, text, huepfen) => `<div class="meldung ${gut ? 'gut' : 'hm'}${huepfen ? ' huepfen' : ''}">${gut ? SYMBOL_GUT : SYMBOL_HM}<div><strong>${titel}</strong>${text}</div></div>`;
-const scheinChip = w => `<span class="geld ${geldKlasse(w)}">${geldName(w)}</span>`;
+const scheinChip = w => `<span class="geldchip" title="${geldName(w)}">${KirmesGeld.bild(inCent(w), 1.8)}</span>`;
 
 function zeigeRunde() {
   $('spiel').hidden = false; $('ende').hidden = true;
@@ -1387,7 +1397,9 @@ function zeigeKasse() {
   if (max === Infinity) { rest.hidden = true; v1.disabled = gesperrt; }
   else { rest.hidden = false; rest.textContent = Math.max(0, max - einer); v1.disabled = gesperrt || einer >= max; }
 }
-function geldStueck(w) { return `<span class="spielgeld ${geldKlasse(w)}">${geldName(w)}</span>`; }
+// Fotorealistisches Spielgeld (geld.js). w in der Einheit des Ladens -> Cent
+const inCent = w => Math.round(w * 100 / L.faktor);
+function geldStueck(w) { return `<span class="geldbild" title="${geldName(w)}">${KirmesGeld.bild(inCent(w), 3)}</span>`; }
 // Vorrat passend zum Laden aufbauen (Münzen oben, Scheine darunter)
 function baueVorrat() {
   $('geldvorrat').innerHTML = '<p class="vorrat-titel">Dein Geld:</p>' + L.geld.map(w =>

@@ -46,7 +46,7 @@ Die Kamera-Erkennung kennt nur 1-€-/2-€-Münzen und 5-/10-/20-€-Scheine; d
 Es gibt zwei Wege, das Geld zu legen (umschaltbar im Lehrkraft-Bereich unter **„Geld legen“**):
 
 - **Spielgeld legen und fotografieren** (haptisch, mit echtem Spielgeld und Kamera).
-- **Geld auf dem Gerät ins Feld ziehen** (virtuell, ohne Kamera): Links liegen 1-€- und 2-€-Münzen sowie 5-, 10- und 20-€-Scheine. Das Kind zieht sie mit dem Finger in das große Feld oder tippt sie einfach an (leichter bei motorischen Schwierigkeiten). Geld im Feld antippen oder herausziehen legt es zurück. Mit **Fertig** prüft die App. Gilt „höchstens zwei 1-€-Stücke“, zeigt die 1-€-Münze, wie viele noch übrig sind. Alles andere (Stufen, Preis-Schild, Hilfen, Auswertung) funktioniert genauso wie beim Fotografieren.
+- **Geld auf dem Gerät ins Feld ziehen** (virtuell, ohne Kamera): Links liegen 1-€- und 2-€-Münzen sowie 5-, 10- und 20-€-Scheine. Das Kind zieht sie mit dem Finger in das große Feld oder tippt sie einfach an (leichter bei motorischen Schwierigkeiten). Geld im Feld antippen oder herausziehen legt es zurück. Münzen und Scheine sind möglichst echt gezeichnet (Rändelung, Bimetall, Hologrammstreifen), aber mit eigenen Motiven und dem Aufdruck „SPIELGELD“ (`geld.js`, keine Abbildungen echter Banknoten). Mit **Fertig** prüft die App. Gilt „höchstens zwei 1-€-Stücke“, zeigt die 1-€-Münze, wie viele noch übrig sind. Alles andere (Stufen, Preis-Schild, Hilfen, Auswertung) funktioniert genauso wie beim Fotografieren.
 
 - **Einkaufen**: Sachen ansehen, Preise zusammenrechnen, Geld legen, Foto.
 - **Rückgeld**: „Ich bezahle mit 10 €“ – das Rückgeld legen und fotografieren.
