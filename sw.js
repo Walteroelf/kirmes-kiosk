@@ -4,7 +4,7 @@
  * Bilder, Schriften und Ansagen (ton/): aus dem Speicher (ändern sich nicht).
  * Bei einer neuen Version VERSION erhöhen – dann wird alles neu geladen.
  */
-const VERSION = '3.3.0';
+const VERSION = '3.4.0';
 const CACHE = 'kirmes-kiosk-' + VERSION;
 const DATEIEN = [
   './',
@@ -88,7 +88,10 @@ self.addEventListener('install', e => {
     await c.addAll(DATEIEN);
     try {
       const index = await (await fetch('ton/index.json')).json();
-      await c.addAll([...new Set(Object.values(index))].map(d => 'ton/' + d));
+      const dateien = [...new Set(Object.values(index))].map(d => 'ton/' + d);
+      for (let i = 0; i < dateien.length; i += 100) {   // in Paketen, damit ein Fehler nicht alles abbricht
+        try { await c.addAll(dateien.slice(i, i + 100)); } catch (err) { /* fehlende Ansage: Gerätestimme */ }
+      }
     } catch (err) { /* ohne Ansagen: dann liest die Gerätestimme */ }
   }).then(() => self.skipWaiting()));
 });

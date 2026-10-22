@@ -861,7 +861,7 @@ body.auf-start #knopf-preisliste { display: none; }
 <script src="geld.js"></script>
 <script>
 'use strict';
-const VERSION = '3.3.0';
+const VERSION = '3.4.0';
 const STAND = '22.10.2026';
 
 // ---------------------------------------------------------------------------
@@ -1832,7 +1832,7 @@ function tonPlan(text) {
     while (n > 0 && !tonIndex[w.slice(i, i + n).join(' ')]) n--;
     if (n) {
       const ende = roh[i + n - 1];
-      teile.push({ datei: tonIndex[w.slice(i, i + n).join(' ')], pause: /[.!?:]$/.test(ende) ? 0.34 : /,$/.test(ende) ? 0.16 : 0.05 });
+      teile.push({ datei: tonIndex[w.slice(i, i + n).join(' ')], pause: /[.!?]$/.test(ende) ? 0.4 : /:$/.test(ende) ? 0.25 : /,$/.test(ende) ? 0.12 : 0.03 });
       i += n;
     } else {
       // Unbekanntes Wort: nur der Name darf von der Gerätestimme kommen, sonst alles mit der Gerätestimme

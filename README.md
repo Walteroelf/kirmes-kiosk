@@ -114,10 +114,10 @@ Nach einer einstellbaren Zahl gelöster Aufgaben (Standard 8; gezählt werden Au
 
 ## Vorlesen
 
-Standard ist die **Thorsten-Stimme** (Piper, Modell `de_DE-thorsten-high`, Sprachdaten von Thorsten Müller unter CC0). Die Ansagen sind fertige Tondateien im Ordner `ton/` (ca. 550 Bausteine: ganze Sätze, Satzteile, Waren mit Artikel und Mehrzahl, Zahlen und Beträge). Die App setzt jeden Text aus den längsten passenden Bausteinen zusammen – offline, ohne Server. Nur der **Name des Kindes** wird mit der Stimme des Geräts gesprochen. Fehlt für einen Text ein Baustein, liest die Gerätestimme den ganzen Satz. Umschalten im Lehrkraft-Bereich unter *Bedienung* (Link: `…&stimme=geraet`).
+Standard ist die **Thorsten-Stimme** (Piper, Modell `de_DE-thorsten-high`, Sprachdaten von Thorsten Müller unter CC0). Lob („Super!“, „Richtig!“, „Geschafft!“, „Das klappt schon super!“) kommt aus der emotionalen Thorsten-Stimme (`de_DE-thorsten_emotional-medium`, Stimmung „amused“, ebenfalls CC0). Die Ansagen sind fertige Tondateien im Ordner `ton/` (ca. 3.100 Bausteine, alle gleich laut): Sätze mit Betrag komplett (z. B. „Das sind genau 3 Euro 40.“), Waren je nach Platz im Satz („Ich möchte eine Brezel, …“ / „…, eine Brezel, …“ / „… und eine Brezel kaufen.“), alle festen Sätze sowie Zahlen und Satzteile als Rückfall. Die App setzt jeden Text aus den längsten passenden Bausteinen zusammen – offline, ohne Server. Beim ersten Öffnen lädt die App die Ansagen (ca. 40 MB) in den Offline-Speicher. Nur der **Name des Kindes** wird mit der Stimme des Geräts gesprochen. Fehlt für einen Text ein Baustein, liest die Gerätestimme den ganzen Satz. Umschalten im Lehrkraft-Bereich unter *Bedienung* (Link: `…&stimme=geraet`).
 
-**Ansagen neu erzeugen** (nach Änderungen an Vorlese-Texten, Waren oder Stufen): Piper installieren (`python3 -m venv venv && venv/bin/pip install piper-tts`), das Modell `de_DE-thorsten-high.onnx` (+ `.json`) von huggingface.co/rhasspy/piper-voices laden, dann
-`python3 werkzeuge/ansagen.py --piper venv/bin/python --modell de_DE-thorsten-high.onnx` (braucht macOS wegen `afconvert`). Danach VERSION erhöhen.
+**Ansagen neu erzeugen** (nach Änderungen an Vorlese-Texten, Waren oder Stufen): Piper installieren (`python3 -m venv venv && venv/bin/pip install piper-tts`), die Modelle `de_DE-thorsten-high.onnx` und `de_DE-thorsten_emotional-medium.onnx` (jeweils + `.json`) von huggingface.co/rhasspy/piper-voices laden, dann
+`python3 werkzeuge/ansagen.py --piper venv/bin/python --modell de_DE-thorsten-high.onnx --lob-modell de_DE-thorsten_emotional-medium.onnx` (Stimmung fürs Lob ändern: `--lob-stimmung surprised`) (braucht macOS wegen `afconvert`). Danach VERSION erhöhen.
 
 ## Tipps für gute Fotos
 
