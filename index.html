@@ -208,6 +208,11 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
   background: var(--tresen); border-bottom: 3px solid var(--linie); padding: 14px 18px;
 }
 .dialog-kopf h2 { margin: 0; flex: 1; font-family: var(--anzeige); font-size: 26px; }
+@media (max-width: 560px) {
+  .dialog-kopf { flex-wrap: wrap; gap: 10px; padding: 12px 14px; }
+  .dialog-kopf h2 { flex-basis: 100%; font-size: 23px; }
+  .dialog-kopf .mittelknopf { flex: 1 1 0; min-width: 0; }
+}
 .dialog-inhalt { padding: 18px; display: grid; gap: 18px; }
 .preisliste { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; }
 .preisliste .produkt { grid-template-rows: 96px auto; padding: 8px; }
@@ -768,7 +773,7 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
 <script src="geld.js"></script>
 <script>
 'use strict';
-const VERSION = '3.1.1';
+const VERSION = '3.1.2';
 const STAND = '21.10.2026';
 
 // ---------------------------------------------------------------------------
