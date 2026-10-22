@@ -15,6 +15,8 @@ Alles läuft im Browser: kein Server, kein Konto, keine KI-Dienste. Die Fotos ve
 | `worker.js` | Führt die Erkennung im Hintergrund aus, damit nichts einfriert |
 | `sw.js`, `manifest.webmanifest`, `icons/` | Offline-Fähigkeit und App-Symbol für den Home-Bildschirm |
 | `bilder/` | Produktbilder: eigens für diese App gezeichnete Vektorgrafiken (SVG), keine fremden Bilder; `bilder/spielwaren/` und `bilder/baeckerei/` für die weiteren Läden |
+| `ton/` | Ansagen mit der Thorsten-Stimme (AAC), `ton/index.json` ordnet Text → Datei zu |
+| `werkzeuge/ansagen.py` | Erzeugt die Ansagen neu (siehe „Vorlesen“) |
 | `schriften/` | Schriften Andika und Grandstander (SIL Open Font License), lokal eingebunden |
 | `tests/` | Automatischer Test mit künstlichen Szenen und eine Prüfseite für echte Fotos |
 
@@ -105,9 +107,17 @@ Nach einer einstellbaren Zahl gelöster Aufgaben (Standard 8; gezählt werden Au
   oder fest: `…/kirmes-kiosk/?modus=fest&art=kaufen&anzahl=4&betrag=ungerade&max=15&einer=2&schild=1&runde=10`
   Der Name kommt absichtlich nicht in den Link.
 - **Auswertung für den Förderplan**: Zusammenfassung („… davon 85 % ohne Hilfe gelöst. Sicher: bis 10 €. Noch schwierig: 16–20 €.“) und Tabellen nach Stufe, Betrag und Anzahl der Sachen, für 7 Tage, 30 Tage oder alles. **Drucken** oder **Als Tabelle speichern** (CSV, öffnet in Excel/Numbers).
+- **Lernstand**: *Übersicht als Tabelle* (alle drei Läden, je Stufe: Aufgaben, ohne Hilfe gelöst, Anteil, zuletzt geübt, aktuelle Stufe), *Lernstand als Datei sichern* (JSON mit Stufen, Einstellungen, Auswertung und Protokoll) und *Lernstand laden* (z. B. auf einem anderen Gerät; ersetzt den Stand dort nach Rückfrage). Der Name und Vorschaubilder kommen nicht in die Dateien.
 - **Protokoll der Fotos** mit Ergebnis, auf Wunsch mit Vorschaubild.
 - **Wenn die Erkennung sich irrt**: unter dem Foto *Erkennung korrigieren* → Markierung antippen wechselt 1 € → 2 € → 5 € → 10 € → 20 € → entfernen; leere Stelle antippen fügt 1 € hinzu.
 - Unten: Versionsnummer und ob die App offline verfügbar ist.
+
+## Vorlesen
+
+Standard ist die **Thorsten-Stimme** (Piper, Modell `de_DE-thorsten-high`, Sprachdaten von Thorsten Müller unter CC0). Die Ansagen sind fertige Tondateien im Ordner `ton/` (ca. 550 Bausteine: ganze Sätze, Satzteile, Waren mit Artikel und Mehrzahl, Zahlen und Beträge). Die App setzt jeden Text aus den längsten passenden Bausteinen zusammen – offline, ohne Server. Nur der **Name des Kindes** wird mit der Stimme des Geräts gesprochen. Fehlt für einen Text ein Baustein, liest die Gerätestimme den ganzen Satz. Umschalten im Lehrkraft-Bereich unter *Bedienung* (Link: `…&stimme=geraet`).
+
+**Ansagen neu erzeugen** (nach Änderungen an Vorlese-Texten, Waren oder Stufen): Piper installieren (`python3 -m venv venv && venv/bin/pip install piper-tts`), das Modell `de_DE-thorsten-high.onnx` (+ `.json`) von huggingface.co/rhasspy/piper-voices laden, dann
+`python3 werkzeuge/ansagen.py --piper venv/bin/python --modell de_DE-thorsten-high.onnx` (braucht macOS wegen `afconvert`). Danach VERSION erhöhen.
 
 ## Tipps für gute Fotos
 
@@ -125,7 +135,7 @@ Alle Produktbilder (je 20 für Kirmes-Kiosk, Spielwarenladen und Bäckerei) und 
 - **Fotos** werden nur im Browser ausgewertet, nicht hochgeladen und nicht gespeichert. Ausnahme: Ist „Vorschaubilder im Protokoll speichern“ eingeschaltet, bleibt ein kleines Vorschaubild im Browser-Speicher dieses Geräts (standardmäßig aus).
 - **Name, Einstellungen, Stufe, Protokoll und Auswertung** liegen nur im Browser-Speicher dieses Geräts. Name nicht im Link, nicht im Protokoll, nicht in der Auswertung.
 - **Keine fremden Server**: keine Google-Schriften, keine Statistik, keine Cookies, keine Werbung.
-- **Vorlesen** nutzt nur Stimmen, die auf dem Gerät installiert sind. Online-Stimmen werden bewusst nicht verwendet.
+- **Vorlesen**: fertige Tondateien aus der App (Thorsten-Stimme) oder Stimmen, die auf dem Gerät installiert sind. Online-Stimmen werden bewusst nicht verwendet.
 - **Löschen**: „Alle Daten auf diesem Gerät löschen“ im Lehrkraft-Bereich.
 
 GitHub Pages ist der Webhoster: Beim Aufruf verarbeitet GitHub wie jeder Webserver technisch die IP-Adresse. Der Ordner kann genauso auf den Schulserver gelegt werden (nötig ist nur https).

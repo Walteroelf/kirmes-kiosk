@@ -763,6 +763,10 @@ body.auf-start #knopf-preisliste { display: none; }
       <div class="feld">
         <span class="label">Bedienung</span>
         <label class="schalter"><input type="checkbox" id="e-ton"> Töne und Vorlesen</label>
+        <select id="e-stimme" aria-label="Stimme beim Vorlesen">
+          <option value="thorsten">Stimme: Thorsten (natürlich, offline)</option>
+          <option value="geraet">Stimme: Stimme des Geräts</option>
+        </select>
         <label class="schalter"><input type="checkbox" id="e-kamera"> Kamera in der App mit Rahmen (sonst Kamera-App des Geräts)</label>
         <label class="schalter"><input type="checkbox" id="e-fotos"> Vorschaubilder im Protokoll speichern</label>
       </div>
@@ -798,6 +802,23 @@ body.auf-start #knopf-preisliste { display: none; }
         <button class="mittelknopf" id="knopf-drucken" style="flex:0 0 auto">Drucken</button>
       </div>
       <div class="bericht" id="bericht"></div>
+    </div>
+
+    <div class="abschnitt nicht-drucken">
+      <h3>Lernstand</h3>
+      <p class="leer">Übersicht über alle drei Läden (Stufen, Aufgaben, ohne Hilfe gelöst) als Tabelle – oder den ganzen Lernstand als Datei sichern, z. B. um auf einem anderen Gerät weiterzumachen. Der Name des Kindes kommt nicht in die Dateien.</p>
+      <div class="knopfreihe" style="justify-content:flex-start">
+        <button class="mittelknopf" id="knopf-lernstand-csv" style="flex:0 0 auto">Übersicht als Tabelle</button>
+        <button class="mittelknopf" id="knopf-lernstand-sichern" style="flex:0 0 auto">Lernstand als Datei sichern</button>
+        <label class="mittelknopf" for="lernstand-datei" style="flex:0 0 auto;cursor:pointer">Lernstand laden …</label>
+        <input type="file" id="lernstand-datei" accept=".json,application/json" hidden>
+      </div>
+      <p class="leer" id="lernstand-meldung" aria-live="polite"></p>
+      <span id="lernstand-frage" hidden style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <span id="lernstand-frage-text"></span>
+        <button class="mittelknopf warnung" id="knopf-lernstand-ja">Ja, ersetzen</button>
+        <button class="mittelknopf" id="knopf-lernstand-nein">Abbrechen</button>
+      </span>
     </div>
 
     <div class="abschnitt nicht-drucken">
@@ -840,7 +861,7 @@ body.auf-start #knopf-preisliste { display: none; }
 <script src="geld.js"></script>
 <script>
 'use strict';
-const VERSION = '3.2.0';
+const VERSION = '3.3.0';
 const STAND = '22.10.2026';
 
 // ---------------------------------------------------------------------------
@@ -973,6 +994,34 @@ const STUFEN_BAECKEREI = [
 
 // faktor: Einheiten pro Euro. geld: Münzen und Scheine im Vorrat (in Einheiten).
 // maxWahl/bezahltWahl: Auswahl im Lehrkraft-Bereich (in Euro). spanne: "Reicht das Geld?" – wie nah am Budget.
+// Zum Vorlesen: Ware mit Artikel ("Ich möchte … kaufen") und Mehrzahl ("zwei …")
+const SPRECH = {
+  brezel: ['eine Brezel', 'Brezeln'], wurst: ['eine Wurst', 'Würste'], hotdog: ['einen Hotdog', 'Hotdogs'],
+  falaffel: ['eine Falafel', 'Falafel'], burger: ['einen Burger', 'Burger'], pommes: ['eine Portion Pommes', 'Portionen Pommes'],
+  pizza: ['ein Stück Pizza', 'Stück Pizza'], tee: ['einen Tee', 'Tee'], kaffee: ['einen Kaffee', 'Kaffee'],
+  limo: ['eine Limo', 'Limos'], cola: ['eine Cola', 'Cola'], saft: ['einen Saft', 'Säfte'],
+  zuckerwatte: ['eine Zuckerwatte', 'Zuckerwatte'], kirschkuchen: ['ein Stück Kirschkuchen', 'Stück Kirschkuchen'],
+  lebkuchen: ['einen Lebkuchen', 'Lebkuchen'], schokolade: ['eine Tafel Schokolade', 'Tafeln Schokolade'],
+  popcorn: ['eine Tüte Popcorn', 'Tüten Popcorn'], donut: ['einen Donut', 'Donuts'], muffin: ['einen Muffin', 'Muffins'],
+  'schoko-kuchen': ['ein Stück Schokokuchen', 'Stück Schokokuchen'],
+  seifenblasen: ['eine Dose Seifenblasen', 'Dosen Seifenblasen'], jojo: ['ein Jojo', 'Jojos'], springseil: ['ein Springseil', 'Springseile'],
+  malkasten: ['einen Malkasten', 'Malkästen'], ball: ['einen Ball', 'Bälle'], bilderbuch: ['ein Bilderbuch', 'Bilderbücher'],
+  spielzeugauto: ['ein Spielzeugauto', 'Spielzeugautos'], puzzle: ['ein Puzzle', 'Puzzles'], kuscheltier: ['ein Kuscheltier', 'Kuscheltiere'],
+  drachen: ['einen Drachen', 'Drachen'], xylophon: ['ein Xylophon', 'Xylophone'], brettspiel: ['ein Brettspiel', 'Brettspiele'],
+  puppe: ['eine Puppe', 'Puppen'], bausteine: ['einen Kasten Bausteine', 'Kästen Bausteine'], eisenbahn: ['eine Eisenbahn', 'Eisenbahnen'],
+  skateboard: ['ein Skateboard', 'Skateboards'], 'rc-auto': ['ein ferngesteuertes Auto', 'ferngesteuerte Autos'], roller: ['einen Roller', 'Roller'],
+  puppenhaus: ['ein Puppenhaus', 'Puppenhäuser'], fahrrad: ['ein Fahrrad', 'Fahrräder'],
+  broetchen: ['ein Brötchen', 'Brötchen'], mohnbroetchen: ['ein Mohnbrötchen', 'Mohnbrötchen'], keks: ['einen Keks', 'Kekse'],
+  rosinenbroetchen: ['ein Rosinenbrötchen', 'Rosinenbrötchen'], laugenstange: ['eine Laugenstange', 'Laugenstangen'],
+  croissant: ['ein Croissant', 'Croissants'], amerikaner: ['einen Amerikaner', 'Amerikaner'], berliner: ['einen Berliner', 'Berliner'],
+  schokocroissant: ['ein Schokocroissant', 'Schokocroissants'], apfelschorle: ['eine Apfelschorle', 'Apfelschorlen'],
+  zimtschnecke: ['eine Zimtschnecke', 'Zimtschnecken'], kakao: ['einen Kakao', 'Kakao'], baguette: ['ein Baguette', 'Baguettes'],
+  kaesekuchen: ['ein Stück Käsekuchen', 'Stück Käsekuchen'], apfelkuchen: ['ein Stück Apfelkuchen', 'Stück Apfelkuchen'],
+  erdbeertoertchen: ['ein Erdbeertörtchen', 'Erdbeertörtchen'], 'belegtes-broetchen': ['ein belegtes Brötchen', 'belegte Brötchen'],
+  brot: ['ein Brot', 'Brote'], vollkornbrot: ['ein Vollkornbrot', 'Vollkornbrote'],
+};
+const ZAHL_SPRECH = ['', 'eins', 'zwei', 'drei', 'vier', 'fünf', 'sechs'];
+
 const LAEDEN = {
   kirmes: { name: 'Kirmes-Kiosk', faktor: 1, cent: false, foto: true, ordner: 'bilder/', farbe: '#c9362c', farbeDunkel: '#e0483d',
             produkte: PRODUKTE_KIRMES, stufen: STUFEN_KIRMES, geld: [1, 2, 5, 10, 20],
@@ -1001,6 +1050,18 @@ function sprichBetrag(v) {
   return e === 0 ? `${c} Cent` : c === 0 ? `${e} Euro` : `${e} Euro ${c}`;
 }
 function istSchein(w) { return w >= 5 * L.faktor; }
+// "mit einem 10-Euro-Schein" bzw. "mit 15 Euro"
+function sprichBezahlt(v) { return istSchein(v) && L.geld.includes(v) ? `einem ${v / L.faktor}-Euro-Schein` : sprichBetrag(v); }
+// "eine Brezel, zwei Limos und einen Saft" (gleiche Sachen zusammengefasst)
+function warenSatz(waren) {
+  const anzahl = new Map();
+  for (const p of waren) anzahl.set(p.id, (anzahl.get(p.id) || 0) + 1);
+  const teile = [...anzahl].map(([id, n]) => {
+    const f = SPRECH[id] || [PRODUKTE.find(p => p.id === id).name, PRODUKTE.find(p => p.id === id).name];
+    return n === 1 ? f[0] : `${ZAHL_SPRECH[n] || n} ${f[1]}`;
+  });
+  return teile.length === 1 ? teile[0] : teile.slice(0, -1).join(', ') + ' und ' + teile[teile.length - 1];
+}
 function geldName(w) { return L.cent && w < 100 ? `${w} ct` : fmt(w).replace(',00', ''); }
 // CSS-Klasse für ein Geldstück (unabhängig von der Einheit)
 function geldKlasse(w) {
@@ -1017,7 +1078,7 @@ const EINS = () => L.faktor;   // Wert einer 1-€-Münze in der Einheit des Lad
 const STANDARD = { name: '', laden: 'kirmes', geld: 'foto', modus: 'stufen', start: 1, aufstieg: 8, abstieg: false,
                    art: 'kaufen', anzahl: 3, betrag: 'alle', max: 15, bezahlt: 10, runde: 10, einer: 0, schild: false,
                    preise: false, hilfe: true, doppelt: true, betragzeigen: true, ton: true, kamera: true, fotos: false,
-                   taster: 'aus', tempo: 2500, wahl: true, steigern: true };
+                   taster: 'aus', tempo: 2500, wahl: true, steigern: true, stimme: 'thorsten' };
 const SCHALTER = ['wahl', 'steigern', 'abstieg', 'preise', 'hilfe', 'doppelt', 'betragzeigen', 'ton', 'kamera', 'fotos', 'schild'];
 const speicher = {
   lesen(k, f) { try { const v = localStorage.getItem('kirmes-' + k); return v ? JSON.parse(v) : f; } catch (e) { return f; } },
@@ -1038,6 +1099,7 @@ function ausLink() {
   if (q.has('bezahlt')) e.bezahlt = clamp(+q.get('bezahlt'), 5, 50);
   if (q.has('runde')) e.runde = clamp(+q.get('runde'), 1, 50);
   if (q.has('einer')) e.einer = clamp(+q.get('einer'), 0, 9);
+  if (q.has('stimme') && ['thorsten', 'geraet'].includes(q.get('stimme'))) e.stimme = q.get('stimme');
   if (q.has('taster') && ['aus', 'taste', 'bildschirm'].includes(q.get('taster'))) e.taster = q.get('taster');
   if (q.has('tempo')) e.tempo = clamp(+q.get('tempo'), 800, 8000);
   for (const k of SCHALTER) if (q.has(k)) e[k] = q.get(k) === '1';
@@ -1196,7 +1258,7 @@ function bieteHilfe() {
       reihe.innerHTML = aufgabe.art === 'rueckgeld'
         ? `<div class="rechenweg">${scheinChip(aufgabe.bezahlt)}<span>−</span><span>(</span>${teile}<span>)</span><span>= ?</span></div>`
         : `<div class="rechenweg">${teile}<span>= ?</span></div>`;
-      sage(aufgabe.art === 'rueckgeld' ? `Rechne zuerst die Preise zusammen. Dann rechne: ${sprichBetrag(aufgabe.bezahlt)} minus diesen Betrag.` : 'Rechne die Preise Schritt für Schritt zusammen.');
+      sage(aufgabe.art === 'rueckgeld' ? `Rechne zuerst alle Preise zusammen. Dann zieh das von ${sprichBetrag(aufgabe.bezahlt)} ab.` : 'Rechne die Preise Schritt für Schritt zusammen.');
       scanNeu();
     });
   }
@@ -1229,7 +1291,7 @@ function kameraGehtNicht(text) {
   kameraGeht = false; speicher.schreiben('kamera-geht', false);
   $('knopf-ausloesen').disabled = true;
   kameraText(text || 'Die Kamera in der App geht hier nicht. Tippe auf „Kamera-App“.');
-  sage('Tippe auf Kamera App.');
+  sage('Tippe auf Kamera-App.');
   scanNeu();
 }
 async function oeffneKamera() {
@@ -1624,7 +1686,7 @@ $('schilder').addEventListener('click', ev => {
     $('schilder').querySelectorAll('.preisschild').forEach(b => { b.classList.toggle('falsch', +b.dataset.wert !== soll); b.disabled = true; });
     k.classList.add('richtig');
     $('schild-meldung').innerHTML = meldung(true, 'Richtig!', `${rueck ? 'Rückgeld' : 'Gesamt-Preis'}: ${fmt(soll)}`, true);
-    sage(`Richtig! ${rueck ? 'Das Rückgeld' : 'Der Gesamt-Preis'} ist ${sprichBetrag(soll)}.`);
+    sage(`Richtig! ${rueck ? `Du bekommst ${sprichBetrag(soll)} zurück.` : `Zusammen kostet es ${sprichBetrag(soll)}.`}`);
     jubel();
     $('weiter-reihe').hidden = false;
     $('weiter-reihe').scrollIntoView({ behavior: 'smooth', block: 'end' });
@@ -1719,41 +1781,124 @@ function starteRunde() {
 // Vorlesen und Töne
 // ---------------------------------------------------------------------------
 function sage(text) {
-  if (!E.ton || !('speechSynthesis' in window)) return;
-  try {
-    speechSynthesis.cancel();
-    // Nur Stimmen, die auf dem Gerät selbst laufen – Online-Stimmen würden den Text
-    // (mit dem Namen) an einen Server schicken.
-    const stimme = speechSynthesis.getVoices().find(v => v.lang && v.lang.startsWith('de') && v.localService);
-    if (!stimme) return;
-    const u = new SpeechSynthesisUtterance(text.replace(/€/g, 'Euro'));
-    u.lang = stimme.lang; u.voice = stimme; u.rate = 0.9;
-    speechSynthesis.speak(u);
-  } catch (e) { /* kein Vorlesen möglich */ }
+  if (!E.ton) return;
+  stoppeTon();
+  if (E.stimme === 'thorsten' && tonIndex) {
+    sageThorsten(text).then(ok => { if (!ok) sprichSystem(text); }).catch(() => sprichSystem(text));
+  } else sprichSystem(text);
+}
+// Stimme des Geräts. Nur Stimmen, die auf dem Gerät selbst laufen – Online-Stimmen würden
+// den Text (mit dem Namen) an einen Server schicken.
+function sprichSystem(text) {
+  return new Promise(fertig => {
+    try {
+      if (!('speechSynthesis' in window)) return fertig();
+      const stimme = speechSynthesis.getVoices().find(v => v.lang && v.lang.startsWith('de') && v.localService);
+      if (!stimme) return fertig();
+      const u = new SpeechSynthesisUtterance(text.replace(/€/g, 'Euro'));
+      u.lang = stimme.lang; u.voice = stimme; u.rate = 0.9;
+      u.onend = u.onerror = () => fertig();
+      speechSynthesis.speak(u);
+    } catch (e) { fertig(); }
+  });
 }
 try { if ('speechSynthesis' in window) { speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices(); } } catch (e) { /* egal */ }
+
+// Thorsten-Stimme: fertige Ansagen in ton/ (mit Piper erzeugt, siehe werkzeuge/ansagen.py).
+// Ein Text wird aus den längsten passenden Bausteinen zusammengesetzt (ganze Sätze, Satzteile,
+// Waren, Beträge). Nur der Name des Kindes fehlt dort – den liest die Stimme des Geräts.
+const tonSchluessel = w => w.toLowerCase().replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '');
+let tonIndex = null, tonKtx = null, tonLauf = 0, tonQuellen = [];
+const tonPuffer = new Map();
+fetch('ton/index.json').then(r => r.ok ? r.json() : null).then(j => { tonIndex = j; }).catch(() => { /* dann Gerätestimme */ });
+function tonKontext() {
+  if (!tonKtx) { const K = window.AudioContext || window.webkitAudioContext; if (K) tonKtx = new K(); }
+  return tonKtx;
+}
+// iPad/iPhone: Ton geht erst nach einer Berührung
+document.addEventListener('pointerdown', () => { const k = tonKontext(); if (k && k.state === 'suspended') k.resume(); }, { capture: true, passive: true });
+function stoppeTon() {
+  tonLauf++;
+  for (const q of tonQuellen) try { q.stop(); } catch (e) { /* schon fertig */ }
+  tonQuellen = [];
+  try { if ('speechSynthesis' in window) speechSynthesis.cancel(); } catch (e) { /* egal */ }
+}
+function tonPlan(text) {
+  const roh = text.replace(/€/g, 'Euro').split(/\s+/).filter(w => tonSchluessel(w));
+  const w = roh.map(tonSchluessel), name = new Set((E.name || '').split(/\s+/).map(tonSchluessel).filter(Boolean));
+  const teile = [];
+  for (let i = 0; i < w.length;) {
+    let n = Math.min(40, w.length - i);
+    while (n > 0 && !tonIndex[w.slice(i, i + n).join(' ')]) n--;
+    if (n) {
+      const ende = roh[i + n - 1];
+      teile.push({ datei: tonIndex[w.slice(i, i + n).join(' ')], pause: /[.!?:]$/.test(ende) ? 0.34 : /,$/.test(ende) ? 0.16 : 0.05 });
+      i += n;
+    } else {
+      // Unbekanntes Wort: nur der Name darf von der Gerätestimme kommen, sonst alles mit der Gerätestimme
+      if (!name.has(w[i])) { console.info('Ansage fehlt:', roh[i], '|', text); return null; }
+      const letzte = teile[teile.length - 1];
+      if (letzte && letzte.text) letzte.text += ' ' + roh[i]; else teile.push({ text: roh[i] });
+      i++;
+    }
+  }
+  return teile;
+}
+function ladeTon(datei) {
+  if (!tonPuffer.has(datei)) {
+    const k = tonKontext();
+    const p = fetch('ton/' + datei).then(r => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
+      .then(b => new Promise((ok, fehler) => k.decodeAudioData(b, ok, fehler)));
+    p.catch(() => tonPuffer.delete(datei));
+    tonPuffer.set(datei, p);
+    if (tonPuffer.size > 200) tonPuffer.delete(tonPuffer.keys().next().value);
+  }
+  return tonPuffer.get(datei);
+}
+const warte = s => new Promise(r => setTimeout(r, Math.max(0, s * 1000)));
+async function sageThorsten(text) {
+  const teile = tonPlan(text), k = tonKontext();
+  if (!teile || !k) return false;
+  const lauf = tonLauf;
+  try { await Promise.all(teile.filter(t => t.datei).map(async t => { t.puffer = await ladeTon(t.datei); })); }
+  catch (e) { return lauf !== tonLauf; }   // Datei fehlt (offline, noch nicht gespeichert): Gerätestimme
+  if (lauf !== tonLauf) return true;
+  if (k.state === 'suspended') try { await k.resume(); } catch (e) { /* egal */ }
+  let zeit = k.currentTime + 0.05;
+  for (const t of teile) {
+    if (lauf !== tonLauf) return true;
+    if (t.puffer) {
+      const q = k.createBufferSource(); q.buffer = t.puffer; q.connect(k.destination); q.start(zeit);
+      tonQuellen.push(q); zeit += t.puffer.duration + t.pause;
+    } else {
+      await warte(zeit - k.currentTime);
+      if (lauf !== tonLauf) return true;
+      await sprichSystem(t.text);
+      zeit = k.currentTime + 0.12;
+    }
+  }
+  return true;
+}
 function vorlesenAufgabe() {
   if (!aufgabe) return;
-  const liste = aufgabe.waren.map(p => p.name.replace('-', ' ')).join(', ');
-  const zieh = E.geld === 'ziehen' || !L.foto;
+  const zieh = E.geld === 'ziehen' || !L.foto, rueck = aufgabe.art === 'rueckgeld';
+  const kauf = `Ich möchte ${warenSatz(aufgabe.waren)} kaufen.`;
   // Im Zieh-Modus gibt es kein Foto: dann "zieh das Geld in das Feld".
-  const legen = zieh
-    ? (aufgabe.art === 'rueckgeld' ? 'Zieh das Rückgeld in das Feld. Dann tippe auf Fertig.' : 'Zieh das Geld in das Feld. Dann tippe auf Fertig.')
-    : (aufgabe.art === 'rueckgeld' ? 'Lege das Rückgeld und mach ein Foto.' : 'Lege das Geld und mach ein Foto.');
-  if (aufgabe.art === 'rueckgeld') sage(`Ich möchte kaufen: ${liste}. Ich bezahle mit ${sprichBetrag(aufgabe.bezahlt)}. Wie viel bekomme ich zurück? ${legen}`);
-  else if (aufgabe.art === 'budget') sage(`Ich möchte kaufen: ${liste}. Ich habe ${sprichBetrag(aufgabe.bezahlt)}. Reicht das Geld?`);
-  else sage(`Ich möchte kaufen: ${liste}. Rechne aus, wie viel alles kostet. ${legen}`);
+  const legen = zieh ? `Zieh das ${rueck ? 'Rückgeld' : 'Geld'} in das Feld und tippe dann auf Fertig.`
+    : `Leg das ${rueck ? 'Rückgeld' : 'Geld'} hin und mach ein Foto.`;
+  if (rueck) sage(`${kauf} Ich bezahle mit ${sprichBezahlt(aufgabe.bezahlt)}. Wie viel Geld bekomme ich zurück? ${legen}`);
+  else if (aufgabe.art === 'budget') sage(`${kauf} Ich habe ${sprichBetrag(aufgabe.bezahlt)} dabei. Reicht mein Geld?`);
+  else sage(`${kauf} ${aufgabe.waren.length === 1 ? 'Wie viel kostet das?' : 'Wie viel kostet das zusammen?'} ${legen}`);
 }
 $('knopf-vorlesen').addEventListener('click', () => {
   if (!$('start').hidden) return sage(startSatz());
   if (!$('ende').hidden) return sage($('ende-text').textContent);
   vorlesenAufgabe();
 });
-let audio = null;
 function jubel(gross) {
   if (!E.ton) return;
   try {
-    audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+    const audio = tonKontext();
     const t0 = audio.currentTime + 0.02;
     const toene = gross ? [523, 659, 784, 1047, 784, 1047] : [523, 659, 784, 1047];
     toene.forEach((f, i) => {
@@ -1900,6 +2045,67 @@ $('knopf-csv').addEventListener('click', () => {
   const a = document.createElement('a'); a.href = url; a.download = `${E.laden}-auswertung-${new Date().toISOString().slice(0, 10)}.csv`;
   document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000);
 });
+// Lernstand: Übersicht (CSV) und Sicherung (JSON) für alle Läden – ohne den Namen des Kindes
+function speichereDatei(inhalt, typ, name) {
+  const url = URL.createObjectURL(new Blob([inhalt], { type: typ }));
+  const a = document.createElement('a'); a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+const heute = () => new Date().toISOString().slice(0, 10);
+$('knopf-lernstand-csv').addEventListener('click', () => {
+  const alle = speicher.lesen('aufgaben', []), kopf = ['Laden', 'Stufe', 'Inhalt', 'aktuelle Stufe', 'Aufgaben', 'ohne Hilfe gelöst', 'Anteil ohne Hilfe', 'zuletzt geübt'];
+  const zeilen = [];
+  for (const id of LADEN_FOLGE) {
+    const LL = LAEDEN[id], nr = stufeVon(id), eigene = alle.filter(a => (a.laden || 'kirmes') === id);
+    LL.stufen.forEach((st, i) => {
+      const auf = eigene.filter(a => a.stufe === i + 1), ok = auf.filter(a => a.leicht).length;
+      const zuletzt = auf.length ? new Date(Math.max(...auf.map(a => a.zeit))).toLocaleDateString('de-DE') : '';
+      zeilen.push([LL.name, i + 1, st.titel, i + 1 === nr ? (E.steigern ? 'ja' : 'ja (bleibt)') : '', auf.length, ok, auf.length ? Math.round(100 * ok / auf.length) + ' %' : '', zuletzt]);
+    });
+    const ohne = eigene.filter(a => !a.stufe);
+    if (ohne.length) zeilen.push([LL.name, '', 'feste Einstellungen', '', ohne.length, ohne.filter(a => a.leicht).length, '', new Date(Math.max(...ohne.map(a => a.zeit))).toLocaleDateString('de-DE')]);
+  }
+  const csv = '﻿' + [[`Lernstand vom ${new Date().toLocaleDateString('de-DE')}`], kopf, ...zeilen].map(z => z.map(v => `"${String(v).replace(/"/g, '""')}"`).join(';')).join('\r\n');
+  speichereDatei(csv, 'text/csv;charset=utf-8', `lernstand-${heute()}.csv`);
+});
+const LERNSTAND_KEYS = ['einstellungen', 'stufe', 'stufe-spielwaren', 'stufe-baeckerei', 'aufgaben', 'protokoll'];
+$('knopf-lernstand-sichern').addEventListener('click', () => {
+  const daten = {};
+  for (const k of LERNSTAND_KEYS) { const v = speicher.lesen(k, null); if (v !== null) daten[k] = v; }
+  if (daten.einstellungen) daten.einstellungen = Object.assign({}, daten.einstellungen, { name: '' });   // Name bleibt auf dem Gerät
+  if (daten.protokoll) daten.protokoll = daten.protokoll.map(e => Object.assign({}, e, { foto: '' }));    // ohne Vorschaubilder
+  speichereDatei(JSON.stringify({ app: 'kirmes-kiosk', art: 'lernstand', version: VERSION, datum: new Date().toISOString(), daten }, null, 1),
+    'application/json', `lernstand-${heute()}.json`);
+  $('lernstand-meldung').textContent = 'Datei gespeichert.';
+});
+let lernstandNeu = null;
+$('lernstand-datei').addEventListener('change', async ev => {
+  const datei = ev.target.files[0]; ev.target.value = '';
+  if (!datei) return;
+  try {
+    const j = JSON.parse(await datei.text());
+    if (!j || j.app !== 'kirmes-kiosk' || j.art !== 'lernstand' || typeof j.daten !== 'object') throw new Error('falsch');
+    lernstandNeu = j.daten;
+    const n = (j.daten.aufgaben || []).length;
+    $('lernstand-frage-text').textContent = `Lernstand vom ${new Date(j.datum).toLocaleDateString('de-DE')} (${n} Aufgaben) laden? Der Lernstand auf diesem Gerät wird ersetzt.`;
+    $('lernstand-frage').hidden = false; $('lernstand-meldung').textContent = '';
+  } catch (e) { $('lernstand-meldung').textContent = 'Diese Datei ist kein Lernstand der Kirmes-Kiosk-App.'; }
+});
+$('knopf-lernstand-nein').addEventListener('click', () => { lernstandNeu = null; $('lernstand-frage').hidden = true; });
+$('knopf-lernstand-ja').addEventListener('click', () => {
+  if (!lernstandNeu) return;
+  const name = E.name;
+  for (const k of LERNSTAND_KEYS) {
+    if (k in lernstandNeu) speicher.schreiben(k, lernstandNeu[k]);
+    else try { localStorage.removeItem('kirmes-' + k); } catch (e) { /* egal */ }
+  }
+  E = Object.assign({}, STANDARD, speicher.lesen('einstellungen', {}), { name });   // Name auf diesem Gerät behalten
+  speicher.schreiben('einstellungen', E);
+  ladenSetzen(E.laden); zeigeLaden();
+  lernstandNeu = null; $('lernstand-frage').hidden = true;
+  $('dlg-lehrkraft').close();
+  zeigeStart();
+});
 // Betrag eines Protokolleintrags im Format seines Ladens
 function betragVon(laden, v) { const alt = L; L = LAEDEN[laden || 'kirmes']; const t = fmt(v); L = alt; return t; }
 function zeigeProtokoll() {
@@ -2003,7 +2209,7 @@ function oeffneLehrkraft() {
   setzeAuswahl($('e-start'), S.nr); setzeAuswahl($('e-aufstieg'), E.aufstieg);
   $('e-art').value = E.art; $('e-anzahl').value = E.anzahl; $('e-betrag').value = E.betrag;
   setzeAuswahl($('e-max'), E.max); setzeAuswahl($('e-bezahlt'), E.bezahlt); setzeAuswahl($('e-runde'), E.runde); setzeAuswahl($('e-einer'), E.einer);
-  $('e-taster').value = E.taster; setzeAuswahl($('e-tempo'), E.tempo);
+  $('e-taster').value = E.taster; setzeAuswahl($('e-tempo'), E.tempo); $('e-stimme').value = E.stimme;
   for (const k of SCHALTER) $('e-' + k).checked = !!E[k];
   stufeInfo();
   $('version').textContent = `Kirmes-Kiosk ${VERSION} · Stand ${STAND}${navigator.serviceWorker && navigator.serviceWorker.controller ? ' · offline verfügbar' : ''}`;
@@ -2048,7 +2254,7 @@ function leseFormular() {
   const f = {
     name: $('e-name').value.trim().slice(0, 30), laden: $('e-laden').value, geld: LAEDEN[$('e-laden').value].foto ? $('e-geld').value : (E.geld || 'foto'), modus: $('e-modus').value, start: +$('e-start').value, aufstieg: +$('e-aufstieg').value,
     art: $('e-art').value, anzahl: +$('e-anzahl').value, betrag: $('e-betrag').value, max: +$('e-max').value, bezahlt: +$('e-bezahlt').value,
-    runde: +$('e-runde').value, einer: +$('e-einer').value, taster: $('e-taster').value, tempo: +$('e-tempo').value,
+    runde: +$('e-runde').value, einer: +$('e-einer').value, taster: $('e-taster').value, tempo: +$('e-tempo').value, stimme: $('e-stimme').value,
   };
   for (const k of SCHALTER) f[k] = $('e-' + k).checked;
   return f;
@@ -2062,6 +2268,7 @@ function aktualisiereLink() {
   else { q.set('art', f.art); q.set('anzahl', f.anzahl); q.set('betrag', f.betrag); q.set('max', f.max); if (f.art !== 'kaufen') q.set('bezahlt', f.bezahlt); if (f.einer) q.set('einer', f.einer); }
   q.set('runde', f.runde);
   if (f.taster !== 'aus') { q.set('taster', f.taster); q.set('tempo', f.tempo); }
+  if (f.stimme !== STANDARD.stimme) q.set('stimme', f.stimme);
   for (const k of SCHALTER) if (f[k] !== STANDARD[k]) q.set(k, f[k] ? '1' : '0');
   const basis = location.protocol.startsWith('http') ? location.origin + location.pathname : 'https://walteroelf.github.io/kirmes-kiosk/';
   $('link-text').textContent = basis + '?' + q.toString();
@@ -2119,7 +2326,7 @@ function stufeVon(id) {
 }
 function bandVon(id, nr) { const b = LADEN_INFO[id].baender; let i = 0; while (i + 1 < b.length && nr >= b[i + 1][0]) i++; return i; }
 function startSatz() {
-  return E.wahl ? 'Wo möchtest du einkaufen? Im Kirmes-Kiosk, in der Bäckerei oder im Spielwarenladen?' : `Tippe auf Los geht's. Heute kaufst du im ${LAEDEN[E.laden].name} ein.`;
+  return E.wahl ? 'Wo möchtest du einkaufen? Im Kirmes-Kiosk, in der Bäckerei oder im Spielwarenladen?' : `Tippe auf Los geht's. Heute kaufst du ${{ kirmes: 'am Kirmes-Kiosk', baeckerei: 'in der Bäckerei', spielwaren: 'im Spielwarenladen' }[E.laden]} ein.`;
 }
 function zeigeStart() {
   $('spiel').hidden = true; $('ende').hidden = true; $('start').hidden = false;

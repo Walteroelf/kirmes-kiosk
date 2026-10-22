@@ -1,10 +1,10 @@
 /*
  * Service Worker: macht die App offline nutzbar (z. B. bei wackligem Schul-WLAN).
  * Programmdateien: zuerst aus dem Netz (damit Änderungen sofort ankommen), sonst aus dem Speicher.
- * Bilder und Schriften: aus dem Speicher (ändern sich nicht).
+ * Bilder, Schriften und Ansagen (ton/): aus dem Speicher (ändern sich nicht).
  * Bei einer neuen Version VERSION erhöhen – dann wird alles neu geladen.
  */
-const VERSION = '3.2.0';
+const VERSION = '3.3.0';
 const CACHE = 'kirmes-kiosk-' + VERSION;
 const DATEIEN = [
   './',
@@ -13,6 +13,7 @@ const DATEIEN = [
   'worker.js',
   'geld.js',
   'manifest.webmanifest',
+  'ton/index.json',
   'bilder/baeckerei/amerikaner.svg',
   'bilder/baeckerei/apfelkuchen.svg',
   'bilder/baeckerei/apfelschorle.svg',
@@ -82,7 +83,14 @@ const DATEIEN = [
 ];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(DATEIEN)).then(() => self.skipWaiting()));
+  // Ansagen der Thorsten-Stimme: Liste steht in ton/index.json
+  e.waitUntil(caches.open(CACHE).then(async c => {
+    await c.addAll(DATEIEN);
+    try {
+      const index = await (await fetch('ton/index.json')).json();
+      await c.addAll([...new Set(Object.values(index))].map(d => 'ton/' + d));
+    } catch (err) { /* ohne Ansagen: dann liest die Gerätestimme */ }
+  }).then(() => self.skipWaiting()));
 });
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys().then(namen => Promise.all(namen.filter(n => n.startsWith('kirmes-kiosk-') && n !== CACHE).map(n => caches.delete(n))))
@@ -91,7 +99,7 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
   if (e.request.method !== 'GET' || url.origin !== location.origin) return;
-  const fest = /\/(bilder|schriften|icons)\//.test(url.pathname);
+  const fest = /\/(bilder|schriften|icons|ton)\//.test(url.pathname) && !url.pathname.endsWith('index.json');
   if (fest) {
     e.respondWith(caches.match(e.request).then(r => r || fetch(e.request).then(antwort => {
       const kopie = antwort.clone(); caches.open(CACHE).then(c => c.put(e.request, kopie)); return antwort;
