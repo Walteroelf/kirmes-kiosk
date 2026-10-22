@@ -20,7 +20,11 @@ Alles läuft im Browser: kein Server, kein Konto, keine KI-Dienste. Die Fotos ve
 
 ## Drei Läden
 
-Im Lehrkraft-Bereich unter **„Laden“** (oder per Link `…?laden=…`) wählbar. Jeder Laden hat eigene Waren, eigene Stufen, eigenen Fortschritt und eine eigene Auswertung.
+**Startbildschirm:** Bei jedem Öffnen wählt das Kind den Laden selbst (Kirmes-Kiosk, Bäckerei, Spielwarenladen) oder tippt auf **„Weiter wie zuletzt“**. Jede Karte nennt kurz den mathematischen Anspruch. Im Lehrkraft-Bereich lässt sich die freie Wahl abschalten („Das Kind darf beim Start den Laden selbst wählen“); dann gibt es nur „Los geht's“ im eingestellten Laden. Nach einer Runde führt **„Anderer Laden“** zurück zum Start.
+
+**Schwierigkeit je Laden (Lehrkraft):** Über „Schwierigkeit festlegen (Lehrkraft)“ auf dem Startbildschirm (mit Code) oder im Lehrkraft-Bereich. Für jeden Laden *leicht* (Stufe 1–2), *mittel* (3–4) oder *schwer* (5–8), aufklappbar auch jede einzelne Stufe. Dazu: **Steigert sich** (nächste Stufe nach gelösten Aufgaben) oder **Bleibt** (übt auf der gewählten Stufe). Die Wahl gilt sofort. Mit `…?start=0` startet die App ohne Startbildschirm.
+
+Im Lehrkraft-Bereich ist der Laden außerdem unter **„Laden“** (oder per Link `…?laden=…`) einstellbar. Jeder Laden hat eigene Waren, eigene Stufen, eigenen Fortschritt und eine eigene Auswertung.
 
 | Laden | Zahlenraum | Geld im Vorrat | Geld legen |
 |---|---|---|---|

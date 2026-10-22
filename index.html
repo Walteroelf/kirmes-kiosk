@@ -408,6 +408,40 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
 .zieh-geist .geldbild svg { filter: drop-shadow(0 6px 6px rgba(0,0,0,.3)); }
 .ablage-feld { align-items: center; }
 @media (max-width: 620px) { .vorrat.schein-zeile .geldbild svg { width: 120px; } }
+/* Startbildschirm: Laden wählen */
+.start { padding: 22px 18px; gap: 18px; }
+.start-frage { margin: 0; font-family: var(--anzeige); font-size: clamp(28px, 5vw, 38px); text-align: center; }
+.grossknopf.zuletzt { flex-direction: column; gap: 2px; }
+.grossknopf.zuletzt small { font-family: var(--schrift); font-weight: 700; font-size: 19px; opacity: .9; }
+.laden-karten { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
+.laden-karte {
+  display: grid; gap: 10px; align-content: start; text-align: left; font: inherit; color: var(--holz); cursor: pointer;
+  background: var(--tresen); border: 4px solid var(--karte, var(--holz)); border-radius: 20px; padding: 14px 14px 16px;
+  box-shadow: 0 6px 0 var(--karte, var(--holz));
+}
+.laden-karte:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--karte, var(--holz)); }
+.laden-karte .karte-bilder { display: flex; justify-content: center; align-items: flex-end; gap: 4px; background: var(--teller); border-radius: 14px; padding: 10px 6px; height: 118px; }
+.laden-karte .karte-bilder img { height: 96px; width: auto; max-width: 33%; object-fit: contain; }
+.laden-karte .karte-name { font-family: var(--anzeige); font-weight: 900; font-size: 28px; color: var(--karte, var(--holz)); text-align: center; }
+.laden-karte .karte-anspruch { margin: 0; font-size: 15px; color: var(--holz-hell); line-height: 1.35; }
+.laden-karte .karte-stufe { font-size: 15px; font-weight: 700; justify-self: start; background: var(--himmel); border-radius: 999px; padding: 3px 10px; }
+.start-lehrkraft { justify-self: center; }
+body.auf-start #knopf-preisliste { display: none; }
+/* Schwierigkeit je Laden (Lehrkraft) */
+.sw-laden { display: grid; gap: 10px; border: 3px solid var(--karte, var(--linie)); border-radius: 16px; padding: 14px; }
+.sw-laden h3 { margin: 0; font-family: var(--anzeige); font-size: 24px; color: var(--karte, var(--holz)); }
+.sw-laden p { margin: 0; font-size: 16px; line-height: 1.4; }
+.sw-baender, .sw-modus { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+.sw-band {
+  display: grid; gap: 2px; text-align: left; font: inherit; color: var(--holz); cursor: pointer;
+  border: 3px solid var(--linie); border-radius: 14px; background: var(--tresen); padding: 10px 12px;
+}
+.sw-band strong { font-family: var(--anzeige); font-size: 21px; }
+.sw-band span { font-size: 15px; color: var(--holz-hell); }
+.sw-band[aria-pressed="true"] { border-color: var(--karte, var(--markise)); background: var(--himmel); box-shadow: inset 0 0 0 2px var(--karte, var(--markise)); }
+.sw-laden details summary { cursor: pointer; font-weight: 700; font-size: 16px; }
+.sw-laden details select { margin-top: 8px; width: 100%; font: inherit; font-size: 16px; padding: 8px 10px; border-radius: 10px; border: 2px solid var(--linie); background: var(--himmel); color: var(--holz); }
+.sw-aktuell { font-size: 15px; color: var(--holz-hell); }
 </style>
 </head>
 <body>
@@ -428,7 +462,16 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
   </div>
 </header>
 
-<main id="spiel">
+<main id="start" hidden>
+  <section class="tresen start">
+    <button class="grossknopf weiter zuletzt" id="knopf-zuletzt" data-scan><span id="zuletzt-titel">Weiter wie zuletzt</span><small id="zuletzt-laden"></small></button>
+    <h2 class="start-frage" id="start-frage">Wo möchtest du einkaufen?</h2>
+    <div class="laden-karten" id="laden-karten"></div>
+  </section>
+  <button class="mittelknopf start-lehrkraft" id="knopf-start-schwierigkeit">Schwierigkeit festlegen (Lehrkraft)</button>
+</main>
+
+<main id="spiel" hidden>
   <div class="fortschritt">
     <p class="gruss" id="gruss">Hallo!</p>
     <span class="platz" style="flex:1"></span>
@@ -517,7 +560,10 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
     <h2>Geschafft!</h2>
     <p class="gruss" id="ende-text"></p>
     <div class="sterne" id="sterne"></div>
-    <button class="grossknopf" id="knopf-neu" data-scan>Neue Runde</button>
+    <div class="knopfreihe" style="width:100%">
+      <button class="grossknopf" id="knopf-neu" data-scan>Neue Runde</button>
+      <button class="grossknopf leise" id="knopf-anderer-laden" data-scan>Anderer Laden</button>
+    </div>
   </section>
 </main>
 
@@ -575,6 +621,24 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
 </dialog>
 
 <!-- Lehrkraft -->
+<dialog id="dlg-schwierigkeit" aria-labelledby="sw-titel">
+  <div class="dialog-kopf">
+    <h2 id="sw-titel">Schwierigkeit je Laden</h2>
+    <button class="mittelknopf primaer" id="knopf-sw-fertig">Fertig</button>
+  </div>
+  <div class="dialog-inhalt">
+    <p style="margin:0;font-size:16px">Das Kind wählt beim Start den Laden. Hier legen Sie fest, auf welcher Stufe es in jedem Laden beginnt. Die Wahl gilt sofort.</p>
+    <div id="sw-laeden" style="display:grid;gap:16px"></div>
+    <div class="abschnitt">
+      <h3>Wie geht es weiter?</h3>
+      <div class="sw-modus" id="sw-modus">
+        <button class="sw-band" data-steigern="1"><strong>Steigert sich</strong><span>Nach gelösten Aufgaben kommt die nächste Stufe.</span></button>
+        <button class="sw-band" data-steigern="0"><strong>Bleibt</strong><span>Das Kind übt auf der gewählten Stufe weiter.</span></button>
+      </div>
+    </div>
+  </div>
+</dialog>
+
 <dialog id="dlg-lehrkraft" aria-labelledby="lk-titel">
   <div class="dialog-kopf">
     <h2 id="lk-titel">Lehrkraft-Bereich</h2>
@@ -591,10 +655,11 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
       <div class="feld">
         <label for="e-modus">Ablauf</label>
         <select id="e-modus">
-          <option value="stufen">Stufen: steigert sich automatisch</option>
+          <option value="stufen">Stufen</option>
           <option value="fest">Feste Einstellungen (unten)</option>
         </select>
         <span class="hilfe" id="stufe-info"></span>
+        <button class="mittelknopf" id="knopf-lk-schwierigkeit" type="button" style="justify-self:start">Schwierigkeit je Laden festlegen</button>
       </div>
       <div class="feld">
         <label for="e-laden">Laden</label>
@@ -604,6 +669,7 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
           <option value="baeckerei">Bäckerei (Euro und Cent bis ca. 10 €)</option>
         </select>
         <span class="hilfe">Jeder Laden hat eigene Waren, Stufen und eine eigene Auswertung.</span>
+        <label class="schalter"><input type="checkbox" id="e-wahl"> Das Kind darf beim Start den Laden selbst wählen</label>
       </div>
       <div class="feld">
         <label for="e-geld">Geld legen</label>
@@ -625,6 +691,7 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
           <option value="10">10 gelösten Aufgaben</option><option value="15">15 gelösten Aufgaben</option>
         </select>
         <span class="hilfe">Zählt nur Aufgaben, die mit höchstens 2 Fotos und ohne Hilfe gelöst wurden.</span>
+        <label class="schalter"><input type="checkbox" id="e-steigern"> Stufe steigt automatisch (sonst bleibt sie)</label>
         <label class="schalter"><input type="checkbox" id="e-abstieg"> Eine Stufe zurück nach 3 schweren Aufgaben in Folge</label>
       </div>
 
@@ -773,8 +840,8 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
 <script src="geld.js"></script>
 <script>
 'use strict';
-const VERSION = '3.1.2';
-const STAND = '21.10.2026';
+const VERSION = '3.2.0';
+const STAND = '22.10.2026';
 
 // ---------------------------------------------------------------------------
 // Läden. Beträge in der Einheit des Ladens: Kirmes und Spielwaren in ganzen Euro,
@@ -950,8 +1017,8 @@ const EINS = () => L.faktor;   // Wert einer 1-€-Münze in der Einheit des Lad
 const STANDARD = { name: '', laden: 'kirmes', geld: 'foto', modus: 'stufen', start: 1, aufstieg: 8, abstieg: false,
                    art: 'kaufen', anzahl: 3, betrag: 'alle', max: 15, bezahlt: 10, runde: 10, einer: 0, schild: false,
                    preise: false, hilfe: true, doppelt: true, betragzeigen: true, ton: true, kamera: true, fotos: false,
-                   taster: 'aus', tempo: 2500 };
-const SCHALTER = ['abstieg', 'preise', 'hilfe', 'doppelt', 'betragzeigen', 'ton', 'kamera', 'fotos', 'schild'];
+                   taster: 'aus', tempo: 2500, wahl: true, steigern: true };
+const SCHALTER = ['wahl', 'steigern', 'abstieg', 'preise', 'hilfe', 'doppelt', 'betragzeigen', 'ton', 'kamera', 'fotos', 'schild'];
 const speicher = {
   lesen(k, f) { try { const v = localStorage.getItem('kirmes-' + k); return v ? JSON.parse(v) : f; } catch (e) { return f; } },
   schreiben(k, v) { try { localStorage.setItem('kirmes-' + k, JSON.stringify(v)); } catch (e) { /* kein Speicher */ } },
@@ -984,7 +1051,8 @@ if (typeof E.schild !== 'boolean') E.schild = E.schild === '4' || E.schild === '
 // Stufen-Fortschritt: { nr, geloest, schwerInFolge }
 if (!LAEDEN[E.laden]) E.laden = 'kirmes';
 // Stufen-Fortschritt je Laden (Kirmes behält den alten Speicherplatz 'stufe')
-const stufenSchluessel = () => E.laden === 'kirmes' ? 'stufe' : 'stufe-' + E.laden;
+const stufenKey = id => id === 'kirmes' ? 'stufe' : 'stufe-' + id;
+const stufenSchluessel = () => stufenKey(E.laden);
 let S;
 function ladenSetzen(id) {
   E.laden = LAEDEN[id] ? id : 'kirmes';
@@ -1604,8 +1672,8 @@ $('knopf-weiter').addEventListener('click', () => {
   let neueStufe = false;
   if (E.modus === 'stufen') {
     if (leicht) { S.geloest++; S.schwerInFolge = 0; } else S.schwerInFolge++;
-    if (S.geloest >= E.aufstieg && S.nr < STUFEN.length) { S = { nr: S.nr + 1, geloest: 0, schwerInFolge: 0 }; neueStufe = true; }
-    else if (E.abstieg && S.schwerInFolge >= 3 && S.nr > 1) { S = { nr: S.nr - 1, geloest: 0, schwerInFolge: 0 }; neueStufe = 'zurueck'; }
+    if (E.steigern && S.geloest >= E.aufstieg && S.nr < STUFEN.length) { S = { nr: S.nr + 1, geloest: 0, schwerInFolge: 0 }; neueStufe = true; }
+    else if (E.steigern && E.abstieg && S.schwerInFolge >= 3 && S.nr > 1) { S = { nr: S.nr - 1, geloest: 0, schwerInFolge: 0 }; neueStufe = 'zurueck'; }
     speicher.schreiben(stufenSchluessel(), S);
   }
   runde.nr++;
@@ -1639,6 +1707,9 @@ function zeigeEnde() {
 }
 $('knopf-neu').addEventListener('click', starteRunde);
 function starteRunde() {
+  $('start').hidden = true; document.body.classList.remove('auf-start');
+  $('laden-titel').textContent = L.name; document.title = L.name;
+  $('knopf-anderer-laden').hidden = !E.wahl;
   runde = { nr: 0, ergebnisse: [] };
   aufgabe = neueAufgabe();
   zeigeAufgabe();
@@ -1674,6 +1745,7 @@ function vorlesenAufgabe() {
   else sage(`Ich möchte kaufen: ${liste}. Rechne aus, wie viel alles kostet. ${legen}`);
 }
 $('knopf-vorlesen').addEventListener('click', () => {
+  if (!$('start').hidden) return sage(startSatz());
   if (!$('ende').hidden) return sage($('ende-text').textContent);
   vorlesenAufgabe();
 });
@@ -1699,7 +1771,7 @@ function jubel(gross) {
 // Bedienung mit einem Taster: Markierung wandert von Knopf zu Knopf
 // ---------------------------------------------------------------------------
 let scanIndex = -1, scanTimer = null, scanZiel = null;
-function lehrkraftOffen() { return $('dlg-lehrkraft').open || $('dlg-code').open; }
+function lehrkraftOffen() { return $('dlg-lehrkraft').open || $('dlg-code').open || $('dlg-schwierigkeit').open; }
 function scanZiele() {
   if (lehrkraftOffen()) return [];
   if (!$('kamera-ansicht').hidden) return [...document.querySelectorAll('[data-scan-kamera]')];
@@ -1886,7 +1958,7 @@ $('knopf-preisliste').addEventListener('click', () => { $('dlg-preisliste').show
 // Lehrkraft-Bereich nur mit Code: 4 Zahlen, als Wörter angezeigt, jedes Mal neu.
 // Ein Kind, das (noch) nicht liest, kann damit nichts anfangen.
 const ZAHLWORT = ['null', 'eins', 'zwei', 'drei', 'vier', 'fünf', 'sechs', 'sieben', 'acht', 'neun'];
-let code = '', eingabe = '';
+let code = '', eingabe = '', nachCode = oeffneLehrkraft;
 function neuerCode() {
   const z = new Uint8Array(4);
   try { crypto.getRandomValues(z); } catch (e) { for (let i = 0; i < 4; i++) z[i] = Math.floor(Math.random() * 256); }
@@ -1902,7 +1974,7 @@ function codeTaste(t) {
   if (eingabe.length < 4) return;
   if (eingabe === code) {
     $('dlg-code').close(); $('code-fehler').textContent = '';
-    oeffneLehrkraft();
+    nachCode();
   } else {
     $('code-fehler').textContent = 'Falsch. Hier ist ein neuer Code.';
     const k = $('dlg-code').querySelector('.dialog-inhalt');
@@ -1910,11 +1982,13 @@ function codeTaste(t) {
     setTimeout(neuerCode, 350);
   }
 }
-$('knopf-lehrkraft').addEventListener('click', () => {
+function frageCode(ziel) {
+  nachCode = ziel;
   clearInterval(scanTimer); scanMarkiere(null);
   neuerCode(); $('code-fehler').textContent = '';
   $('dlg-code').showModal();
-});
+}
+$('knopf-lehrkraft').addEventListener('click', () => frageCode(oeffneLehrkraft));
 $('ziffernblock').addEventListener('click', ev => { const b = ev.target.closest('[data-ziffer]'); if (b) codeTaste(b.dataset.ziffer); });
 $('dlg-code').addEventListener('keydown', ev => {
   if (/^[0-9]$/.test(ev.key)) { ev.preventDefault(); codeTaste(ev.key); }
@@ -1931,11 +2005,15 @@ function oeffneLehrkraft() {
   setzeAuswahl($('e-max'), E.max); setzeAuswahl($('e-bezahlt'), E.bezahlt); setzeAuswahl($('e-runde'), E.runde); setzeAuswahl($('e-einer'), E.einer);
   $('e-taster').value = E.taster; setzeAuswahl($('e-tempo'), E.tempo);
   for (const k of SCHALTER) $('e-' + k).checked = !!E[k];
-  $('stufe-info').textContent = `Aktuell: Stufe ${S.nr} („${STUFEN[S.nr - 1].titel}“), ${S.geloest} von ${E.aufstieg} Aufgaben bis zur nächsten Stufe.`;
+  stufeInfo();
   $('version').textContent = `Kirmes-Kiosk ${VERSION} · Stand ${STAND}${navigator.serviceWorker && navigator.serviceWorker.controller ? ' · offline verfügbar' : ''}`;
   modusAnzeigen(); aktualisiereLink(); zeigeProtokoll(); zeigeBericht();
   $('loeschen-frage').hidden = true; $('alles-frage').hidden = true;
   $('dlg-lehrkraft').showModal();
+}
+function stufeInfo() {
+  $('stufe-info').textContent = `Aktuell (${L.name}): Stufe ${S.nr} („${STUFEN[S.nr - 1].titel}“), ` +
+    (E.steigern ? `${Math.min(S.geloest, E.aufstieg)} von ${E.aufstieg} Aufgaben bis zur nächsten Stufe.` : 'die Stufe bleibt.');
 }
 // Auswahl im Lehrkraft-Bereich passend zum gewählten Laden (Höchstbetrag, Bezahlen mit, Stufen)
 function ladenFelder(id) {
@@ -2018,10 +2096,122 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
   window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => { /* ohne Offline-Modus */ }); });
 }
 
-// Start
+// ---------------------------------------------------------------------------
+// Startbildschirm: das Kind wählt den Laden, die Lehrkraft die Schwierigkeit je Laden
+// ---------------------------------------------------------------------------
+const LADEN_FOLGE = ['kirmes', 'baeckerei', 'spielwaren'];
+// baender: [erste Stufe, Name, Beschreibung] – leicht = Stufe 1–2, mittel = 3–4, schwer = 5–8
+const LADEN_INFO = {
+  kirmes: { bilder: ['zuckerwatte', 'popcorn', 'limo'],
+    anspruch: 'Der Einstieg: ganze Euro bis 20 €. Preise zusammenrechnen und mit 1-€- und 2-€-Münzen sowie 5-, 10- und 20-€-Scheinen legen; später geschickt bündeln und Rückgeld von 10 €.',
+    baender: [[1, 'leicht', '2–3 Sachen, bis 12 €'], [3, 'mittel', '4 Sachen bis 15 €, dann nur zwei 1-€-Stücke'], [5, 'schwer', '5 Sachen, bis 20 €, Rückgeld, Reicht das Geld?']] },
+  baeckerei: { bilder: ['brezel', 'croissant', 'berliner'],
+    anspruch: 'Euro und Cent bis 10 €. Kommaschreibweise verstehen und mit 10-, 20- und 50-ct-Münzen legen; 100 Cent werden zu 1 Euro. Später Rückgeld von 5 € und 10 €.',
+    baender: [[1, 'leicht', '1–2 Sachen, bis 3 €'], [3, 'mittel', '3–4 Sachen, bis 8 €'], [5, 'schwer', '5 Sachen bis 10 €, Rückgeld, Reicht das Geld?']] },
+  spielwaren: { bilder: ['ball', 'kuscheltier', 'rc-auto'],
+    anspruch: 'Große Zahlen bis 200 €. Addieren im Hunderterraum mit Zehnerübergang; Stellenwert mit 10-, 20-, 50- und 100-€-Scheinen. Später Rückgeld von 50 € und 100 €.',
+    baender: [[1, 'leicht', '2 Spielsachen, bis 60 €'], [3, 'mittel', '3 Spielsachen bis 150 €, große Scheine'], [5, 'schwer', '4 Spielsachen bis 200 €, Rückgeld, Reicht das Geld?']] },
+};
+const farbeVon = id => matchMedia('(prefers-color-scheme: dark)').matches ? LAEDEN[id].farbeDunkel : LAEDEN[id].farbe;
+function stufeVon(id) {
+  const nr = id === E.laden ? S.nr : (speicher.lesen(stufenKey(id), null) || { nr: 1 }).nr;
+  return clamp(nr, 1, LAEDEN[id].stufen.length);
+}
+function bandVon(id, nr) { const b = LADEN_INFO[id].baender; let i = 0; while (i + 1 < b.length && nr >= b[i + 1][0]) i++; return i; }
+function startSatz() {
+  return E.wahl ? 'Wo möchtest du einkaufen? Im Kirmes-Kiosk, in der Bäckerei oder im Spielwarenladen?' : `Tippe auf Los geht's. Heute kaufst du im ${LAEDEN[E.laden].name} ein.`;
+}
+function zeigeStart() {
+  $('spiel').hidden = true; $('ende').hidden = true; $('start').hidden = false;
+  document.body.classList.add('auf-start');
+  $('laden-titel').textContent = 'Einkaufen'; document.title = 'Kirmes-Kiosk';
+  const frei = E.wahl, schonMal = speicher.lesen('einstellungen', null) !== null;
+  $('zuletzt-titel').textContent = frei ? 'Weiter wie zuletzt' : "Los geht's";
+  $('zuletzt-laden').textContent = LAEDEN[E.laden].name;
+  $('knopf-zuletzt').hidden = frei && !schonMal;
+  $('start-frage').hidden = !frei;
+  $('start-frage').textContent = schonMal ? 'Oder such dir einen Laden aus:' : 'Wo möchtest du einkaufen?';
+  $('laden-karten').hidden = !frei;
+  $('laden-karten').innerHTML = !frei ? '' : LADEN_FOLGE.map(id => {
+    const LL = LAEDEN[id], info = LADEN_INFO[id], nr = stufeVon(id);
+    return `<button class="laden-karte" data-scan data-laden="${id}" style="--karte:${farbeVon(id)}">
+      <span class="karte-bilder">${info.bilder.map(b => `<img src="${LL.ordner}${b}.svg" alt="">`).join('')}</span>
+      <span class="karte-name">${LL.name}</span>
+      <span class="karte-stufe">${info.baender[bandVon(id, nr)][1]} · Stufe ${nr}</span>
+      <span class="karte-anspruch">${info.anspruch}</span>
+    </button>`;
+  }).join('');
+  window.scrollTo(0, 0);
+  scanNeu();
+}
+function ladenWaehlen(id) {
+  if (id !== E.laden) ladenSetzen(id);
+  speicher.schreiben('einstellungen', E);
+  speicher.schreiben(stufenSchluessel(), S);
+  zeigeLaden();
+  starteRunde();
+  setTimeout(vorlesenAufgabe, 400);
+}
+$('laden-karten').addEventListener('click', ev => { const k = ev.target.closest('[data-laden]'); if (k) ladenWaehlen(k.dataset.laden); });
+$('knopf-zuletzt').addEventListener('click', () => ladenWaehlen(E.laden));
+$('knopf-anderer-laden').addEventListener('click', zeigeStart);
+
+// Schwierigkeit je Laden (nur mit Code oder aus dem Lehrkraft-Bereich). Änderungen gelten sofort.
+let swGeaendert = false;
+function oeffneSchwierigkeit() { swGeaendert = false; zeigeSchwierigkeit(); $('dlg-schwierigkeit').showModal(); }
+function zeigeSchwierigkeit() {
+  const offen = new Set([...$('sw-laeden').querySelectorAll('details[open]')].map(d => d.dataset.laden));
+  $('sw-laeden').innerHTML = LADEN_FOLGE.map(id => {
+    const LL = LAEDEN[id], info = LADEN_INFO[id], nr = stufeVon(id), band = bandVon(id, nr);
+    return `<div class="sw-laden" style="--karte:${farbeVon(id)}">
+      <h3>${LL.name}</h3>
+      <p>${info.anspruch}</p>
+      <div class="sw-baender">${info.baender.map(([st, name, txt], i) =>
+        `<button class="sw-band" data-laden="${id}" data-stufe="${st}" aria-pressed="${i === band}"><strong>${name}</strong><span>${txt}</span></button>`).join('')}</div>
+      <details data-laden="${id}"${offen.has(id) ? ' open' : ''}><summary>Genaue Stufe wählen</summary>
+        <select data-laden="${id}" aria-label="Genaue Stufe ${LL.name}">${LL.stufen.map((x, i) =>
+          `<option value="${i + 1}"${i + 1 === nr ? ' selected' : ''}>Stufe ${i + 1}: ${x.titel}</option>`).join('')}</select></details>
+      <span class="sw-aktuell">Aktuell: Stufe ${nr} – ${LL.stufen[nr - 1].titel}</span>
+    </div>`;
+  }).join('');
+  $('sw-modus').querySelectorAll('[data-steigern]').forEach(b => b.setAttribute('aria-pressed', String((b.dataset.steigern === '1') === E.steigern)));
+}
+function setzeStufe(id, nr) {
+  const neu = { nr: clamp(nr, 1, LAEDEN[id].stufen.length), geloest: 0, schwerInFolge: 0 };
+  speicher.schreiben(stufenKey(id), neu);
+  if (id === E.laden) S = neu;
+  E.modus = 'stufen';
+  speicher.schreiben('einstellungen', E);
+  swGeaendert = true;
+  zeigeSchwierigkeit();
+}
+$('sw-laeden').addEventListener('click', ev => { const b = ev.target.closest('.sw-band'); if (b) setzeStufe(b.dataset.laden, +b.dataset.stufe); });
+$('sw-laeden').addEventListener('change', ev => { const sel = ev.target.closest('select'); if (sel) setzeStufe(sel.dataset.laden, +sel.value); });
+$('sw-modus').addEventListener('click', ev => {
+  const b = ev.target.closest('[data-steigern]'); if (!b) return;
+  E.steigern = b.dataset.steigern === '1';
+  speicher.schreiben('einstellungen', E);
+  swGeaendert = true; zeigeSchwierigkeit();
+});
+$('knopf-sw-fertig').addEventListener('click', () => $('dlg-schwierigkeit').close());
+$('knopf-start-schwierigkeit').addEventListener('click', () => frageCode(oeffneSchwierigkeit));
+$('knopf-lk-schwierigkeit').addEventListener('click', oeffneSchwierigkeit);
+$('dlg-schwierigkeit').addEventListener('close', () => {
+  if ($('dlg-lehrkraft').open) {
+    // Lehrkraft-Bereich auf den neuen Stand bringen
+    $('e-modus').value = E.modus; $('e-steigern').checked = E.steigern;
+    ladenFelder($('e-laden').value); stufeInfo(); modusAnzeigen(); aktualisiereLink();
+  } else if (swGeaendert && !$('start').hidden) zeigeStart();
+  else if (swGeaendert && !$('spiel').hidden) starteRunde();
+  scanNeu();
+});
+
+// Start: jedes Mal mit dem Startbildschirm (außer mit ?start=0)
 zeigeLaden();
 speicher.schreiben(stufenSchluessel(), S);
-starteRunde();
+if (new URLSearchParams(location.search).get('start') === '0') starteRunde();
+else zeigeStart();
+
 </script>
 </body>
 </html>
