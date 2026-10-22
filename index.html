@@ -861,7 +861,7 @@ body.auf-start #knopf-preisliste { display: none; }
 <script src="geld.js"></script>
 <script>
 'use strict';
-const VERSION = '3.4.0';
+const VERSION = '3.5.0';
 const STAND = '22.10.2026';
 
 // ---------------------------------------------------------------------------
@@ -1809,8 +1809,29 @@ try { if ('speechSynthesis' in window) { speechSynthesis.getVoices(); speechSynt
 // Waren, Beträge). Nur der Name des Kindes fehlt dort – den liest die Stimme des Geräts.
 const tonSchluessel = w => w.toLowerCase().replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '');
 let tonIndex = null, tonKtx = null, tonLauf = 0, tonQuellen = [];
+const TON_RAND = 0.15;   // Stille vorn und hinten in jeder Ansage (werkzeuge/ansagen.py: PUFFER)
 const tonPuffer = new Map();
-fetch('ton/index.json').then(r => r.ok ? r.json() : null).then(j => { tonIndex = j; }).catch(() => { /* dann Gerätestimme */ });
+fetch('ton/index.json').then(r => r.ok ? r.json() : null).then(j => { tonIndex = j; setTimeout(ansagenSpeichern, 3000); }).catch(() => { /* dann Gerätestimme */ });
+// Ansagen im Hintergrund in den Offline-Speicher laden – in einen eigenen Speicher, der bei Updates
+// erhalten bleibt. Bricht das Laden ab (App zu, kein WLAN), geht es beim nächsten Öffnen weiter.
+let tonStand = null;   // { gesamt, fertig }
+async function ansagenSpeichern() {
+  if (!('caches' in window) || !tonIndex || E.stimme !== 'thorsten' || tonStand) return;
+  try {
+    const c = await caches.open('kirmes-ton'), noetig = new Set(Object.values(tonIndex));
+    const name = r => decodeURIComponent(new URL(r.url).pathname.split('/ton/').pop());
+    const da = new Set();
+    for (const r of await c.keys()) { if (noetig.has(name(r))) da.add(name(r)); else await c.delete(r); }
+    const fehlt = [...noetig].filter(d => !da.has(d));
+    tonStand = { gesamt: noetig.size, fertig: da.size };
+    for (let i = 0; i < fehlt.length; i += 8) {
+      await Promise.all(fehlt.slice(i, i + 8).map(async d => {
+        try { if (!(await c.match('ton/' + d))) { const r = await fetch('ton/' + d); if (!r.ok) return; await c.put('ton/' + d, r); } tonStand.fertig++; }
+        catch (e) { /* offline: beim nächsten Mal */ }
+      }));
+    }
+  } catch (e) { /* kein Speicher */ }
+}
 function tonKontext() {
   if (!tonKtx) { const K = window.AudioContext || window.webkitAudioContext; if (K) tonKtx = new K(); }
   return tonKtx;
@@ -1864,12 +1885,13 @@ async function sageThorsten(text) {
   catch (e) { return lauf !== tonLauf; }   // Datei fehlt (offline, noch nicht gespeichert): Gerätestimme
   if (lauf !== tonLauf) return true;
   if (k.state === 'suspended') try { await k.resume(); } catch (e) { /* egal */ }
-  let zeit = k.currentTime + 0.05;
+  let zeit = k.currentTime + 0.02;
   for (const t of teile) {
     if (lauf !== tonLauf) return true;
     if (t.puffer) {
       const q = k.createBufferSource(); q.buffer = t.puffer; q.connect(k.destination); q.start(zeit);
-      tonQuellen.push(q); zeit += t.puffer.duration + t.pause;
+      // Die Stille-Puffer zweier Ansagen überlappen sich; geschnitten wird nur in der Stille.
+      tonQuellen.push(q); zeit += Math.max(0.05, t.puffer.duration - 2 * TON_RAND) + t.pause;
     } else {
       await warte(zeit - k.currentTime);
       if (lauf !== tonLauf) return true;
@@ -2212,7 +2234,8 @@ function oeffneLehrkraft() {
   $('e-taster').value = E.taster; setzeAuswahl($('e-tempo'), E.tempo); $('e-stimme').value = E.stimme;
   for (const k of SCHALTER) $('e-' + k).checked = !!E[k];
   stufeInfo();
-  $('version').textContent = `Kirmes-Kiosk ${VERSION} · Stand ${STAND}${navigator.serviceWorker && navigator.serviceWorker.controller ? ' · offline verfügbar' : ''}`;
+  $('version').textContent = `Kirmes-Kiosk ${VERSION} · Stand ${STAND}${navigator.serviceWorker && navigator.serviceWorker.controller ? ' · offline verfügbar' : ''}` +
+    (tonStand ? ` · Ansagen offline: ${tonStand.fertig === tonStand.gesamt ? 'alle' : `${tonStand.fertig} von ${tonStand.gesamt}`}` : '');
   modusAnzeigen(); aktualisiereLink(); zeigeProtokoll(); zeigeBericht();
   $('loeschen-frage').hidden = true; $('alles-frage').hidden = true;
   $('dlg-lehrkraft').showModal();

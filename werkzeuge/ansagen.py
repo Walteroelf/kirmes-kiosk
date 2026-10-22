@@ -23,7 +23,7 @@ import argparse, array, hashlib, json, math, os, re, subprocess, sys, tempfile, 
 HIER = os.path.dirname(os.path.abspath(__file__))
 APP = os.path.dirname(HIER)
 ZIEL = os.path.join(APP, 'ton')
-TON_STAND = '2'   # erhöhen, wenn sich die Aufbereitung ändert (dann wird alles neu erzeugt)
+TON_STAND = '3'   # erhöhen, wenn sich die Aufbereitung ändert (dann wird alles neu erzeugt)
 
 
 def schluessel(text):
@@ -148,19 +148,30 @@ def sammle(lob_stimme):
     return liste
 
 
-def aufbereiten(pfad_ein, pfad_aus, schwelle=350, rand_ms=25, ziel_rms=3200):
-    """Stille am Rand weg (die App setzt die Pausen selbst) und alle Bausteine gleich laut."""
+PUFFER = 0.15   # Sekunden Stille vorn und hinten (wie TON_RAND in index.html)
+
+
+def aufbereiten(pfad_ein, pfad_aus, ziel_rms=3200):
+    """Stille am Rand kürzen, alle Bausteine gleich laut, vorn und hinten PUFFER Stille.
+    Der Puffer schützt die Wortenden: manche Geräte schneiden beim Entpacken von AAC
+    am Anfang oder Ende ein Stück ab – dann trifft es nur die Stille."""
     with wave.open(pfad_ein) as w:
         p = w.getparams(); d = array.array('h', w.readframes(p.nframes))
+    r = p.framerate
+    spitze0 = max((abs(v) for v in d), default=1) or 1
+    schwelle = max(80, int(spitze0 * 0.012))   # leise Laute (s, n, ch) am Wortende behalten
     laut = [i for i, v in enumerate(d) if abs(v) > schwelle]
     if laut:
-        rand = int(p.framerate * rand_ms / 1000)
-        d = d[max(0, laut[0] - rand):min(len(d), laut[-1] + rand)]
+        d = d[max(0, laut[0] - int(r * 0.04)):min(len(d), laut[-1] + int(r * 0.09))]
     stimmhaft = [v for v in d if abs(v) > schwelle] or [1]
     rms = math.sqrt(sum(v * v for v in stimmhaft) / len(stimmhaft))
     spitze = max(abs(v) for v in d) or 1
     faktor = min(ziel_rms / rms, 30000 / spitze)
-    d = array.array('h', (max(-32767, min(32767, int(v * faktor))) for v in d))
+    blende = int(r * 0.008)
+    n = len(d)
+    d = array.array('h', (max(-32767, min(32767, int(v * faktor * min(1, (i + 1) / blende, (n - i) / blende)))) for i, v in enumerate(d)))
+    stille = array.array('h', [0] * int(r * PUFFER))
+    d = stille + d + stille
     with wave.open(pfad_aus, 'wb') as w:
         w.setparams(p); w.writeframes(d.tobytes())
 

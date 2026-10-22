@@ -2,9 +2,11 @@
  * Service Worker: macht die App offline nutzbar (z. B. bei wackligem Schul-WLAN).
  * Programmdateien: zuerst aus dem Netz (damit Änderungen sofort ankommen), sonst aus dem Speicher.
  * Bilder, Schriften und Ansagen (ton/): aus dem Speicher (ändern sich nicht).
+ * Die Ansagen liegen in einem eigenen Speicher 'kirmes-ton', den die App selbst im Hintergrund
+ * füllt (index.html, ansagenSpeichern). Er bleibt bei neuen Versionen erhalten.
  * Bei einer neuen Version VERSION erhöhen – dann wird alles neu geladen.
  */
-const VERSION = '3.4.0';
+const VERSION = '3.5.0';
 const CACHE = 'kirmes-kiosk-' + VERSION;
 const DATEIEN = [
   './',
@@ -83,17 +85,7 @@ const DATEIEN = [
 ];
 
 self.addEventListener('install', e => {
-  // Ansagen der Thorsten-Stimme: Liste steht in ton/index.json
-  e.waitUntil(caches.open(CACHE).then(async c => {
-    await c.addAll(DATEIEN);
-    try {
-      const index = await (await fetch('ton/index.json')).json();
-      const dateien = [...new Set(Object.values(index))].map(d => 'ton/' + d);
-      for (let i = 0; i < dateien.length; i += 100) {   // in Paketen, damit ein Fehler nicht alles abbricht
-        try { await c.addAll(dateien.slice(i, i + 100)); } catch (err) { /* fehlende Ansage: Gerätestimme */ }
-      }
-    } catch (err) { /* ohne Ansagen: dann liest die Gerätestimme */ }
-  }).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(DATEIEN)).then(() => self.skipWaiting()));
 });
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys().then(namen => Promise.all(namen.filter(n => n.startsWith('kirmes-kiosk-') && n !== CACHE).map(n => caches.delete(n))))
@@ -104,8 +96,10 @@ self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET' || url.origin !== location.origin) return;
   const fest = /\/(bilder|schriften|icons|ton)\//.test(url.pathname) && !url.pathname.endsWith('index.json');
   if (fest) {
+    const ziel = url.pathname.includes('/ton/') ? 'kirmes-ton' : CACHE;
     e.respondWith(caches.match(e.request).then(r => r || fetch(e.request).then(antwort => {
-      const kopie = antwort.clone(); caches.open(CACHE).then(c => c.put(e.request, kopie)); return antwort;
+      if (antwort.ok) { const kopie = antwort.clone(); caches.open(ziel).then(c => c.put(e.request, kopie)); }
+      return antwort;
     })));
   } else {
     e.respondWith(fetch(e.request).then(antwort => {
