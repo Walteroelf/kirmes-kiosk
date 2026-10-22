@@ -222,8 +222,13 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
   background: var(--himmel); color: var(--holz); min-height: 52px; width: 100%;
 }
 .feld .hilfe { font-size: 15px; color: var(--holz-hell); }
-.schalter { display: flex; gap: 10px; align-items: center; font-size: 17px; }
-.schalter input { width: 26px; height: 26px; accent-color: var(--markise); }
+.schalter { display: flex; gap: 12px; align-items: flex-start; font-size: 17px; line-height: 1.3; cursor: pointer; }
+.schalter input { flex: none; appearance: none; -webkit-appearance: none; width: 28px; height: 28px; margin: -3px 0 0;
+  border: 2px solid var(--holz-hell); border-radius: 7px; background: var(--tresen); cursor: pointer; display: grid; place-content: center; }
+.schalter input::after { content: ""; width: 8px; height: 15px; margin-top: -3px; border: solid #fff; border-width: 0 4px 4px 0; transform: rotate(45deg) scale(0); transition: transform .12s; }
+.schalter input:checked { background: var(--markise); border-color: var(--markise); }
+.schalter input:checked::after { transform: rotate(45deg) scale(1); }
+.schalter input:focus-visible { outline: 3px solid var(--markise); outline-offset: 2px; }
 .abschnitt { border-top: 3px solid var(--linie); padding-top: 16px; display: grid; gap: 12px; }
 .abschnitt h3 { margin: 0; font-family: var(--anzeige); font-size: 22px; }
 .linkfeld { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -763,7 +768,7 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
 <script src="geld.js"></script>
 <script>
 'use strict';
-const VERSION = '3.1.0';
+const VERSION = '3.1.1';
 const STAND = '21.10.2026';
 
 // ---------------------------------------------------------------------------
