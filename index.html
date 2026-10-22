@@ -420,12 +420,53 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
   box-shadow: 0 6px 0 var(--karte, var(--holz));
 }
 .laden-karte:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--karte, var(--holz)); }
-.laden-karte .karte-bilder { display: flex; justify-content: center; align-items: flex-end; gap: 4px; background: var(--teller); border-radius: 14px; padding: 10px 6px; height: 118px; }
-.laden-karte .karte-bilder img { height: 96px; width: auto; max-width: 33%; object-fit: contain; }
-.laden-karte .karte-name { font-family: var(--anzeige); font-weight: 900; font-size: 28px; color: var(--karte, var(--holz)); text-align: center; }
-.laden-karte .karte-anspruch { margin: 0; font-size: 15px; color: var(--holz-hell); line-height: 1.35; }
-.laden-karte .karte-stufe { font-size: 15px; font-weight: 700; justify-self: start; background: var(--himmel); border-radius: 999px; padding: 3px 10px; }
-.start-lehrkraft { justify-self: center; }
+.laden-karte .karte-bilder { display: flex; justify-content: center; align-items: flex-end; gap: 4px; background: var(--teller); border-radius: 14px; padding: 12px 6px; height: 150px; }
+.laden-karte .karte-bilder img { height: 124px; width: auto; max-width: 33%; object-fit: contain; }
+.laden-karte .karte-name { font-family: var(--anzeige); font-weight: 900; font-size: 30px; color: var(--karte, var(--holz)); text-align: center; }
+.start-knoepfe { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.start-knoepfe .mittelknopf { display: inline-flex; align-items: center; gap: 8px; }
+.info-i { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--holz); color: var(--tresen);
+  font-family: Georgia, serif; font-style: italic; font-weight: 700; font-size: 18px; line-height: 1; }
+.info-laden { display: grid; gap: 6px; border-left: 6px solid var(--karte, var(--linie)); padding: 4px 0 4px 14px; }
+.info-laden h3 { margin: 0; font-family: var(--anzeige); font-size: 24px; color: var(--karte, var(--holz)); }
+.info-laden p { margin: 0; font-size: 16px; line-height: 1.45; }
+.info-laden .karte-stufe { font-size: 15px; font-weight: 700; justify-self: start; background: var(--himmel); border-radius: 999px; padding: 3px 12px; }
+/* Karten erscheinen nacheinander („Plopp“) */
+.start.erscheint .start-frage, .start.erscheint .laden-karte, .start.erscheint #knopf-zuletzt { animation: plopp .38s cubic-bezier(.3,1.5,.6,1) both; }
+.start.erscheint .laden-karte:nth-child(1) { animation-delay: .08s; }
+.start.erscheint .laden-karte:nth-child(2) { animation-delay: .16s; }
+.start.erscheint .laden-karte:nth-child(3) { animation-delay: .24s; }
+.start.erscheint #knopf-zuletzt { animation-delay: .32s; }
+@keyframes plopp { from { opacity: 0; transform: scale(.85) translateY(14px); } to { opacity: 1; transform: none; } }
+/* Vorhang beim Öffnen der App */
+.vorhang { position: fixed; inset: 0; z-index: 50; overflow: hidden; cursor: pointer; }
+.vorhang-teil {
+  position: absolute; top: 0; bottom: 0; width: 51%;
+  background:
+    linear-gradient(180deg, rgba(0,0,0,.18), transparent 25%, transparent 70%, rgba(0,0,0,.3)),
+    repeating-linear-gradient(90deg, #6e0b10 0, #a3161b 16px, #d1302c 30px, #e04a40 36px, #b81e21 48px, #7d0f13 64px);
+  transition: transform 1.1s cubic-bezier(.65,0,.35,1) .45s;
+}
+.vorhang-teil.links { left: 0; border-right: 7px solid #e4b23c; box-shadow: 6px 0 14px rgba(0,0,0,.35); }
+.vorhang-teil.rechts { right: 0; border-left: 7px solid #e4b23c; box-shadow: -6px 0 14px rgba(0,0,0,.35); }
+.vorhang-blende {
+  position: absolute; left: 0; right: 0; top: 0; height: 64px;
+  background: linear-gradient(180deg, #8f1217, #c0241f); border-bottom: 5px solid #e4b23c;
+  transition: transform .4s ease-in 1.2s;
+}
+.vorhang-blende::after { /* Bogenkante mit Goldrand */
+  content: ""; position: absolute; left: 0; right: 0; bottom: -27px; height: 22px;
+  background: radial-gradient(circle at 30px 0, #c0241f 26px, #e4b23c 27px 30px, transparent 31px) 0 0 / 60px 22px repeat-x;
+}
+.vorhang-schild {
+  position: absolute; left: 50%; top: 46%; transform: translate(-50%, -50%) rotate(-3deg);
+  font-size: clamp(40px, 9vw, 72px); padding: 6px 30px; transition: transform .45s cubic-bezier(.5,-.4,.7,.6) .2s, opacity .45s .2s;
+}
+.vorhang.auf .vorhang-teil.links { transform: translateX(-104%); }
+.vorhang.auf .vorhang-teil.rechts { transform: translateX(104%); }
+.vorhang.auf .vorhang-blende { transform: translateY(-140%); }
+.vorhang.auf .vorhang-schild { transform: translate(-50%, -260%) rotate(-3deg); opacity: 0; }
+@media (prefers-reduced-motion: reduce) { .vorhang { display: none; } .start.erscheint * { animation: none !important; } }
 body.auf-start #knopf-preisliste { display: none; }
 /* Schwierigkeit je Laden (Lehrkraft) */
 .sw-laden { display: grid; gap: 10px; border: 3px solid var(--karte, var(--linie)); border-radius: 16px; padding: 14px; }
@@ -462,13 +503,22 @@ body.auf-start #knopf-preisliste { display: none; }
   </div>
 </header>
 
+<div class="vorhang" id="vorhang" hidden aria-hidden="true">
+  <div class="vorhang-teil links"></div><div class="vorhang-teil rechts"></div>
+  <div class="vorhang-blende"></div>
+  <p class="schild-titel vorhang-schild">Einkaufen!</p>
+</div>
+
 <main id="start" hidden>
-  <section class="tresen start">
-    <button class="grossknopf weiter zuletzt" id="knopf-zuletzt" data-scan><span id="zuletzt-titel">Weiter wie zuletzt</span><small id="zuletzt-laden"></small></button>
+  <section class="tresen start" id="start-tresen">
     <h2 class="start-frage" id="start-frage">Wo möchtest du einkaufen?</h2>
     <div class="laden-karten" id="laden-karten"></div>
+    <button class="grossknopf weiter zuletzt" id="knopf-zuletzt" data-scan><span id="zuletzt-titel">Weiter wie zuletzt</span><small id="zuletzt-laden"></small></button>
   </section>
-  <button class="mittelknopf start-lehrkraft" id="knopf-start-schwierigkeit">Schwierigkeit festlegen (Lehrkraft)</button>
+  <div class="start-knoepfe">
+    <button class="mittelknopf" id="knopf-start-info" aria-label="Info zu den drei Läden"><span class="info-i" aria-hidden="true">i</span> Info</button>
+    <button class="mittelknopf" id="knopf-start-schwierigkeit">Schwierigkeit festlegen (Lehrkraft)</button>
+  </div>
 </main>
 
 <main id="spiel" hidden>
@@ -621,6 +671,14 @@ body.auf-start #knopf-preisliste { display: none; }
 </dialog>
 
 <!-- Lehrkraft -->
+<dialog id="dlg-info" aria-labelledby="info-titel">
+  <div class="dialog-kopf">
+    <h2 id="info-titel">Die drei Läden</h2>
+    <button class="mittelknopf" data-schliessen>Schließen</button>
+  </div>
+  <div class="dialog-inhalt" id="info-inhalt"></div>
+</dialog>
+
 <dialog id="dlg-schwierigkeit" aria-labelledby="sw-titel">
   <div class="dialog-kopf">
     <h2 id="sw-titel">Schwierigkeit je Laden</h2>
@@ -861,7 +919,7 @@ body.auf-start #knopf-preisliste { display: none; }
 <script src="geld.js"></script>
 <script>
 'use strict';
-const VERSION = '3.5.0';
+const VERSION = '3.6.0';
 const STAND = '22.10.2026';
 
 // ---------------------------------------------------------------------------
@@ -1938,7 +1996,7 @@ function jubel(gross) {
 // Bedienung mit einem Taster: Markierung wandert von Knopf zu Knopf
 // ---------------------------------------------------------------------------
 let scanIndex = -1, scanTimer = null, scanZiel = null;
-function lehrkraftOffen() { return $('dlg-lehrkraft').open || $('dlg-code').open || $('dlg-schwierigkeit').open; }
+function lehrkraftOffen() { return $('dlg-lehrkraft').open || $('dlg-code').open || $('dlg-schwierigkeit').open || $('dlg-info').open || vorhangLaeuft; }
 function scanZiele() {
   if (lehrkraftOffen()) return [];
   if (!$('kamera-ansicht').hidden) return [...document.querySelectorAll('[data-scan-kamera]')];
@@ -2360,20 +2418,48 @@ function zeigeStart() {
   $('zuletzt-laden').textContent = LAEDEN[E.laden].name;
   $('knopf-zuletzt').hidden = frei && !schonMal;
   $('start-frage').hidden = !frei;
-  $('start-frage').textContent = schonMal ? 'Oder such dir einen Laden aus:' : 'Wo möchtest du einkaufen?';
   $('laden-karten').hidden = !frei;
   $('laden-karten').innerHTML = !frei ? '' : LADEN_FOLGE.map(id => {
-    const LL = LAEDEN[id], info = LADEN_INFO[id], nr = stufeVon(id);
+    const LL = LAEDEN[id], info = LADEN_INFO[id];
     return `<button class="laden-karte" data-scan data-laden="${id}" style="--karte:${farbeVon(id)}">
       <span class="karte-bilder">${info.bilder.map(b => `<img src="${LL.ordner}${b}.svg" alt="">`).join('')}</span>
       <span class="karte-name">${LL.name}</span>
-      <span class="karte-stufe">${info.baender[bandVon(id, nr)][1]} · Stufe ${nr}</span>
-      <span class="karte-anspruch">${info.anspruch}</span>
     </button>`;
   }).join('');
   window.scrollTo(0, 0);
+  // Karten erscheinen nacheinander (Animation neu starten)
+  const t = $('start-tresen'); t.classList.remove('erscheint'); void t.offsetWidth;
+  if (!vorhangLaeuft) t.classList.add('erscheint');
   scanNeu();
 }
+// Vorhang beim Öffnen der App: geht in knapp 2 Sekunden auf, Tippen überspringt
+let vorhangLaeuft = false;
+function vorhangAuf() {
+  const v = $('vorhang');
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  vorhangLaeuft = true; v.hidden = false;
+  let fertig = false;
+  const ende = () => {
+    if (fertig) return; fertig = true;
+    v.hidden = true; v.classList.remove('auf'); vorhangLaeuft = false; scanNeu();
+  };
+  const karten = setTimeout(() => $('start-tresen').classList.add('erscheint'), 1100);
+  requestAnimationFrame(() => requestAnimationFrame(() => v.classList.add('auf')));
+  const uhr = setTimeout(ende, 1850);
+  v.addEventListener('click', () => { clearTimeout(uhr); clearTimeout(karten); $('start-tresen').classList.add('erscheint'); ende(); }, { once: true });
+}
+// Info: Anspruch der Läden und aktuelle Stufe (nur lesen, darum ohne Code)
+$('knopf-start-info').addEventListener('click', () => {
+  $('info-inhalt').innerHTML = LADEN_FOLGE.map(id => {
+    const LL = LAEDEN[id], info = LADEN_INFO[id], nr = stufeVon(id);
+    return `<div class="info-laden" style="--karte:${farbeVon(id)}">
+      <h3>${LL.name}</h3>
+      <span class="karte-stufe">${info.baender[bandVon(id, nr)][1]} · Stufe ${nr}: ${LL.stufen[nr - 1].titel}</span>
+      <p>${info.anspruch}</p>
+    </div>`;
+  }).join('') + `<p class="leer">Die Stufe legt die Lehrkraft über „Schwierigkeit festlegen“ fest${E.steigern ? '; sie steigt nach gelösten Aufgaben automatisch' : '; sie bleibt, bis die Lehrkraft sie ändert'}.</p>`;
+  $('dlg-info').showModal();
+});
 function ladenWaehlen(id) {
   if (id !== E.laden) ladenSetzen(id);
   speicher.schreiben('einstellungen', E);
@@ -2440,7 +2526,7 @@ $('dlg-schwierigkeit').addEventListener('close', () => {
 zeigeLaden();
 speicher.schreiben(stufenSchluessel(), S);
 if (new URLSearchParams(location.search).get('start') === '0') starteRunde();
-else zeigeStart();
+else { vorhangAuf(); zeigeStart(); }
 
 </script>
 </body>
