@@ -1004,7 +1004,7 @@ dialog::backdrop { background: rgba(29, 58, 92, .45); }
 <script src="geld.js"></script>
 <script>
 'use strict';
-const VERSION = '4.0.0';
+const VERSION = '4.0.1';
 const STAND = '25.10.2026';
 
 // ---------------------------------------------------------------------------
@@ -1819,7 +1819,7 @@ function zeigeSchilder() {
   $('schild-meldung').innerHTML = '';
   $('schritt-schild').hidden = false;
   $('schritt-schild').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  setTimeout(() => sage(rueck ? 'Welches Schild passt zum Rückgeld?' : 'Welches Preis-Schild passt?'), 1600);
+  sageDanach(rueck ? 'Welches Schild passt zum Rückgeld?' : 'Welches Preis-Schild passt?');
   scanNeu();
 }
 $('schilder').addEventListener('click', ev => {
@@ -1829,8 +1829,8 @@ $('schilder').addEventListener('click', ev => {
     $('schilder').querySelectorAll('.preisschild').forEach(b => { b.classList.toggle('falsch', +b.dataset.wert !== soll); b.disabled = true; });
     k.classList.add('richtig');
     $('schild-meldung').innerHTML = meldung(true, 'Richtig!', `${rueck ? 'Rückgeld' : 'Gesamt-Preis'}: ${fmt(soll)}`, true);
-    sage(`Richtig! ${rueck ? `Du bekommst ${sprichBetrag(soll)} zurück.` : `Zusammen kostet es ${sprichBetrag(soll)}.`}`);
     jubel();
+    sage(`Richtig! ${rueck ? `Du bekommst ${sprichBetrag(soll)} zurück.` : `Zusammen kostet es ${sprichBetrag(soll)}.`}`);
     $('weiter-reihe').hidden = false;
     $('weiter-reihe').scrollIntoView({ behavior: 'smooth', block: 'end' });
   } else {
@@ -1852,9 +1852,10 @@ function budgetAntwort(ja) {
   if (richtig) {
     geloest = true;
     $('budget-meldung').innerHTML = meldung(true, `Super${name}!`, ja ? 'Das Geld reicht.' : 'Das Geld reicht nicht.', true);
+    jubel();
     sage(`Super${name}! ${ja ? 'Das Geld reicht.' : 'Das Geld reicht nicht.'}`);
     $('knopf-ja').disabled = true; $('knopf-nein').disabled = true;
-    jubel(); $('weiter-reihe').hidden = false;
+    $('weiter-reihe').hidden = false;
   } else {
     fehlversuche++;
     $('budget-meldung').innerHTML = meldung(false, 'Schau noch einmal.', 'Rechne die Preise zusammen und vergleiche mit deinem Geld.');
@@ -1923,12 +1924,23 @@ function starteRunde() {
 // ---------------------------------------------------------------------------
 // Vorlesen und Töne
 // ---------------------------------------------------------------------------
+// sage() beginnt sofort (eine laufende Ansage endet), wartet aber, bis die Jubel-Melodie vorbei ist.
+// sageDanach() hängt eine Ansage an die laufende an – sie entfällt, wenn inzwischen etwas Neues gesagt wurde.
+let ansage = Promise.resolve(), jubelEnde = 0;
+const warte = s => new Promise(r => setTimeout(r, Math.max(0, s * 1000)));
 function sage(text) {
-  if (!E.ton) return;
+  if (!E.ton) return (ansage = Promise.resolve());
   stoppeTon();
-  if (E.stimme === 'thorsten' && tonIndex) {
-    sageThorsten(text).then(ok => { if (!ok) sprichSystem(text); }).catch(() => sprichSystem(text));
-  } else sprichSystem(text);
+  const lauf = tonLauf, vorlauf = Math.max(0, jubelEnde - performance.now()) / 1000;
+  const system = () => warte(vorlauf).then(() => { if (lauf === tonLauf) return sprichSystem(text); });
+  ansage = E.stimme === 'thorsten' && tonIndex
+    ? sageThorsten(text, vorlauf).then(ok => ok ? null : system()).catch(system)
+    : system();
+  return ansage;
+}
+function sageDanach(text, pause = 0.3) {
+  const lauf = tonLauf;
+  return ansage.then(() => warte(pause)).then(() => { if (lauf === tonLauf) return sage(text); });
 }
 // Stimme des Geräts. Nur Stimmen, die auf dem Gerät selbst laufen – Online-Stimmen würden
 // den Text (mit dem Namen) an einen Server schicken.
@@ -2019,8 +2031,7 @@ function ladeTon(datei) {
   }
   return tonPuffer.get(datei);
 }
-const warte = s => new Promise(r => setTimeout(r, Math.max(0, s * 1000)));
-async function sageThorsten(text) {
+async function sageThorsten(text, vorlauf = 0) {
   const teile = tonPlan(text), k = tonKontext();
   if (!teile || !k) return false;
   const lauf = tonLauf;
@@ -2028,7 +2039,7 @@ async function sageThorsten(text) {
   catch (e) { return lauf !== tonLauf; }   // Datei fehlt (offline, noch nicht gespeichert): Gerätestimme
   if (lauf !== tonLauf) return true;
   if (k.state === 'suspended') try { await k.resume(); } catch (e) { /* egal */ }
-  let zeit = k.currentTime + 0.02;
+  let zeit = k.currentTime + 0.02 + vorlauf;
   for (const t of teile) {
     if (lauf !== tonLauf) return true;
     if (t.puffer) {
@@ -2042,6 +2053,7 @@ async function sageThorsten(text) {
       zeit = k.currentTime + 0.12;
     }
   }
+  await warte(zeit - k.currentTime);   // erst zurück, wenn alles gesprochen ist (für sageDanach)
   return true;
 }
 function vorlesenAufgabe() {
@@ -2062,6 +2074,7 @@ $('knopf-vorlesen').addEventListener('click', () => {
 });
 function jubel(gross) {
   if (!E.ton) return;
+  jubelEnde = performance.now() + (gross ? 850 : 650);   // so lange wartet die nächste Ansage
   try {
     const audio = tonKontext();
     const t0 = audio.currentTime + 0.02;
