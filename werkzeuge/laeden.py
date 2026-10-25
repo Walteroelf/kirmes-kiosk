@@ -4,7 +4,9 @@ Zeichnet die Laden-Ansichten (laeden/kirmes.svg, laeden/baeckerei.svg, laeden/sp
 
 Jeder Laden ist ein zusammenhängendes Bild (Format 1200 × 780) mit einheitlicher Perspektive.
 Die Produktbilder aus bilder/ werden eingesetzt; jede Ware steckt in einer Gruppe
-  <g class="artikel" data-id="…" data-box="x y b h"> … <text class="preis"/> … </g>
+  <g class="artikel" data-id="…" data-box="x y b h"> … </g>
+Die Preisschilder liegen in einer eigenen obersten Ebene (<g class="schilder">, je <g class="schild" data-id="…">
+mit <text class="preis"/>), damit kein Teil des Bildes sie verdeckt.
 Die App trägt die Preise selbst ein (aus PRODUKTE_… in index.html) und zeichnet die
 Markierung („im Korb“, „2×“) über data-box. Preise ändern = nur index.html ändern.
 
@@ -31,7 +33,7 @@ def ids_aus_index():
 class Szene:
     def __init__(self, laden, ordner, praefix):
         self.laden, self.ordner, self.k = laden, ordner, praefix
-        self.teile, self.ids = [], []
+        self.teile, self.ids, self.schilder = [], [], []
 
     def __iadd__(self, svg):
         self.teile.append(svg); return self
@@ -46,17 +48,18 @@ class Szene:
         return (f'<image href="{self.ordner}{i}.svg" x="{cx - h / 2:.1f}" y="{boden - 0.85 * h:.1f}" width="{h:.1f}" height="{h:.1f}" '
                 f'preserveAspectRatio="xMidYMax meet"{t} {extra}/>')
 
-    def schild(self, cx, y, w=72, hh=25, haken=True):
+    def schild(self, i, cx, y, w=72, hh=25, haken=True):
         oben = f'<rect x="{cx - 4}" y="{y - 6}" width="8" height="9" rx="1.5" fill="#9aa5b1"/>' if haken else ''
-        return (f'<g class="schild">{oben}<rect x="{cx - w / 2}" y="{y}" width="{w}" height="{hh}" rx="3" fill="#fff" stroke="{T}" stroke-width="2.2"/>'
+        return (f'<g class="schild" data-id="{i}">{oben}<rect x="{cx - w / 2}" y="{y}" width="{w}" height="{hh}" rx="3" fill="#fff" stroke="{T}" stroke-width="2.2"/>'
                 f'<text x="{cx}" y="{y + hh - 7}" text-anchor="middle" class="preis"></text></g>')
 
     def artikel(self, i, inhalt, box, schild_xy, schild_haken=True):
         x, y, w, h = box
         self.ids.append(i)
-        return (f'<g class="artikel" data-id="{i}" data-box="{x:.0f} {y:.0f} {w:.0f} {h:.0f}">'
-                f'<rect x="{x:.1f}" y="{y:.1f}" width="{w:.1f}" height="{h:.1f}" fill="transparent"/>{inhalt}'
-                f'{self.schild(schild_xy[0], schild_xy[1], haken=schild_haken)}</g>')
+        erg = (f'<g class="artikel" data-id="{i}" data-box="{x:.0f} {y:.0f} {w:.0f} {h:.0f}">'
+                f'<rect x="{x:.1f}" y="{y:.1f}" width="{w:.1f}" height="{h:.1f}" fill="transparent"/>{inhalt}</g>')
+        self.schilder.append(self.schild(i, schild_xy[0], schild_xy[1], haken=schild_haken))
+        return erg
 
     def person(self, P, Ky, haende_y, hemd='#fff', schuerze='#ffd200', kappe='schiffchen', kappe_farbe='#fff',
                haare='#7a5233', jacke=None):
@@ -107,7 +110,7 @@ class Szene:
 
     def svg(self, defs):
         return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" class="laden-svg" data-laden="{self.laden}">'
-                f'<defs>{defs}</defs>' + '\n'.join(self.teile) + '</svg>')
+                f'<defs>{defs}</defs>' + '\n'.join(self.teile) + '<g class="schilder">' + ''.join(self.schilder) + '</g></svg>')
 
 
 def gemeinsame_defs(k, wand=('#fdf6e1', '#f6e7c1'), wandL=('#e9d39c', '#f3e3b8'), wandR=('#e6cf96', '#f1e0b2'),
@@ -363,9 +366,9 @@ def kirmes():
     sz += '<rect x="100" y="140" width="1000" height="40" fill="#000" opacity=".06"/>'
     # Lebkuchenherzen hängen unter dem Dach
     herzen = ''
-    for j, (x, y) in enumerate([(170, 232), (228, 246), (286, 228), (344, 248), (402, 234)]):
-        herzen += f'<line x1="{x}" y1="160" x2="{x}" y2="{y - 52}" stroke="#c88a42" stroke-width="2"/>' + sz.bild('lebkuchen', x, y, 76)
-    sz += sz.artikel('lebkuchen', herzen, (130, 168, 310, 92), (286, 258))
+    for j, (x, y) in enumerate([(170, 220), (228, 232), (286, 216), (344, 234), (402, 222)]):
+        herzen += f'<line x1="{x}" y1="166" x2="{x}" y2="{y - 48}" stroke="#c88a42" stroke-width="2"/>' + sz.bild('lebkuchen', x, y, 66)
+    sz += sz.artikel('lebkuchen', herzen, (132, 160, 306, 80), (286, 238))
     # Regal links: Getränke und warme Getränke
     def regal(x0, x1, top, bretter):
         r = [f'<rect x="{x0}" y="{top}" width="{x1 - x0}" height="{bretter[-1] - top + 12}" fill="#f6e3bd" opacity=".9"/>',
@@ -373,30 +376,30 @@ def kirmes():
         for y in bretter:
             r.append(f'<rect x="{x0}" y="{y + 12}" width="{x1 - x0}" height="18" fill="{sz.u("schatten")}"/><rect x="{x0 - 8}" y="{y}" width="{x1 - x0 + 16}" height="12" fill="{sz.u("holzBrett")}"/>')
         return ''.join(r)
-    sz += regal(128, 476, 276, [366, 466])
+    sz += regal(128, 476, 250, [336, 432])
     def facings(i, cx, boden, h, n=3, abst=26):
         ox = {1: [0], 2: [-abst / 2, abst / 2], 3: [-abst, abst, 0]}[n]
         return ''.join(sz.bild(i, cx + dx, boden - (4 if k < n - 1 and n == 3 else 0), h) for k, dx in enumerate(ox))
     for i, cx, h, n in [('cola', 178, 86, 3), ('limo', 290, 86, 3), ('saft', 404, 78, 2)]:
-        sz += sz.artikel(i, facings(i, cx, 368, h, n), (cx - 52, 368 - h * .78, 104, h * .78), (cx, 370))
+        sz += sz.artikel(i, facings(i, cx, 338, h, n), (cx - 52, 338 - h * .78, 104, h * .78), (cx, 340))
     for i, cx, h, n in [('tee', 186, 70, 2), ('kaffee', 296, 70, 2)]:
-        sz += sz.artikel(i, facings(i, cx, 468, h, n, 40), (cx - 54, 468 - h * .7, 108, h * .7), (cx, 470))
+        sz += sz.artikel(i, facings(i, cx, 434, h, n, 40), (cx - 54, 434 - h * .7, 108, h * .7), (cx, 436))
     # Schokolade gestapelt
-    schoko = ''.join(sz.bild('schokolade', 408 + dx, 468 + dy, 70) for dx, dy in [(-18, 0), (16, 0), (0, -16)])
-    sz += sz.artikel('schokolade', schoko, (356, 468 - 70, 104, 70), (408, 470))
+    schoko = ''.join(sz.bild('schokolade', 408 + dx, 434 + dy, 70) for dx, dy in [(-18, 0), (16, 0), (0, -16)])
+    sz += sz.artikel('schokolade', schoko, (356, 434 - 70, 104, 70), (408, 436))
     # Regal rechts: Süßes, Zuckerwatte, Popcornmaschine
-    sz += regal(724, 1072, 250, [348, 466])
+    sz += regal(724, 1072, 214, [312, 440])
     for i, cx, h, n in [('donut', 780, 66, 3), ('muffin', 884, 70, 2)]:
-        sz += sz.artikel(i, facings(i, cx, 350, h, n, 30), (cx - 54, 350 - h * .7, 108, h * .7), (cx, 352))
-    zw = (f'<rect x="980" y="330" width="56" height="20" rx="4" fill="#e9ecef" stroke="#c5ccd3" stroke-width="2"/>'
-          + ''.join(sz.bild('zuckerwatte', 1008 + dx, 346 + dy, 104) for dx, dy in [(-20, -6), (20, -6), (0, 0)]))
-    sz += sz.artikel('zuckerwatte', zw, (950, 246, 116, 104), (1008, 352))
+        sz += sz.artikel(i, facings(i, cx, 314, h, n, 30), (cx - 54, 314 - h * .7, 108, h * .7), (cx, 316))
+    zw = (f'<rect x="980" y="294" width="56" height="20" rx="4" fill="#e9ecef" stroke="#c5ccd3" stroke-width="2"/>'
+          + ''.join(sz.bild('zuckerwatte', 1008 + dx, 310 + dy, 98) for dx, dy in [(-20, -6), (20, -6), (0, 0)]))
+    sz += sz.artikel('zuckerwatte', zw, (952, 214, 112, 98), (1008, 316))
     # Popcornmaschine
-    pm = (f'<rect x="744" y="374" width="190" height="92" rx="6" fill="#fff" fill-opacity=".35" stroke="{sz.u("metall")}" stroke-width="7"/>'
-          f'<rect x="736" y="362" width="206" height="16" rx="4" fill="#f39325"/><rect x="760" y="352" width="158" height="12" rx="4" fill="#ffd200"/>'
-          + ''.join(sz.bild('popcorn', 790 + 44 * c, 464 - (6 if c == 1 else 0), 70) for c in range(3))
-          + '<polygon points="760,380 790,380 770,460 752,460" fill="#fff" opacity=".35"/>')
-    sz += sz.artikel('popcorn', pm, (740, 352, 202, 114), (839, 470))
+    pm = (f'<rect x="744" y="362" width="190" height="78" rx="6" fill="#fff" fill-opacity=".35" stroke="{sz.u("metall")}" stroke-width="7"/>'
+          f'<rect x="736" y="350" width="206" height="16" rx="4" fill="#f39325"/><rect x="760" y="340" width="158" height="12" rx="4" fill="#ffd200"/>'
+          + ''.join(sz.bild('popcorn', 790 + 44 * c, 438 - (6 if c == 1 else 0), 64) for c in range(3))
+          + '<polygon points="760,368 790,368 770,434 752,434" fill="#fff" opacity=".35"/>')
+    sz += sz.artikel('popcorn', pm, (740, 340, 202, 100), (839, 444))
     # Verkäufer mit Schirmmütze in Orange
     sz += sz.person(600, 330, 560, hemd='#fff', schuerze='#f39325', kappe='schirm', kappe_farbe='#f39325', haare='#4a3426')
     # Theke vorn: Holzbretter in Orange, Platte aus Edelstahl
@@ -425,12 +428,12 @@ def kirmes():
                      (646, 500, 108, 66), (700, 596))
     sz += sz.artikel('falaffel', sz.bild('falaffel', 774, 562, 80) + sz.bild('falaffel', 806, 566, 84), (748, 498, 92, 68), (790, 596))
     def tortenstaender(i, cx):
-        return (f'<rect x="{cx - 6}" y="540" width="12" height="20" fill="{sz.u("metallS")}"/><ellipse cx="{cx}" cy="560" rx="34" ry="6" fill="{sz.u("metall")}"/>'
-                f'<ellipse cx="{cx}" cy="540" rx="52" ry="8" fill="#fff" stroke="#dfe4e9" stroke-width="2"/>' + sz.bild(i, cx, 542, 92)
-                + f'<path d="M{cx - 50} 540 V492 q0 -42 50 -42 q50 0 50 42 V540" fill="#e8f5fc" fill-opacity=".28" stroke="#fff" stroke-width="3"/>'
-                + f'<path d="M{cx - 36} 500 q4 -26 26 -34" stroke="#fff" stroke-width="5" fill="none" opacity=".7" stroke-linecap="round"/>')
-    sz += sz.artikel('kirschkuchen', tortenstaender('kirschkuchen', 876), (822, 448, 108, 116), (876, 596))
-    sz += sz.artikel('schoko-kuchen', tortenstaender('schoko-kuchen', 976), (922, 448, 108, 116), (976, 596))
+        return (f'<rect x="{cx - 6}" y="548" width="12" height="12" fill="{sz.u("metallS")}"/><ellipse cx="{cx}" cy="560" rx="34" ry="6" fill="{sz.u("metall")}"/>'
+                f'<ellipse cx="{cx}" cy="548" rx="52" ry="8" fill="#fff" stroke="#dfe4e9" stroke-width="2"/>' + sz.bild(i, cx, 550, 80)
+                + f'<path d="M{cx - 50} 548 V508 q0 -30 50 -30 q50 0 50 30 V548" fill="#e8f5fc" fill-opacity=".28" stroke="#fff" stroke-width="3"/>'
+                + f'<path d="M{cx - 36} 512 q4 -20 26 -26" stroke="#fff" stroke-width="5" fill="none" opacity=".7" stroke-linecap="round"/>')
+    sz += sz.artikel('kirschkuchen', tortenstaender('kirschkuchen', 876), (822, 474, 108, 90), (876, 596))
+    sz += sz.artikel('schoko-kuchen', tortenstaender('schoko-kuchen', 976), (922, 474, 108, 90), (976, 596))
     # Brezel am Stab (vorn an der Ecke)
     bz = 1050
     sz += sz.artikel('brezel', f'<rect x="{bz - 3}" y="400" width="6" height="160" fill="{sz.u("metallS")}"/><rect x="{bz - 24}" y="554" width="48" height="8" rx="3" fill="{sz.u("metall")}"/>'

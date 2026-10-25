@@ -489,10 +489,11 @@ body.laden-offen { overflow: hidden; }
 .laden-svg .artikel.scan image { filter: drop-shadow(0 0 4px #1f6fd1) drop-shadow(0 0 4px #1f6fd1); }
 .laden-svg .artikel.leuchtet image { animation: leuchten 1s ease-in-out 2; }
 @keyframes leuchten { 50% { filter: drop-shadow(0 0 7px #1f6fae) drop-shadow(0 0 14px #9fd3f0); } }
-.laden-svg .artikel.leuchtet .schild rect:last-of-type { animation: blinken 1s ease-in-out 2; }
+.laden-svg .schild { cursor: pointer; }
+.laden-svg .schild.leuchtet rect:last-of-type { animation: blinken 1s ease-in-out 2; }
 @keyframes blinken { 50% { fill: #ffd200; } }
 .laden-svg .anzahl { font: 700 16px var(--anzeige); fill: #fff; }
-@media (prefers-reduced-motion: reduce) { .laden-svg .artikel.leuchtet image, .laden-svg .artikel.leuchtet .schild rect { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .laden-svg .artikel.leuchtet image, .laden-svg .schild.leuchtet rect { animation: none; } }
 .zettel { display: flex; align-items: center; gap: 12px; padding: 10px max(16px, env(safe-area-inset-left, 0px)); background: var(--tresen); border-top: 4px solid var(--laden); flex-wrap: wrap; }
 .zettel-titel { font: 700 19px var(--anzeige); display: flex; align-items: center; gap: 8px; }
 .zettel-titel svg { width: 30px; height: 30px; }
@@ -1054,7 +1055,7 @@ dialog::backdrop { background: rgba(29, 58, 92, .45); }
 <script src="geld.js"></script>
 <script>
 'use strict';
-const VERSION = '4.1.0';
+const VERSION = '4.1.1';
 const STAND = '25.10.2026';
 
 // ---------------------------------------------------------------------------
@@ -2435,8 +2436,12 @@ async function oeffneLaden() {
       box.dataset.laden = E.laden;
       box.querySelectorAll('.artikel').forEach(a => {
         const p = PRODUKTE.find(x => x.id === a.dataset.id);
-        a.querySelector('.preis').textContent = p ? fmt(p.preis) : '';
         a.setAttribute('role', 'button'); a.setAttribute('aria-label', p ? `${p.name}, ${fmt(p.preis)}` : '');
+      });
+      // Preisschilder liegen in einer eigenen obersten Ebene (nie verdeckt)
+      box.querySelectorAll('.schild[data-id]').forEach(t => {
+        const p = PRODUKTE.find(x => x.id === t.dataset.id);
+        t.querySelector('.preis').textContent = p ? fmt(p.preis) : '';
       });
     }
   } catch (e) { box.innerHTML = '<p style="padding:20px;font-size:20px">Der Laden kann gerade nicht geladen werden. Bitte einmal mit Internet öffnen.</p>'; box.dataset.laden = ''; }
@@ -2464,9 +2469,10 @@ function zeigeZettel() {
   }).join('') + (alle ? '<span class="alles">Alles gefunden!</span>' : '');
 }
 function leuchte(a) {
-  $('laden-bild').querySelectorAll('.leuchtet').forEach(x => x.classList.remove('leuchtet'));
-  void a.getBBox(); a.classList.add('leuchtet');
-  setTimeout(() => a.classList.remove('leuchtet'), 2100);
+  const box = $('laden-bild'), schild = box.querySelector(`.schild[data-id="${a.dataset.id}"]`);
+  box.querySelectorAll('.leuchtet').forEach(x => x.classList.remove('leuchtet'));
+  void a.getBBox(); a.classList.add('leuchtet'); if (schild) schild.classList.add('leuchtet');
+  setTimeout(() => { a.classList.remove('leuchtet'); if (schild) schild.classList.remove('leuchtet'); }, 2100);
 }
 function tippeArtikel(a) {
   const p = PRODUKTE.find(x => x.id === a.dataset.id); if (!p) return;
@@ -2477,7 +2483,12 @@ function tippeArtikel(a) {
   }
   scanNeu();
 }
-$('laden-bild').addEventListener('click', ev => { const a = ev.target.closest && ev.target.closest('.artikel'); if (a) tippeArtikel(a); });
+$('laden-bild').addEventListener('click', ev => {
+  if (!ev.target.closest) return;
+  const schild = ev.target.closest('.schild[data-id]');   // Antippen des Preisschilds zählt wie Antippen der Ware
+  const a = schild ? $('laden-bild').querySelector(`.artikel[data-id="${schild.dataset.id}"]`) : ev.target.closest('.artikel');
+  if (a) tippeArtikel(a);
+});
 $('zettel').addEventListener('click', ev => {
   const b = ev.target.closest('.posten'); if (!b) return;
   const a = $('laden-bild').querySelector(`.artikel[data-id="${b.dataset.id}"]`);

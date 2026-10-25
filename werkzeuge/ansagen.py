@@ -26,6 +26,27 @@ ZIEL = os.path.join(APP, 'ton')
 TON_STAND = '3'   # erhöhen, wenn sich die Aufbereitung ändert (dann wird alles neu erzeugt)
 
 
+# Aussprache von Lehnwörtern: Umschreibung oder Lautschrift ([[ … ]] geht direkt an Piper).
+# Der Artikel steht mit in der Lautschrift, sonst wird „ein“ betont.
+AUSSPRACHE = [
+    (r'\b[Ee]in Schokocroissant\b', '[[ aɪn ʃˌoːkokroasˈaŋ ]]'),
+    (r'\bSchokocroissants\b', '[[ ʃˌoːkokroasˈaŋs ]]'),
+    (r'\b[Ee]in Croissant\b', '[[ aɪn kroasˈaŋ ]]'),
+    (r'\bCroissants\b', '[[ kroasˈaŋs ]]'),
+    (r'\b[Ee]in Erdbeertörtchen\b', '[[ aɪn ˈeːɾtbeːɾtˌœɾtçən ]]'),
+    (r'\bErdbeertörtchen\b', '[[ ˈeːɾtbeːɾtˌœɾtçən ]]'),
+    (r'\bBurger\b', 'Börger'),
+    (r'\bMuffins\b', 'Maffins'), (r'\bMuffin\b', 'Maffin'),
+    (r'\bDonuts\b', 'Dohnatts'), (r'\bDonut\b', 'Dohnatt'),
+]
+
+
+def aussprache(text):
+    for muster, ersatz in AUSSPRACHE:
+        text = re.sub(muster, ersatz, text)
+    return text
+
+
 def schluessel(text):
     """Wie tonSchluessel() in index.html: Wörter klein, Satzzeichen am Rand weg."""
     woerter = text.replace('€', 'Euro').split()
@@ -154,7 +175,7 @@ def sammle(lob_stimme):
     for anzeige, sprich, stimme in teile:
         k = schluessel(anzeige)
         if k and k not in gesehen:
-            gesehen.add(k); liste.append((k, sprich, stimme))
+            gesehen.add(k); liste.append((k, aussprache(sprich), stimme))
     return liste
 
 
