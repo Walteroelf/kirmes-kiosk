@@ -124,7 +124,17 @@ def sammle(lob_stimme):
          'Rechne noch einmal und zähle dein Geld.', 'Zieh zuerst Geld in das Feld.', 'Welches Schild passt zum Rückgeld?',
          'Welches Preis-Schild passt?', 'Schau noch mal.', 'Zähle dein Geld im Feld.', 'Zähle dein Geld auf dem Foto.',
          'Das Geld reicht.', 'Das Geld reicht nicht.', 'Schau noch einmal.', 'Rechne die Preise zusammen und vergleiche mit deinem Geld.',
-         'Du hast alle Aufgaben geschafft.', 'Wir üben das noch ein bisschen.', 'Du bist bereit für eine Neuerung:')
+         'Du hast alle Aufgaben geschafft.', 'Wir üben das noch ein bisschen.', 'Du bist bereit für eine Neuerung:',
+         'Tippe auf eine Sache, dann hörst du den Preis.', 'Du hast alles gefunden.')
+
+    # Laden-Ansicht: „Ein Kakao kostet 1 Euro 90.“ (wie satzPreis() in index.html: Nominativ, Betrag wie sprichBetrag)
+    sprech = dict((m[0].strip("'"), m[1]) for m in re.findall(r"('?[\w-]+'?): \['([^']+)', '[^']+'\]", html[html.index('const SPRECH'):html.index('const ZAHL_SPRECH')]))
+    for liste, cent in [('PRODUKTE_KIRMES', False), ('PRODUKTE_SPIELWAREN', False), ('PRODUKTE_BAECKEREI', True)]:
+        a = html.index(f'const {liste}'); b = html.index('];', a)
+        for pid, name, preis in re.findall(r"id: '([^']+)', name: '([^']+)', preis: (\d+)", html[a:b]):
+            f = re.sub(r'^einen ', 'ein ', sprech.get(pid, name)); f = f[0].upper() + f[1:]
+            anzeige, sprich = cent_text(int(preis)) if cent else euro_text(int(preis))
+            teil(f'{f} kostet {anzeige}.', f'{f} kostet {sprich}.')
     # Satzteile als Rückfall (Name, ungewöhnliche Beträge, Anzahl der Aufgaben)
     for t in ['Hallo', 'Ich bezahle mit', 'Ich habe', 'dabei.', 'Das sind genau', 'Rückgeld.', 'Du hast', 'hingelegt.',
               'Ich sehe', 'Du bekommst', 'zurück.', 'Zusammen kostet es', 'Dann zieh das von', 'ab.',

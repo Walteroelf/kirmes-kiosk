@@ -217,10 +217,6 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
   .dialog-kopf .mittelknopf { flex: 1 1 0; min-width: 0; }
 }
 .dialog-inhalt { padding: 18px; display: grid; gap: 18px; }
-.preisliste { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; }
-.preisliste .produkt { grid-template-rows: 96px auto; padding: 8px; }
-.preisliste .produkt img { max-height: 90px; }
-.preisliste .produkt .name { font-size: 15px; }
 
 .einstellungen { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px 22px; }
 .feld { display: grid; gap: 6px; font-size: 17px; align-content: start; }
@@ -470,7 +466,54 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
 .vorhang.auf .vorhang-blende { transform: translateY(-140%); }
 .vorhang.auf .vorhang-schild { transform: translate(-50%, -260%) rotate(-3deg); opacity: 0; }
 @media (prefers-reduced-motion: reduce) { .vorhang { display: none; } .start.erscheint * { animation: none !important; } }
-body.auf-start #knopf-preisliste { display: none; }
+
+/* --- Knopf „Zum Laden“ und Laden-Ansicht --- */
+.zum-laden { display: inline-flex; align-items: center; gap: 10px; border: none; border-radius: var(--r); background: var(--laden); color: #1d3a5c;
+  font-family: var(--anzeige); font-weight: 700; font-size: 21px; padding: 8px 18px 8px 12px; min-height: 64px; cursor: pointer; }
+.zum-laden:active { transform: translateY(2px); filter: brightness(.95); }
+.zum-laden svg { width: 44px; height: 44px; display: block; }
+.laden-ansicht { position: fixed; inset: 0; z-index: 45; background: var(--himmel); display: flex; flex-direction: column; }
+body.laden-offen { overflow: hidden; }
+.laden-kopf { display: flex; align-items: center; gap: 12px; background: var(--tresen); position: relative; box-shadow: inset 14px 0 0 var(--laden);
+  padding: calc(10px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 10px max(30px, env(safe-area-inset-left, 0px)); }
+.laden-kopf::after { content: ""; position: absolute; left: 0; right: 0; bottom: -8px; height: 8px; background: var(--laden); z-index: 1; }
+.laden-titel { flex: 1; font-family: var(--anzeige); font-weight: 300; font-size: clamp(24px, 4vw, 34px); text-transform: lowercase; color: var(--holz); }
+.laden-bild { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; background: var(--himmel); }
+.laden-bild svg { display: block; width: 100%; height: 100%; }
+.laden-svg .preis { font: 700 15px var(--anzeige); fill: #1d3a5c; }
+.laden-svg .ladenschild { font: 700 25px var(--anzeige); fill: #1d3a5c; letter-spacing: .5px; }
+.laden-svg .ladenschild.gross { font-size: 32px; } .laden-svg .ladenschild.klein { font-size: 22px; }
+.laden-svg .kuehltext { font: 300 22px var(--anzeige); fill: #9fd3f0; }
+.laden-svg .artikel { cursor: pointer; }
+.laden-svg .artikel.scan { outline: none !important; transform: none !important; }
+.laden-svg .artikel.scan image { filter: drop-shadow(0 0 4px #1f6fd1) drop-shadow(0 0 4px #1f6fd1); }
+.laden-svg .artikel.leuchtet image { animation: leuchten 1s ease-in-out 2; }
+@keyframes leuchten { 50% { filter: drop-shadow(0 0 7px #1f6fae) drop-shadow(0 0 14px #9fd3f0); } }
+.laden-svg .artikel.leuchtet .schild rect:last-of-type { animation: blinken 1s ease-in-out 2; }
+@keyframes blinken { 50% { fill: #ffd200; } }
+.laden-svg .anzahl { font: 700 16px var(--anzeige); fill: #fff; }
+@media (prefers-reduced-motion: reduce) { .laden-svg .artikel.leuchtet image, .laden-svg .artikel.leuchtet .schild rect { animation: none; } }
+.zettel { display: flex; align-items: center; gap: 12px; padding: 10px max(16px, env(safe-area-inset-left, 0px)); background: var(--tresen); border-top: 4px solid var(--laden); flex-wrap: wrap; }
+.zettel-titel { font: 700 19px var(--anzeige); display: flex; align-items: center; gap: 8px; }
+.zettel-titel svg { width: 30px; height: 30px; }
+.posten { display: flex; align-items: center; gap: 10px; border: 3px solid var(--linie); border-radius: 8px; background: var(--tresen); padding: 4px 12px 4px 6px; cursor: pointer; color: var(--holz); }
+.posten img { width: 54px; height: 54px; }
+.posten .was { font-size: 18px; font-weight: 700; text-align: left; line-height: 1.15; }
+.posten .was small { display: block; font-size: 15px; color: var(--holz-hell); }
+.posten .haken { width: 30px; height: 30px; flex: none; border-radius: 50%; border: 3px solid var(--silber); display: grid; place-items: center; }
+.posten.gefunden { border-color: var(--gut); background: var(--gut-hell); }
+.posten.gefunden .haken { background: var(--gut); border-color: var(--gut); }
+.posten.gefunden .haken::after { content: ""; width: 7px; height: 13px; border: solid #fff; border-width: 0 4px 4px 0; transform: rotate(45deg) translate(-1px, -2px); }
+.alles { font: 700 19px var(--anzeige); color: var(--gut); margin-left: auto; }
+.laden-zurueck { border: none; background: var(--hellblau); color: #1d3a5c; font: 700 22px var(--anzeige); min-height: 64px;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)); cursor: pointer; }
+.tresen-kopf h2 { flex: 1 1 260px; }
+@media (max-width: 620px) {
+  .zum-laden { font-size: 18px; min-height: 56px; } .zum-laden svg { width: 36px; height: 36px; }
+  .zettel { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .zettel-titel span, .zettel-titel { white-space: nowrap; } .posten { flex: none; } .alles { white-space: nowrap; }
+  .posten img { width: 42px; height: 42px; } .posten .was { font-size: 16px; white-space: nowrap; }
+}
 
 /* ===== Design „München 72“: flache Flächen, kleine Rundungen, keine Schatten, Leitfarbe je Laden ===== */
 .markise { background: var(--tresen); box-shadow: inset 14px 0 0 var(--laden); }
@@ -579,9 +622,6 @@ dialog::backdrop { background: rgba(29, 58, 92, .45); }
     <button class="rundknopf" id="knopf-vorlesen" data-scan aria-label="Aufgabe vorlesen" title="Vorlesen">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" fill-opacity=".15"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>
     </button>
-    <button class="rundknopf" id="knopf-preisliste" aria-label="Preisliste zeigen" title="Preisliste">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12V4h8l10 10-8 8L3 12z" fill="currentColor" fill-opacity=".15"/><circle cx="7.5" cy="7.5" r="1.6" fill="currentColor"/></svg>
-    </button>
     <button class="rundknopf" id="knopf-lehrkraft" aria-label="Einstellungen (Lehrkraft)" title="Einstellungen (Lehrkraft)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" fill="currentColor" fill-opacity=".15"/></svg>
     </button>
@@ -617,6 +657,7 @@ dialog::backdrop { background: rgba(29, 58, 92, .45); }
   <section class="tresen" aria-labelledby="ware-titel">
     <div class="tresen-kopf">
       <h2 id="ware-titel">Das möchte ich kaufen:</h2>
+      <button class="zum-laden" id="knopf-zum-laden" data-scan><span id="zum-laden-pikto" aria-hidden="true"></span>Zum Laden</button>
     </div>
     <div class="ware" id="ware"></div>
     <div class="bezahlen" id="bezahlen" hidden></div>
@@ -702,6 +743,19 @@ dialog::backdrop { background: rgba(29, 58, 92, .45); }
   </section>
 </main>
 
+<!-- Laden-Ansicht: alle Waren mit Preisschildern, Einkaufszettel -->
+<div class="laden-ansicht" id="laden-ansicht" hidden role="dialog" aria-label="Laden">
+  <div class="laden-kopf">
+    <span class="laden-titel" id="laden-ansicht-titel"></span>
+    <button class="rundknopf" id="knopf-laden-vorlesen" aria-label="Vorlesen" title="Vorlesen">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" fill-opacity=".15"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>
+    </button>
+  </div>
+  <div class="laden-bild" id="laden-bild"></div>
+  <div class="zettel" id="zettel"></div>
+  <button class="laden-zurueck" id="knopf-laden-zurueck">← Zurück zum Einkaufen</button>
+</div>
+
 <!-- Kamera mit Rahmen -->
 <div class="kamera" id="kamera-ansicht" hidden>
   <video id="video" playsinline webkit-playsinline muted autoplay></video>
@@ -744,16 +798,6 @@ dialog::backdrop { background: rgba(29, 58, 92, .45); }
   </div>
 </dialog>
 
-<!-- Preisliste -->
-<dialog id="dlg-preisliste" aria-labelledby="pl-titel">
-  <div class="dialog-kopf">
-    <h2 id="pl-titel">Preisliste</h2>
-    <button class="mittelknopf" data-schliessen data-scan-dialog>Schließen</button>
-  </div>
-  <div class="dialog-inhalt">
-    <div class="preisliste" id="preisliste"></div>
-  </div>
-</dialog>
 
 <!-- Lehrkraft -->
 <dialog id="dlg-info" aria-labelledby="info-titel">
@@ -902,6 +946,12 @@ dialog::backdrop { background: rgba(29, 58, 92, .45); }
         <label class="schalter"><input type="checkbox" id="e-hilfe"> Hilfe anbieten nach 2 und 3 Fehlversuchen</label>
         <label class="schalter"><input type="checkbox" id="e-doppelt"> Gleiche Sachen mehrmals erlauben</label>
         <label class="schalter"><input type="checkbox" id="e-betragzeigen"> Erkanntes Geld als Betrag zeigen (nicht, wenn Preis-Schild wählen an ist)</label>
+        <label for="e-markieren" style="margin-top:6px">Im Laden zeigen, was gekauft werden soll</label>
+        <select id="e-markieren">
+          <option value="hilfe">als Hilfe nach einem Fehlversuch</option>
+          <option value="immer">immer</option>
+          <option value="nie">nie</option>
+        </select>
       </div>
       <div class="feld">
         <span class="label">Bedienung</span>
@@ -1004,7 +1054,7 @@ dialog::backdrop { background: rgba(29, 58, 92, .45); }
 <script src="geld.js"></script>
 <script>
 'use strict';
-const VERSION = '4.0.1';
+const VERSION = '4.1.0';
 const STAND = '25.10.2026';
 
 // ---------------------------------------------------------------------------
@@ -1221,7 +1271,7 @@ const EINS = () => L.faktor;   // Wert einer 1-€-Münze in der Einheit des Lad
 const STANDARD = { name: '', laden: 'kirmes', geld: 'foto', modus: 'stufen', start: 1, aufstieg: 8, abstieg: false,
                    art: 'kaufen', anzahl: 3, betrag: 'alle', max: 15, bezahlt: 10, runde: 10, einer: 0, schild: false,
                    preise: false, hilfe: true, doppelt: true, betragzeigen: true, ton: true, kamera: true, fotos: false,
-                   taster: 'aus', tempo: 2500, wahl: true, steigern: true, stimme: 'thorsten' };
+                   taster: 'aus', tempo: 2500, wahl: true, steigern: true, stimme: 'thorsten', markieren: 'hilfe' };
 const SCHALTER = ['wahl', 'steigern', 'abstieg', 'preise', 'hilfe', 'doppelt', 'betragzeigen', 'ton', 'kamera', 'fotos', 'schild'];
 const speicher = {
   lesen(k, f) { try { const v = localStorage.getItem('kirmes-' + k); return v ? JSON.parse(v) : f; } catch (e) { return f; } },
@@ -1243,6 +1293,7 @@ function ausLink() {
   if (q.has('runde')) e.runde = clamp(+q.get('runde'), 1, 50);
   if (q.has('einer')) e.einer = clamp(+q.get('einer'), 0, 9);
   if (q.has('stimme') && ['thorsten', 'geraet'].includes(q.get('stimme'))) e.stimme = q.get('stimme');
+  if (q.has('markieren') && ['hilfe', 'immer', 'nie'].includes(q.get('markieren'))) e.markieren = q.get('markieren');
   if (q.has('taster') && ['aus', 'taste', 'bildschirm'].includes(q.get('taster'))) e.taster = q.get('taster');
   if (q.has('tempo')) e.tempo = clamp(+q.get('tempo'), 800, 8000);
   for (const k of SCHALTER) if (q.has(k)) e[k] = q.get(k) === '1';
@@ -1354,6 +1405,7 @@ function zeigeWare() {
 function zeigeAufgabe() {
   zeigeRunde();
   versuche = 0; fehlversuche = 0; hilfeStufe = 0; geloest = false; analyse = null; korrigieren = false;
+  gefunden = new Set(); if (ladenOffen) schliesseLaden();
   zeigeWare();
   const art = aufgabe.art, n = aufgabe.waren.length;
   $('ware-titel').textContent = art === 'budget' ? `Das möchte ich kaufen (${n} Sachen):` : n === 1 ? 'Das möchte ich kaufen:' : `Das möchte ich kaufen (${n} Sachen):`;
@@ -1966,7 +2018,7 @@ const tonSchluessel = w => w.toLowerCase().replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}
 let tonIndex = null, tonKtx = null, tonLauf = 0, tonQuellen = [];
 const TON_RAND = 0.15;   // Stille vorn und hinten in jeder Ansage (werkzeuge/ansagen.py: PUFFER)
 const tonPuffer = new Map();
-fetch('ton/index.json').then(r => r.ok ? r.json() : null).then(j => { tonIndex = j; setTimeout(ansagenSpeichern, 3000); }).catch(() => { /* dann Gerätestimme */ });
+fetch('ton/index.json', { cache: 'no-cache' }).then(r => r.ok ? r.json() : null).then(j => { tonIndex = j; setTimeout(ansagenSpeichern, 3000); }).catch(() => { /* dann Gerätestimme */ });
 // Ansagen im Hintergrund in den Offline-Speicher laden – in einen eigenen Speicher, der bei Updates
 // erhalten bleibt. Bricht das Laden ab (App zu, kein WLAN), geht es beim nächsten Öffnen weiter.
 let tonStand = null;   // { gesamt, fertig }
@@ -2098,7 +2150,8 @@ function lehrkraftOffen() { return $('dlg-lehrkraft').open || $('dlg-code').open
 function scanZiele() {
   if (lehrkraftOffen()) return [];
   if (!$('kamera-ansicht').hidden) return [...document.querySelectorAll('[data-scan-kamera]')];
-  for (const d of ['dlg-stufe', 'dlg-preisliste']) if ($(d).open) return [...$(d).querySelectorAll('[data-scan-dialog]')];
+  if ($('dlg-stufe').open) return [...$('dlg-stufe').querySelectorAll('[data-scan-dialog]')];
+  if (ladenOffen) return [...$('laden-bild').querySelectorAll('.artikel'), ...$('zettel').querySelectorAll('.posten'), $('knopf-laden-zurueck')];
   return [...document.querySelectorAll('[data-scan]')].filter(el => !el.disabled && el.offsetParent !== null && !el.closest('[hidden]'));
 }
 function scanMarkiere(el) {
@@ -2124,7 +2177,7 @@ function scanWaehle() {
   if (!scanZiel || !document.contains(scanZiel)) return;
   const el = scanZiel;
   scanMarkiere(null);
-  el.click();
+  if (typeof el.click === 'function') el.click(); else el.dispatchEvent(new MouseEvent('click', { bubbles: true }));   // SVG-Gruppen im Laden
   scanNeu();
 }
 document.addEventListener('keydown', ev => {
@@ -2333,12 +2386,109 @@ function zeigeLaden() {
   document.documentElement.style.setProperty('--laden', L.farbe);
   document.documentElement.style.setProperty('--laden-rand', L.farbeRand);
   document.documentElement.dataset.laden = E.laden;
-  $('preisliste').innerHTML = PRODUKTE.slice().sort((a, b) => a.preis - b.preis || a.name.localeCompare(b.name, 'de')).map(p =>
-    `<div class="produkt"><img src="${bild(p)}" alt="" loading="lazy"><div style="text-align:center"><div class="name">${p.name}</div><span class="preis">${fmt(p.preis)}</span></div></div>`).join('');
+  $('zum-laden-pikto').innerHTML = PIKTO_LADEN[E.laden];
   baueVorrat();
   $('e-start').innerHTML = STUFEN.map((st, i) => `<option value="${i + 1}">Stufe ${i + 1}: ${st.titel}</option>`).join('');
 }
-$('knopf-preisliste').addEventListener('click', () => { $('dlg-preisliste').showModal(); scanNeu(); });
+
+// ---------------------------------------------------------------------------
+// Laden-Ansicht: ein gezeichneter Laden (laeden/*.svg, erzeugt mit werkzeuge/laeden.py) mit allen
+// Waren und Preisschildern. Antippen: Ware leuchtet, Thorsten sagt den Preis. Einkaufszettel unten:
+// gesuchte Sachen werden abgehakt, sobald das Kind sie im Laden antippt. Markierung (Korb, „2×“)
+// je nach Einstellung immer, als Hilfe nach einem Fehlversuch oder nie.
+// ---------------------------------------------------------------------------
+const PIKTO_LADEN = {
+  kirmes: '<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round"><path d="M6 22l6-12h40l6 12z"/><path d="M19 10l-3 12M32 10v12M45 10l3 12"/><path d="M10 22v32M54 22v32M6 54h52"/><path d="M10 40h44"/></svg>',
+  baeckerei: '<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round"><path d="M8 54V30c0-6 4-10 10-10h28c6 0 10 4 10 10v24z"/><path d="M8 42h48"/><path d="M18 34c0-4 3-6 6-6h6c3 0 6 2 6 6z"/><path d="M40 34c0-3 2-5 5-5s5 2 5 5"/></svg>',
+  spielwaren: '<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round"><path d="M8 8v48M56 8v48M8 32h48M8 56h48"/><circle cx="22" cy="21" r="7"/><rect x="34" y="16" width="12" height="12" rx="1"/><path d="M16 50l5-10 5 10zM36 50h12v-8H36z"/></svg>',
+};
+const ZETTEL_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 11h7M9 15h7"/></svg>';
+const ladenSvgText = {};
+let ladenOffen = false, gefunden = new Set();
+function holeLadenSvg(id) {
+  if (!ladenSvgText[id]) ladenSvgText[id] = fetch('laeden/' + id + '.svg', { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(r.status); return r.text(); })
+    .catch(e => { delete ladenSvgText[id]; throw e; });
+  return ladenSvgText[id];
+}
+// „Ein Kakao kostet 1 Euro 90.“ – Nominativ (einen → ein)
+function satzPreis(p) {
+  const f = (SPRECH[p.id] || [p.name])[0].replace(/^einen /, 'ein ');
+  return `${f.charAt(0).toUpperCase() + f.slice(1)} kostet ${sprichBetrag(p.preis)}.`;
+}
+function einkaufsliste() {
+  const n = new Map();
+  for (const p of aufgabe.waren) n.set(p.id, (n.get(p.id) || 0) + 1);
+  return [...n];
+}
+const markierungZeigen = () => E.markieren === 'immer' || (E.markieren === 'hilfe' && (fehlversuche > 0 || hilfeStufe > 0));
+function markierungSvg(box, n) {
+  const [x, y, w, h] = box.split(' ').map(Number);
+  return `<g class="markierung" pointer-events="none"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="10" fill="none" stroke="#2f9e55" stroke-width="5"/>
+    <circle cx="${x + w}" cy="${y}" r="17" fill="#2f9e55"/><path d="M${x + w - 10} ${y - 3}h20l-3 12h-14zM${x + w - 6} ${y - 3}l6-8 6 8" fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+    ${n > 1 ? `<rect x="${x - 6}" y="${y - 14}" width="40" height="26" rx="13" fill="#2f9e55"/><text x="${x + 14}" y="${y + 5}" text-anchor="middle" class="anzahl">${n}×</text>` : ''}</g>`;
+}
+async function oeffneLaden() {
+  const box = $('laden-bild');
+  try {
+    if (box.dataset.laden !== E.laden) {
+      box.innerHTML = await holeLadenSvg(E.laden);
+      box.dataset.laden = E.laden;
+      box.querySelectorAll('.artikel').forEach(a => {
+        const p = PRODUKTE.find(x => x.id === a.dataset.id);
+        a.querySelector('.preis').textContent = p ? fmt(p.preis) : '';
+        a.setAttribute('role', 'button'); a.setAttribute('aria-label', p ? `${p.name}, ${fmt(p.preis)}` : '');
+      });
+    }
+  } catch (e) { box.innerHTML = '<p style="padding:20px;font-size:20px">Der Laden kann gerade nicht geladen werden. Bitte einmal mit Internet öffnen.</p>'; box.dataset.laden = ''; }
+  box.querySelectorAll('.markierung').forEach(m => m.remove());
+  if (markierungZeigen()) for (const [id, n] of einkaufsliste()) {
+    const a = box.querySelector(`.artikel[data-id="${id}"]`);
+    if (a) a.insertAdjacentHTML('beforeend', markierungSvg(a.dataset.box, n));
+  }
+  $('laden-ansicht-titel').textContent = L.name;
+  zeigeZettel();
+  $('laden-ansicht').hidden = false; ladenOffen = true; document.body.classList.add('laden-offen');
+  sage('Tippe auf eine Sache, dann hörst du den Preis.');
+  scanNeu();
+}
+function schliesseLaden() {
+  $('laden-ansicht').hidden = true; ladenOffen = false; document.body.classList.remove('laden-offen');
+  stoppeTon(); scanNeu();
+}
+function zeigeZettel() {
+  const liste = einkaufsliste(), alle = liste.every(([id]) => gefunden.has(id));
+  $('zettel').innerHTML = `<span class="zettel-titel">${ZETTEL_SVG}Einkaufszettel:</span>` + liste.map(([id, n]) => {
+    const p = PRODUKTE.find(x => x.id === id), ok = gefunden.has(id);
+    return `<button class="posten${ok ? ' gefunden' : ''}" data-id="${id}"><img src="${bild(p)}" alt="">
+      <span class="was">${n > 1 ? n + '× ' : ''}${p.name}<small>${ok ? (n > 1 ? 'je ' : '') + fmt(p.preis) : 'Preis?'}</small></span><span class="haken"></span></button>`;
+  }).join('') + (alle ? '<span class="alles">Alles gefunden!</span>' : '');
+}
+function leuchte(a) {
+  $('laden-bild').querySelectorAll('.leuchtet').forEach(x => x.classList.remove('leuchtet'));
+  void a.getBBox(); a.classList.add('leuchtet');
+  setTimeout(() => a.classList.remove('leuchtet'), 2100);
+}
+function tippeArtikel(a) {
+  const p = PRODUKTE.find(x => x.id === a.dataset.id); if (!p) return;
+  leuchte(a); sage(satzPreis(p));
+  if (einkaufsliste().some(([id]) => id === p.id) && !gefunden.has(p.id)) {
+    gefunden.add(p.id); zeigeZettel();
+    if (einkaufsliste().every(([id]) => gefunden.has(id))) sageDanach('Super! Du hast alles gefunden.');
+  }
+  scanNeu();
+}
+$('laden-bild').addEventListener('click', ev => { const a = ev.target.closest && ev.target.closest('.artikel'); if (a) tippeArtikel(a); });
+$('zettel').addEventListener('click', ev => {
+  const b = ev.target.closest('.posten'); if (!b) return;
+  const a = $('laden-bild').querySelector(`.artikel[data-id="${b.dataset.id}"]`);
+  const p = PRODUKTE.find(x => x.id === b.dataset.id);
+  if (a) leuchte(a);
+  if (p) sage(satzPreis(p));
+});
+$('knopf-zum-laden').addEventListener('click', oeffneLaden);
+$('knopf-laden-zurueck').addEventListener('click', schliesseLaden);
+$('knopf-laden-vorlesen').addEventListener('click', () => sage('Tippe auf eine Sache, dann hörst du den Preis.'));
+document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && ladenOffen && E.taster === 'aus') schliesseLaden(); });
 
 // Lehrkraft-Bereich nur mit Code: 4 Zahlen, als Wörter angezeigt, jedes Mal neu.
 // Ein Kind, das (noch) nicht liest, kann damit nichts anfangen.
@@ -2388,7 +2538,7 @@ function oeffneLehrkraft() {
   setzeAuswahl($('e-start'), S.nr); setzeAuswahl($('e-aufstieg'), E.aufstieg);
   $('e-art').value = E.art; $('e-anzahl').value = E.anzahl; $('e-betrag').value = E.betrag;
   setzeAuswahl($('e-max'), E.max); setzeAuswahl($('e-bezahlt'), E.bezahlt); setzeAuswahl($('e-runde'), E.runde); setzeAuswahl($('e-einer'), E.einer);
-  $('e-taster').value = E.taster; setzeAuswahl($('e-tempo'), E.tempo); $('e-stimme').value = E.stimme;
+  $('e-taster').value = E.taster; setzeAuswahl($('e-tempo'), E.tempo); $('e-stimme').value = E.stimme; $('e-markieren').value = E.markieren;
   for (const k of SCHALTER) $('e-' + k).checked = !!E[k];
   stufeInfo();
   $('version').textContent = `Kirmes-Kiosk ${VERSION} · Stand ${STAND}${navigator.serviceWorker && navigator.serviceWorker.controller ? ' · offline verfügbar' : ''}` +
@@ -2434,7 +2584,7 @@ function leseFormular() {
   const f = {
     name: $('e-name').value.trim().slice(0, 30), laden: $('e-laden').value, geld: LAEDEN[$('e-laden').value].foto ? $('e-geld').value : (E.geld || 'foto'), modus: $('e-modus').value, start: +$('e-start').value, aufstieg: +$('e-aufstieg').value,
     art: $('e-art').value, anzahl: +$('e-anzahl').value, betrag: $('e-betrag').value, max: +$('e-max').value, bezahlt: +$('e-bezahlt').value,
-    runde: +$('e-runde').value, einer: +$('e-einer').value, taster: $('e-taster').value, tempo: +$('e-tempo').value, stimme: $('e-stimme').value,
+    runde: +$('e-runde').value, einer: +$('e-einer').value, taster: $('e-taster').value, tempo: +$('e-tempo').value, stimme: $('e-stimme').value, markieren: $('e-markieren').value,
   };
   for (const k of SCHALTER) f[k] = $('e-' + k).checked;
   return f;
@@ -2449,6 +2599,7 @@ function aktualisiereLink() {
   q.set('runde', f.runde);
   if (f.taster !== 'aus') { q.set('taster', f.taster); q.set('tempo', f.tempo); }
   if (f.stimme !== STANDARD.stimme) q.set('stimme', f.stimme);
+  if (f.markieren !== STANDARD.markieren) q.set('markieren', f.markieren);
   for (const k of SCHALTER) if (f[k] !== STANDARD[k]) q.set(k, f[k] ? '1' : '0');
   const basis = location.protocol.startsWith('http') ? location.origin + location.pathname : 'https://walteroelf.github.io/kirmes-kiosk/';
   $('link-text').textContent = basis + '?' + q.toString();

@@ -17,6 +17,7 @@ Alles läuft im Browser: kein Server, kein Konto, keine KI-Dienste. Die Fotos ve
 | `bilder/` | Produktbilder: eigens für diese App gezeichnete Vektorgrafiken (SVG), keine fremden Bilder; `bilder/spielwaren/` und `bilder/baeckerei/` für die weiteren Läden |
 | `ton/` | Ansagen mit der Thorsten-Stimme (AAC), `ton/index.json` ordnet Text → Datei zu |
 | `werkzeuge/ansagen.py` | Erzeugt die Ansagen neu (siehe „Vorlesen“) |
+| `laeden/`, `werkzeuge/laeden.py` | Die drei gezeichneten Läden (SVG) und das Skript, das sie erzeugt (`python3 werkzeuge/laeden.py`); Preise und Markierungen setzt die App selbst ein |
 | `schriften/` | Schriften Andika und Grandstander (SIL Open Font License), lokal eingebunden |
 | `tests/` | Automatischer Test mit künstlichen Szenen und eine Prüfseite für echte Fotos |
 
@@ -58,7 +59,8 @@ Es gibt zwei Wege, das Geld zu legen (umschaltbar im Lehrkraft-Bereich unter **�
 - **Rückgeld**: „Ich bezahle mit 10 €“ – das Rückgeld legen und fotografieren.
 - **Reicht das Geld?**: „Ich habe 10 €“ – mit großem Knopf *Ja, das reicht* / *Nein, zu wenig* antworten.
 - **Gesamtbetrag wählen** (per Haken im Lehrkraft-Bereich, unabhängig von Stufe und Schwierigkeit): Am Ende wählt das Kind den Gesamtbetrag bzw. das Rückgeld aus 4 Preis-Schildern. Solange der Haken gesetzt ist, nennt die App vorher keinen Betrag.
-- Knöpfe oben: **Vorlesen** (Lautsprecher), **Preisliste** (Preisschild-Symbol).
+- Knopf oben: **Vorlesen** (Lautsprecher).
+- **Zum Laden** (großer Knopf in der Ladenfarbe bei „Das möchte ich kaufen“): öffnet den gezeichneten Laden über den ganzen Bildschirm – Kirmes-Bude, Bäckerei oder Spielwarenladen mit allen 20 Waren und weißen Preisschildern, Theke, Kasse und Verkäufer/in. **Antippen** einer Ware: Sie leuchtet auf, ihr Preisschild blinkt, Thorsten sagt z. B. „Ein Kakao kostet 1 Euro 90.“ **Einkaufszettel** unten: die gesuchten Sachen; Antippen eines Postens zeigt die Ware im Laden. Findet das Kind eine gesuchte Ware im Laden und tippt sie an, wird sie **abgehakt** und ihr Preis steht auf dem Zettel („Alles gefunden!“). **Markierung** der gesuchten Waren (grüner Rahmen mit Korb, „2×“) je nach Einstellung *als Hilfe nach einem Fehlversuch* (Standard), *immer* oder *nie* (Lehrkraft-Bereich → Hilfen; Link: `…&markieren=immer`). Mit dem Taster wandert die Markierung über die Waren, den Zettel und „Zurück“.
 
 ### Kamera mit Rahmen
 
