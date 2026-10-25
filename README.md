@@ -126,6 +126,12 @@ Standard ist die **Thorsten-Stimme** (Piper, Modell `de_DE-thorsten-high`, Sprac
 - Kein Schatten, keine Spiegelung; möglichst von oben
 - Kein Preisschild mit aufs Foto (das Schild wählt das Kind in der App)
 
+## Design
+
+Angelehnt an das Erscheinungsbild der Olympischen Spiele München 1972 (Otl Aicher): helle, heitere Farben – Hellblau, Blau, Hellgrün, Grün, Gelb, Orange, Silber, viel Weiß –, flache Flächen ohne Schatten, kleine Rundungen, bewusst ohne Rot und Schwarz (Schrift in Dunkelblau). Ruhig gehalten, damit wenig ablenkt.
+
+**Farbleitsystem:** Jeder Laden hat eine Leitfarbe – Kirmes-Kiosk Orange, Bäckerei Gelb, Spielwarenladen Hellblau. Sie zieht sich durch die Startkarte, den Kopf (Band unten und Kante links), die Preisschilder, die Nummer des Arbeitsschritts und den Rand des Bezahl-Felds. „Richtig“ ist immer Grün, „Schau noch mal“ Orange. Überschriften in einer schlichten Groteskschrift des Geräts (Helvetica Neue), Texte weiter in der Leseschrift Andika. Beim Start fährt ein Vorhang aus Farbstreifen auseinander.
+
 ## Bilder und Rechte
 
 Alle Produktbilder (je 20 für Kirmes-Kiosk, Spielwarenladen und Bäckerei) und das App-Symbol wurden eigens für diese App neu gezeichnet (SVG-Vektorgrafiken im Ordner `bilder/`). Sie enthalten keine Bilder aus anderen Programmen oder Sammlungen (z. B. Worksheet Crafter), deren Lizenz eine Veröffentlichung in einer App oder auf einer Website nicht erlaubt. Die Schriften stehen unter der SIL Open Font License.

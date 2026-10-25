@@ -6,7 +6,7 @@
 <title>Kirmes-Kiosk</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#c9362c">
+<meta name="theme-color" content="#ffffff">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -18,40 +18,43 @@
 @font-face { font-family: "Andika"; font-weight: 400; font-display: swap; src: url("schriften/andika-400.woff2") format("woff2"); }
 @font-face { font-family: "Andika"; font-weight: 700; font-display: swap; src: url("schriften/andika-700.woff2") format("woff2"); }
 @font-face { font-family: "Grandstander"; font-weight: 700 900; font-display: swap; src: url("schriften/grandstander.woff2") format("woff2"); }
-/* Layout: eine Bude – gestreifte Markise oben, darunter die Ware auf dem Tresen, darunter der Arbeitsschritt. */
+/* Design nach München 1972 (Otl Aicher): helle, heitere Farben, flach, ruhig, ohne Rot und Schwarz.
+   Jeder Laden hat eine Leitfarbe (--laden), die sich durch Kopf, Preisschilder und Bezahl-Feld zieht. */
 :root {
-  --himmel: #e8f1f6;        /* Seitenhintergrund */
-  --tresen: #ffffff;        /* Karten / Tresen */
-  --holz: #6b3f22;          /* Text, Rahmen */
-  --holz-hell: #a8774f;
-  --markise: #c9362c;       /* Akzent: Markisenrot */
+  --blau: #3d9ad6; --hellblau: #9fd3f0; --gruen: #2f9e55; --hellgruen: #8cc63f; --gelb: #ffd200; --orange: #f39325; --silber: #c5ccd3;
+  --himmel: #f5f7f9;        /* Seitenhintergrund */
+  --tresen: #ffffff;        /* Karten */
+  --flaeche: #eef1f4;       /* ruhige Flächen (Geldvorrat, runde Knöpfe) */
+  --holz: #1d3a5c;          /* Text, Rahmen: Dunkelblau statt Schwarz */
+  --holz-hell: #5b7491;
+  --markise: #1f6fae;       /* Akzent für Bedienelemente (Blau) */
   --markise-text: #ffffff;
-  --senf: #f2b531;          /* zweiter Akzent: Senfgelb */
-  --gut: #2f8f3a;
-  --gut-hell: #dff3dd;
-  --hm: #c76a12;
-  --hm-hell: #fdeccd;
-  --linie: #d9cbbd;
+  --senf: #9fd3f0;          /* Fläche für Knöpfe (Hellblau) */
+  --laden: #f39325; --laden-rand: #c76f0a;   /* Leitfarbe des Ladens (wird per Skript gesetzt) */
+  --gut: #2f9e55;
+  --gut-hell: #e3f3e8;
+  --hm: #c76f0a;
+  --hm-hell: #fdf0dc;
+  --linie: #dfe5ec;
   --teller: #ffffff;        /* Produktbilder haben weißen Grund */
-  --teller-text: #5a3419;
-  --schatten: 0 3px 0 #d9cbbd;
-  --schrift: "Andika", "Comic Sans MS", system-ui, sans-serif;
-  --anzeige: "Grandstander", "Andika", "Comic Sans MS", system-ui, sans-serif;
+  --teller-text: #1d3a5c;
+  --schatten: none;
+  --r: 6px;
+  --schrift: "Andika", system-ui, sans-serif;
+  --anzeige: "Helvetica Neue", Helvetica, Arial, system-ui, sans-serif;   /* schlichte Groteskschrift, auf dem Gerät vorhanden */
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --himmel: #17202c; --tresen: #222d3b; --holz: #f4e6d6; --holz-hell: #c9a888;
-    --markise: #e0483d; --markise-text: #ffffff; --senf: #f5c04d;
-    --gut: #6fd07a; --gut-hell: #1f3a26; --hm: #f3a24a; --hm-hell: #3d2c17;
-    --linie: #3a4859; --schatten: 0 3px 0 #0f151d; color-scheme: dark;
+    --himmel: #121c27; --tresen: #1b2735; --flaeche: #243345; --holz: #e8f0f7; --holz-hell: #9fb3c8;
+    --markise: #6bb8ea; --senf: #9fd3f0;
+    --gut: #45b86b; --gut-hell: #17331f; --hm: #f3a24a; --hm-hell: #3a2914; --linie: #2c3d50; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --himmel: #17202c; --tresen: #222d3b; --holz: #f4e6d6; --holz-hell: #c9a888;
-  --markise: #e0483d; --markise-text: #ffffff; --senf: #f5c04d;
-  --gut: #6fd07a; --gut-hell: #1f3a26; --hm: #f3a24a; --hm-hell: #3d2c17;
-  --linie: #3a4859; --schatten: 0 3px 0 #0f151d; color-scheme: dark;
+  --himmel: #121c27; --tresen: #1b2735; --flaeche: #243345; --holz: #e8f0f7; --holz-hell: #9fb3c8;
+  --markise: #6bb8ea; --senf: #9fd3f0;
+  --gut: #45b86b; --gut-hell: #17331f; --hm: #f3a24a; --hm-hell: #3a2914; --linie: #2c3d50; color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
@@ -468,6 +471,88 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
 .vorhang.auf .vorhang-schild { transform: translate(-50%, -260%) rotate(-3deg); opacity: 0; }
 @media (prefers-reduced-motion: reduce) { .vorhang { display: none; } .start.erscheint * { animation: none !important; } }
 body.auf-start #knopf-preisliste { display: none; }
+
+/* ===== Design „München 72“: flache Flächen, kleine Rundungen, keine Schatten, Leitfarbe je Laden ===== */
+.markise { background: var(--tresen); box-shadow: inset 14px 0 0 var(--laden); }
+.markise::after { bottom: -8px; height: 8px; background: var(--laden); }
+body.auf-start .markise { box-shadow: none; }
+body.auf-start .markise::after { background: linear-gradient(90deg, var(--orange) 0 33.3%, var(--gelb) 0 66.6%, var(--hellblau) 0); }
+.schild-titel { background: none; border: none; box-shadow: none; padding: 0 0 0 6px; font-family: var(--anzeige); font-weight: 300;
+  text-transform: lowercase; letter-spacing: .01em; color: var(--holz); font-size: clamp(28px, 4.6vw, 40px); }
+.rundknopf { border: none; border-radius: var(--r); background: var(--flaeche); color: var(--markise); box-shadow: none; width: 54px; height: 54px; }
+.rundknopf:active { transform: none; box-shadow: none; filter: brightness(.95); }
+main { margin-top: 30px; }
+.gruss { font-family: var(--anzeige); font-weight: 400; }
+.punkt { border: none; width: 16px; height: 16px; background: var(--flaeche); }
+.punkt.jetzt { background: var(--markise); border: none; }
+.punkt.fertig { background: var(--gut); border: none; }
+.tresen { border: 2px solid var(--linie); border-radius: var(--r); box-shadow: none; }
+.tresen-kopf h2, .schritt h3, .abschnitt h3, .dialog-kopf h2 { font-family: var(--anzeige); font-weight: 700; }
+.produkt { border: 2px solid var(--linie); border-radius: var(--r); }
+.preis { font-family: var(--anzeige); font-weight: 700; background: var(--laden); color: #1d3a5c; border: none; border-radius: 3px; padding: 1px 12px; }
+.schritt { border: 2px solid var(--linie); border-radius: var(--r); }
+.nr { background: var(--laden); color: #1d3a5c; font-family: var(--anzeige); font-weight: 700; }
+.grossknopf { border: none; border-radius: var(--r); box-shadow: none; background: var(--senf); color: #1d3a5c;
+  font-family: var(--anzeige); font-weight: 700; font-size: 26px; }
+.grossknopf:active { transform: translateY(2px); box-shadow: none; filter: brightness(.95); }
+.grossknopf.weiter { background: var(--gut); color: #fff; box-shadow: none; }
+.grossknopf.leise { background: var(--tresen); color: var(--holz); border: 2px solid var(--linie); }
+.grossknopf.ja { background: var(--gut-hell); color: var(--holz); border: 3px solid var(--gut); box-shadow: none; }
+.grossknopf.nein { background: var(--hm-hell); color: var(--holz); border: 3px solid var(--hm); box-shadow: none; }
+.meldung { border-radius: var(--r); border: none !important; border-left: 10px solid !important; }
+.meldung.gut { border-left-color: var(--gut) !important; }
+.meldung.hm { border-left-color: var(--hm) !important; }
+.meldung strong { font-family: var(--anzeige); font-weight: 700; }
+.foto-rahmen, .korrektur-hinweis { border-radius: var(--r); }
+.preisschild { border-width: 2px; box-shadow: none; }
+.rechenweg { font-family: var(--anzeige); }
+.ende h2 { font-family: var(--anzeige); font-weight: 300; color: var(--holz); }
+dialog { border: 2px solid var(--linie); border-radius: 10px; }
+dialog::backdrop { background: rgba(29, 58, 92, .45); }
+.dialog-kopf { border-bottom: 2px solid var(--linie); }
+.feld select, .feld input[type="text"] { border-radius: var(--r); border-width: 2px; }
+.schalter input { border-radius: 4px; }
+.abschnitt { border-top-width: 2px; }
+.mittelknopf { border: 2px solid var(--markise); color: var(--markise); border-radius: var(--r); background: var(--tresen); }
+.mittelknopf.primaer { background: var(--markise); color: var(--markise-text); }
+.mittelknopf.warnung { border-color: var(--hm); color: var(--hm); }
+.eintrag, .linkfeld code { border-radius: var(--r); }
+.neu-karte { border-color: var(--laden); }
+.neu-band { background: var(--laden); color: #1d3a5c; font-family: var(--anzeige); font-weight: 700; border-radius: 3px; }
+.neu-karte h2, .code-woerter, .start-frage { font-family: var(--anzeige); }
+.neu-karte h2 { font-weight: 700; }
+.geldvorrat { background: var(--flaeche); border: none; border-radius: var(--r); }
+.ablage-feld { border: 3px dashed var(--laden-rand); border-radius: var(--r); }
+.ablage-feld.drueber { border-color: var(--gut); }
+.ziffernblock button { border: 2px solid var(--linie); border-radius: var(--r); }
+.code-punkte span { border-width: 2px; }
+.ausloeser { background: var(--hellblau); }
+/* Startseite: Karten ganz in der Leitfarbe ihres Ladens */
+.start-frage { font-weight: 300; }
+.laden-karte { background: var(--karte); border: none; border-radius: var(--r); box-shadow: none; padding: 10px 10px 12px; gap: 8px; color: #1d3a5c; }
+.laden-karte:active { transform: translateY(2px); box-shadow: none; filter: brightness(.96); }
+.laden-karte .karte-bilder { border-radius: 3px; }
+.laden-karte .karte-name { font-family: var(--anzeige); font-weight: 700; font-size: 26px; color: #1d3a5c; }
+.info-i { background: var(--markise); color: var(--markise-text); font-family: var(--anzeige); font-style: normal; }
+.info-laden { border-left-width: 8px; }
+.info-laden h3 { font-family: var(--anzeige); color: var(--holz); }
+.info-laden .karte-stufe { background: var(--flaeche); border-radius: 3px; }
+/* ruhiger: Karten blenden sanft ein, ohne Überschwingen */
+.start.erscheint .start-frage, .start.erscheint .laden-karte, .start.erscheint #knopf-zuletzt { animation: einblenden .4s ease-out both; }
+@keyframes einblenden { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+/* Vorhang aus Farbstreifen */
+.vorhang-teil.links, .vorhang-teil.rechts { border: none; box-shadow: none; }
+.vorhang-teil.links { background: linear-gradient(90deg, var(--blau) 0 20%, var(--hellblau) 0 40%, var(--hellgruen) 0 60%, var(--gelb) 0 80%, var(--orange) 0); }
+.vorhang-teil.rechts { background: linear-gradient(90deg, var(--orange) 0 20%, var(--gelb) 0 40%, var(--hellgruen) 0 60%, var(--hellblau) 0 80%, var(--blau) 0); }
+.vorhang-blende { display: none; }
+@media (max-width: 520px) {
+  .kopf { flex-wrap: nowrap; gap: 8px; }
+  .schild-titel { font-size: 25px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rundknopf { width: 46px; height: 46px; flex: none; }
+  .rundknopf svg { width: 26px; height: 26px; }
+}
+.vorhang-schild { background: #fff; color: #1d3a5c; border-radius: var(--r); padding: 10px 40px; font-size: clamp(36px, 7vw, 60px); transform: translate(-50%, -50%); font-weight: 700; }
+.vorhang.auf .vorhang-schild { transform: translate(-50%, -50%) scale(.9); opacity: 0; }
 /* Schwierigkeit je Laden (Lehrkraft) */
 .sw-laden { display: grid; gap: 10px; border: 3px solid var(--karte, var(--linie)); border-radius: 16px; padding: 14px; }
 .sw-laden h3 { margin: 0; font-family: var(--anzeige); font-size: 24px; color: var(--karte, var(--holz)); }
@@ -919,8 +1004,8 @@ body.auf-start #knopf-preisliste { display: none; }
 <script src="geld.js"></script>
 <script>
 'use strict';
-const VERSION = '3.6.0';
-const STAND = '22.10.2026';
+const VERSION = '4.0.0';
+const STAND = '25.10.2026';
 
 // ---------------------------------------------------------------------------
 // Läden. Beträge in der Einheit des Ladens: Kirmes und Spielwaren in ganzen Euro,
@@ -1081,15 +1166,15 @@ const SPRECH = {
 const ZAHL_SPRECH = ['', 'eins', 'zwei', 'drei', 'vier', 'fünf', 'sechs'];
 
 const LAEDEN = {
-  kirmes: { name: 'Kirmes-Kiosk', faktor: 1, cent: false, foto: true, ordner: 'bilder/', farbe: '#c9362c', farbeDunkel: '#e0483d',
+  kirmes: { name: 'Kirmes-Kiosk', faktor: 1, cent: false, foto: true, ordner: 'bilder/', farbe: '#f39325', farbeRand: '#c76f0a',
             produkte: PRODUKTE_KIRMES, stufen: STUFEN_KIRMES, geld: [1, 2, 5, 10, 20],
             maxWahl: [5, 10, 12, 15, 20, 30], bezahltWahl: [10, 15, 20], spanne: 6, schritte: [1, 2, 10, 3],
             bereiche: [[5, 'bis 5 €'], [10, '6–10 €'], [15, '11–15 €'], [20, '16–20 €'], [Infinity, 'über 20 €']] },
-  spielwaren: { name: 'Spielwarenladen', faktor: 1, cent: false, foto: false, ordner: 'bilder/spielwaren/', farbe: '#1e6fc0', farbeDunkel: '#4a92de',
+  spielwaren: { name: 'Spielwarenladen', faktor: 1, cent: false, foto: false, ordner: 'bilder/spielwaren/', farbe: '#9fd3f0', farbeRand: '#3d9ad6',
             produkte: PRODUKTE_SPIELWAREN, stufen: STUFEN_SPIELWAREN, geld: [1, 2, 5, 10, 20, 50, 100],
             maxWahl: [30, 50, 100, 150, 200], bezahltWahl: [20, 50, 100, 200], spanne: 40, schritte: [1, 10, 5, 20],
             bereiche: [[20, 'bis 20 €'], [50, '21–50 €'], [100, '51–100 €'], [150, '101–150 €'], [Infinity, 'über 150 €']] },
-  baeckerei: { name: 'Bäckerei', faktor: 100, cent: true, foto: false, ordner: 'bilder/baeckerei/', farbe: '#8a5a2b', farbeDunkel: '#b37a44',
+  baeckerei: { name: 'Bäckerei', faktor: 100, cent: true, foto: false, ordner: 'bilder/baeckerei/', farbe: '#ffd200', farbeRand: '#c9a400',
             produkte: PRODUKTE_BAECKEREI, stufen: STUFEN_BAECKEREI, geld: [10, 20, 50, 100, 200, 500],
             maxWahl: [2, 3, 5, 8, 10], bezahltWahl: [5, 10, 20], spanne: 250, schritte: [10, 50, 100, 20],
             bereiche: [[100, 'bis 1 €'], [200, '1,10–2 €'], [500, '2,10–5 €'], [1000, '5,10–10 €'], [Infinity, 'über 10 €']] },
@@ -2232,7 +2317,8 @@ $('dlg-lehrkraft').addEventListener('close', scanNeu);
 function zeigeLaden() {
   $('laden-titel').textContent = L.name;
   document.title = L.name;
-  document.documentElement.style.setProperty('--markise', L.farbe);
+  document.documentElement.style.setProperty('--laden', L.farbe);
+  document.documentElement.style.setProperty('--laden-rand', L.farbeRand);
   document.documentElement.dataset.laden = E.laden;
   $('preisliste').innerHTML = PRODUKTE.slice().sort((a, b) => a.preis - b.preis || a.name.localeCompare(b.name, 'de')).map(p =>
     `<div class="produkt"><img src="${bild(p)}" alt="" loading="lazy"><div style="text-align:center"><div class="name">${p.name}</div><span class="preis">${fmt(p.preis)}</span></div></div>`).join('');
@@ -2400,7 +2486,7 @@ const LADEN_INFO = {
     anspruch: 'Große Zahlen bis 200 €. Addieren im Hunderterraum mit Zehnerübergang; Stellenwert mit 10-, 20-, 50- und 100-€-Scheinen. Später Rückgeld von 50 € und 100 €.',
     baender: [[1, 'leicht', '2 Spielsachen, bis 60 €'], [3, 'mittel', '3 Spielsachen bis 150 €, große Scheine'], [5, 'schwer', '4 Spielsachen bis 200 €, Rückgeld, Reicht das Geld?']] },
 };
-const farbeVon = id => matchMedia('(prefers-color-scheme: dark)').matches ? LAEDEN[id].farbeDunkel : LAEDEN[id].farbe;
+const farbeVon = id => LAEDEN[id].farbe;   // Leitfarbe; Flächen tragen immer dunkle Schrift, darum hell wie dunkel gleich
 function stufeVon(id) {
   const nr = id === E.laden ? S.nr : (speicher.lesen(stufenKey(id), null) || { nr: 1 }).nr;
   return clamp(nr, 1, LAEDEN[id].stufen.length);
