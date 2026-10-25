@@ -332,8 +332,13 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
 .balken { display: inline-block; height: 12px; border-radius: 6px; background: var(--gut); vertical-align: middle; margin-right: 6px; }
 .fuss { font-size: 14px; color: var(--holz-hell); margin: 0; }
 
+@page { margin: 8mm; }
+#druckbogen { display: none; }
 @media print {
-  body > *:not(#dlg-lehrkraft) { display: none !important; }
+  html:not(.drucke-vorlage) body > *:not(#dlg-lehrkraft) { display: none !important; }
+  html.drucke-vorlage body > *:not(#druckbogen) { display: none !important; }
+  html.drucke-vorlage #druckbogen { display: block !important; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   dialog#dlg-lehrkraft { position: static; border: none; width: auto; max-height: none; }
   dialog::backdrop { display: none; }
   #dlg-lehrkraft .dialog-kopf, #dlg-lehrkraft .abschnitt:not(.druck), #dlg-lehrkraft .einstellungen, #dlg-lehrkraft .nicht-drucken { display: none !important; }
@@ -467,10 +472,65 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
 .vorhang.auf .vorhang-schild { transform: translate(-50%, -260%) rotate(-3deg); opacity: 0; }
 @media (prefers-reduced-motion: reduce) { .vorhang { display: none; } .start.erscheint * { animation: none !important; } }
 
+/* --- Druckvorlagen (A4) --- */
+#druckbogen { color: #1d3a5c; font-family: var(--schrift); }
+#druckbogen .blatt { break-after: page; page-break-after: always; }
+#druckbogen .blatt-kopf { font: 300 11pt var(--anzeige); color: #5b7491; display: flex; justify-content: space-between; margin-bottom: 3mm; }
+#druckbogen .raster { display: grid; }
+#druckbogen .raster.waren { grid-template-columns: repeat(3, 1fr); grid-auto-rows: 64mm; }
+#druckbogen .karte { border: .3mm dashed #b5bec8; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 0 3mm 4mm; }
+#druckbogen .karte .band { align-self: stretch; height: 4mm; background: var(--druck-farbe); margin: 0 -3mm; }
+#druckbogen .karte img { height: 31mm; width: auto; margin-top: 2mm; }
+#druckbogen .karte .name { font-weight: 700; font-size: 12.5pt; text-align: center; line-height: 1.1; }
+#druckbogen .karte .preis { font: 700 22pt var(--anzeige); border: .6mm solid #1d3a5c; border-radius: 1.5mm; padding: 0 3.5mm; line-height: 1.25; background: none; }
+#druckbogen .raster.betraege { grid-template-columns: repeat(4, 1fr); grid-auto-rows: 44mm; }
+#druckbogen .schild { border: .3mm dashed #b5bec8; display: grid; place-items: center; padding: 3mm; }
+#druckbogen .schild div { width: 100%; height: 100%; border: .8mm solid #1d3a5c; border-radius: 1.5mm; display: grid; place-items: center; position: relative; }
+#druckbogen .schild div::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3mm; background: var(--druck-farbe); }
+#druckbogen .schild span { font: 700 28pt var(--anzeige); }
+#druckbogen .schild.klein span { font-size: 23pt; }
+
+/* --- Sammelalbum --- */
+.album-knopf { display: flex; align-items: center; justify-content: center; gap: 10px; border: 2px solid var(--linie); border-radius: var(--r); background: var(--tresen);
+  color: var(--holz); font: 700 22px var(--anzeige); min-height: 64px; cursor: pointer; }
+.album-knopf svg, #knopf-album-ende svg { width: 30px; height: 30px; }
+.neuer-aufkleber { display: flex; align-items: center; gap: 18px; justify-content: center; flex-wrap: wrap; font-size: 20px; }
+.neuer-aufkleber .aufkleber-gross { width: 150px; height: 150px; filter: drop-shadow(0 6px 8px rgba(29,58,92,.25)); }
+.neuer-aufkleber .aufkleber-gross svg { width: 100%; height: 100%; display: block; }
+.neuer-aufkleber strong { display: block; font: 700 26px var(--anzeige); }
+.ploppen { animation: plopp-gross .6s cubic-bezier(.3,1.6,.5,1) both; }
+@keyframes plopp-gross { from { transform: scale(.2) rotate(-25deg); opacity: 0; } to { transform: none; opacity: 1; } }
+.album-ansicht { z-index: 46; }
+.album-kopf::after { background: linear-gradient(90deg, #f39325 0 33.3%, #ffd200 0 66.6%, #9fd3f0 0); }
+.album-kopf { box-shadow: none; }
+.album-inhalt { flex: 1; min-height: 0; overflow-y: auto; padding: 22px max(16px, env(safe-area-inset-left, 0px)) 16px; display: grid; gap: 14px; align-content: start; max-width: 980px; width: 100%; margin: 0 auto; }
+.album-reiter { display: flex; gap: 10px; flex-wrap: wrap; }
+.album-reiter button { border: none; border-radius: var(--r); padding: 10px 18px; font: 700 20px var(--anzeige); color: #1d3a5c; background: var(--flaeche); cursor: pointer; min-height: 52px; }
+.album-reiter button[aria-pressed="true"] { background: var(--f); }
+.album-seite { background: var(--tresen); border: 2px solid var(--linie); border-top: 10px solid var(--f); border-radius: var(--r); padding: 18px; display: grid; gap: 14px; }
+.album-seite-kopf { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.album-seite-kopf h2 { margin: 0; flex: 1; font: 300 30px var(--anzeige); text-transform: lowercase; }
+.album-seite-kopf span { font: 700 19px var(--anzeige); }
+.plaetze { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.platz { display: grid; gap: 6px; justify-items: center; text-align: center; font-size: 16px; font-weight: 700; }
+.platz .rahmen { width: 100%; aspect-ratio: 1; border-radius: 14px; border: 3px dashed var(--silber); display: grid; place-items: center; background: var(--himmel); color: var(--silber); font: 300 34px var(--anzeige); }
+.platz.voll .rahmen { border: none; background: none; filter: drop-shadow(0 3px 4px rgba(29,58,92,.18)); transform: rotate(var(--dreh)); }
+.platz.voll .rahmen svg { width: 100%; height: 100%; display: block; }
+.platz.neu .rahmen { animation: plopp-gross .7s cubic-bezier(.3,1.6,.5,1) .2s both; }
+@media (max-width: 560px) { .plaetze { grid-template-columns: repeat(3, 1fr); gap: 10px; } .neuer-aufkleber .aufkleber-gross { width: 120px; height: 120px; } }
+@media (prefers-reduced-motion: reduce) { .ploppen, .platz.neu .rahmen { animation: none; } }
+
 /* --- Knopf „Zum Laden“ und Laden-Ansicht --- */
 .zum-laden { display: inline-flex; align-items: center; gap: 10px; border: none; border-radius: var(--r); background: var(--laden); color: #1d3a5c;
   font-family: var(--anzeige); font-weight: 700; font-size: 21px; padding: 8px 18px 8px 12px; min-height: 64px; cursor: pointer; }
 .zum-laden:active { transform: translateY(2px); filter: brightness(.95); }
+.wunsch-hinweis { grid-column: 1 / -1; font: 700 22px var(--anzeige); padding: 18px; border: 3px dashed var(--laden-rand); border-radius: var(--r); text-align: center; }
+.laden-svg .artikel.zu-teuer image { opacity: .3; filter: grayscale(.85); }
+.laden-svg .schild.zu-teuer { opacity: .45; }
+.korb-titel { font: 700 19px var(--anzeige); display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.korb-titel svg { width: 30px; height: 30px; }
+.korb-leer { color: var(--holz-hell); font-size: 17px; }
+.fertig-ausgesucht { margin-left: auto; border: none; border-radius: var(--r); background: var(--gut); color: #fff; font: 700 20px var(--anzeige); padding: 12px 20px; min-height: 56px; cursor: pointer; white-space: nowrap; }
 .zum-laden svg { width: 44px; height: 44px; display: block; }
 .laden-ansicht { position: fixed; inset: 0; z-index: 45; background: var(--himmel); display: flex; flex-direction: column; }
 body.laden-offen { overflow: hidden; }
@@ -640,6 +700,7 @@ dialog::backdrop { background: rgba(29, 58, 92, .45); }
     <h2 class="start-frage" id="start-frage">Wo möchtest du einkaufen?</h2>
     <div class="laden-karten" id="laden-karten"></div>
     <button class="grossknopf weiter zuletzt" id="knopf-zuletzt" data-scan><span id="zuletzt-titel">Weiter wie zuletzt</span><small id="zuletzt-laden"></small></button>
+    <button class="album-knopf" id="knopf-album" data-scan><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M19 19v2H6"/><circle cx="12" cy="10" r="3" fill="currentColor" fill-opacity=".25"/></svg>Mein Album</button>
   </section>
   <div class="start-knoepfe">
     <button class="mittelknopf" id="knopf-start-info" aria-label="Info zu den drei Läden"><span class="info-i" aria-hidden="true">i</span> Info</button>
@@ -737,9 +798,11 @@ dialog::backdrop { background: rgba(29, 58, 92, .45); }
     <h2>Geschafft!</h2>
     <p class="gruss" id="ende-text"></p>
     <div class="sterne" id="sterne"></div>
+    <div class="neuer-aufkleber" id="neuer-aufkleber" hidden></div>
     <div class="knopfreihe" style="width:100%">
       <button class="grossknopf" id="knopf-neu" data-scan>Neue Runde</button>
       <button class="grossknopf leise" id="knopf-anderer-laden" data-scan>Anderer Laden</button>
+      <button class="grossknopf leise" id="knopf-album-ende" data-scan><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M19 19v2H6"/><circle cx="12" cy="10" r="3" fill="currentColor" fill-opacity=".25"/></svg>Mein Album</button>
     </div>
   </section>
 </main>
@@ -756,6 +819,19 @@ dialog::backdrop { background: rgba(29, 58, 92, .45); }
   <div class="zettel" id="zettel"></div>
   <button class="laden-zurueck" id="knopf-laden-zurueck">← Zurück zum Einkaufen</button>
 </div>
+
+<!-- Sammelalbum -->
+<div class="laden-ansicht album-ansicht" id="album-ansicht" hidden role="dialog" aria-label="Mein Album">
+  <div class="laden-kopf album-kopf"><span class="laden-titel">mein album</span></div>
+  <div class="album-inhalt">
+    <div class="album-reiter" id="album-reiter"></div>
+    <section class="album-seite" id="album-seite"></section>
+  </div>
+  <button class="laden-zurueck" id="knopf-album-zurueck">← Zurück</button>
+</div>
+
+<!-- Druckvorlagen (nur beim Drucken sichtbar) -->
+<div id="druckbogen" aria-hidden="true"></div>
 
 <!-- Kamera mit Rahmen -->
 <div class="kamera" id="kamera-ansicht" hidden>
@@ -858,6 +934,7 @@ dialog::backdrop { background: rgba(29, 58, 92, .45); }
         </select>
         <span class="hilfe">Jeder Laden hat eigene Waren, Stufen und eine eigene Auswertung.</span>
         <label class="schalter"><input type="checkbox" id="e-wahl"> Das Kind darf beim Start den Laden selbst wählen</label>
+        <label class="schalter"><input type="checkbox" id="e-wunsch"> Wunschzettel: Ab und zu (jede 3. Aufgabe) sucht das Kind die Sachen im Laden selbst aus</label>
       </div>
       <div class="feld">
         <label for="e-geld">Geld legen</label>
@@ -1016,6 +1093,17 @@ dialog::backdrop { background: rgba(29, 58, 92, .45); }
     </div>
 
     <div class="abschnitt nicht-drucken">
+      <h3>Druckvorlagen</h3>
+      <p class="leer">Zum Ausdrucken (DIN A4, an den gestrichelten Linien ausschneiden): Preisschilder aller Waren für den Klassen-Kaufladen oder Betrags-Schilder für „Gesamtbetrag aus 4 wählen“ am Tisch. Am iPad öffnet sich das Drucken-Fenster; dort kann man auch als PDF sichern.</p>
+      <div class="knopfreihe" style="justify-content:flex-start;align-items:center">
+        <select id="d-laden" class="mittelknopf" style="flex:0 0 auto"><option value="kirmes">Kirmes-Kiosk</option><option value="baeckerei">Bäckerei</option><option value="spielwaren">Spielwarenladen</option></select>
+        <select id="d-art" class="mittelknopf" style="flex:0 0 auto"><option value="waren">Preisschilder der Waren</option><option value="betraege">Betrags-Schilder</option></select>
+        <span id="d-bereich" style="display:inline-flex;gap:8px;align-items:center;flex:0 0 auto"><select id="d-von" class="mittelknopf"></select> bis <select id="d-bis" class="mittelknopf"></select></span>
+        <button class="mittelknopf primaer" id="knopf-druckvorlage" style="flex:0 0 auto">Drucken</button>
+      </div>
+    </div>
+
+    <div class="abschnitt nicht-drucken">
       <h3>Protokoll der Fotos</h3>
       <div class="statistik" id="statistik"></div>
       <div class="protokoll" id="protokoll"></div>
@@ -1053,9 +1141,10 @@ dialog::backdrop { background: rgba(29, 58, 92, .45); }
 
 <script src="erkennung.js"></script>
 <script src="geld.js"></script>
+<script src="aufkleber.js"></script>
 <script>
 'use strict';
-const VERSION = '4.1.1';
+const VERSION = '4.2.0';
 const STAND = '25.10.2026';
 
 // ---------------------------------------------------------------------------
@@ -1272,8 +1361,8 @@ const EINS = () => L.faktor;   // Wert einer 1-€-Münze in der Einheit des Lad
 const STANDARD = { name: '', laden: 'kirmes', geld: 'foto', modus: 'stufen', start: 1, aufstieg: 8, abstieg: false,
                    art: 'kaufen', anzahl: 3, betrag: 'alle', max: 15, bezahlt: 10, runde: 10, einer: 0, schild: false,
                    preise: false, hilfe: true, doppelt: true, betragzeigen: true, ton: true, kamera: true, fotos: false,
-                   taster: 'aus', tempo: 2500, wahl: true, steigern: true, stimme: 'thorsten', markieren: 'hilfe' };
-const SCHALTER = ['wahl', 'steigern', 'abstieg', 'preise', 'hilfe', 'doppelt', 'betragzeigen', 'ton', 'kamera', 'fotos', 'schild'];
+                   taster: 'aus', tempo: 2500, wahl: true, steigern: true, stimme: 'thorsten', markieren: 'hilfe', wunsch: true };
+const SCHALTER = ['wunsch', 'wahl', 'steigern', 'abstieg', 'preise', 'hilfe', 'doppelt', 'betragzeigen', 'ton', 'kamera', 'fotos', 'schild'];
 const speicher = {
   lesen(k, f) { try { const v = localStorage.getItem('kirmes-' + k); return v ? JSON.parse(v) : f; } catch (e) { return f; } },
   schreiben(k, v) { try { localStorage.setItem('kirmes-' + k, JSON.stringify(v)); } catch (e) { /* kein Speicher */ } },
@@ -1335,7 +1424,7 @@ function regeln() {
 const $ = id => document.getElementById(id);
 let runde = { nr: 0, ergebnisse: [] };
 let aufgabe = null;   // { art, waren, summe, bezahlt, loesung, regeln, schluessel }
-let versuche = 0, fehlversuche = 0, hilfeStufe = 0;
+let versuche = 0, fehlversuche = 0, hilfeStufe = 0, fehlerArten = [];
 let analyse = null;   // { basis, objekte, korrigiert, qualitaet }
 let korrigieren = false, geloest = false;
 
@@ -1369,7 +1458,28 @@ function neueAufgabe() {
     if (!beste) beste = kandidat;
   }
   beste.waren.sort((a, b) => a.name.localeCompare(b.name, 'de'));
+  // Wunschzettel: jede 3. Aufgabe einer Runde sucht das Kind die Sachen selbst im Laden aus
+  if (E.wunsch && beste.art !== 'budget' && runde && runde.nr % 3 === 2) {
+    Object.assign(beste, { wunsch: true, waren: [], summe: 0, loesung: null, schluessel: 'wunsch' });
+    korb = [];
+  }
   return beste;
+}
+const wunschOffen = () => !!(aufgabe && aufgabe.wunsch && !aufgabe.waren.length);
+// Höchstbetrag für die ausgesuchten Sachen (Kaufen: Stufen-Maximum, Rückgeld: weniger als der Schein)
+const wunschGrenze = () => aufgabe.art === 'rueckgeld' ? aufgabe.bezahlt - (L.cent ? 10 : 1) : aufgabe.regeln.max;
+function wunschSatz() {
+  const n = aufgabe.regeln.anzahl;
+  return `Was möchtest du kaufen? Such dir ${n === 1 ? 'eine Sache' : (ZAHL_SPRECH[n] || n) + ' Sachen'} im Laden aus.`;
+}
+function wunschFertig() {
+  const R = aufgabe.regeln, waren = korb.slice().sort((a, b) => a.name.localeCompare(b.name, 'de'));
+  const summe = waren.reduce((s, p) => s + p.preis, 0);
+  Object.assign(aufgabe, { waren, summe, loesung: aufgabe.art === 'rueckgeld' ? R.bezahlt - summe : summe, schluessel: waren.map(p => p.id).sort().join() });
+  korb = [];
+  schliesseLaden();
+  zeigeAufgabe();
+  setTimeout(vorlesenAufgabe, 400);
 }
 
 // ---------------------------------------------------------------------------
@@ -1405,10 +1515,20 @@ function zeigeWare() {
 }
 function zeigeAufgabe() {
   zeigeRunde();
-  versuche = 0; fehlversuche = 0; hilfeStufe = 0; geloest = false; analyse = null; korrigieren = false;
+  versuche = 0; fehlversuche = 0; hilfeStufe = 0; fehlerArten = []; geloest = false; analyse = null; korrigieren = false;
   gefunden = new Set(); if (ladenOffen) schliesseLaden();
   zeigeWare();
   const art = aufgabe.art, n = aufgabe.waren.length;
+  if (wunschOffen()) {
+    // Wunschzettel: erst im Laden aussuchen, dann rechnen
+    const k = aufgabe.regeln.anzahl;
+    $('ware-titel').textContent = 'Was möchtest du kaufen?';
+    $('ware').innerHTML = `<div class="wunsch-hinweis">Such dir ${k === 1 ? 'eine Sache' : k + ' Sachen'} im Laden aus.</div>`;
+    ['bezahlen', 'hilfe-reihe', 'schritt-foto', 'schritt-budget', 'schritt-schild', 'weiter-reihe'].forEach(id => { $(id).hidden = true; });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    scanNeu();
+    return;
+  }
   $('ware-titel').textContent = art === 'budget' ? `Das möchte ich kaufen (${n} Sachen):` : n === 1 ? 'Das möchte ich kaufen:' : `Das möchte ich kaufen (${n} Sachen):`;
   const bz = $('bezahlen');
   if (art === 'rueckgeld') { bz.hidden = false; bz.innerHTML = `<span>Ich bezahle mit:</span>${scheinChip(aufgabe.bezahlt)}`; }
@@ -1685,6 +1805,7 @@ function pruefeGeld(neu) {
     const sehe = analyse.virtuell ? 'Du hast' : 'Ich sehe';
     const betrag = betragZeigen ? `${sehe} ${fmt(summe)}${analyse.virtuell ? ' hingelegt' : ''}. ` : '';
     html = meldung(false, 'Das passt noch nicht.', betrag + zusatz);
+    if (neu && zaehlt) { const art = fehlerArt(summe, soll); fehlerArten.push(art); grund = FEHLERART[art][0]; }
     sprich = `Das passt noch nicht. ${betragZeigen ? `${sehe} ${sprichBetrag(summe)}${analyse.virtuell ? ' hingelegt' : ''}. ` : ''}${zusatz}`;
   }
   $('meldung').innerHTML = html;
@@ -1959,8 +2080,13 @@ function zeigeEnde() {
   const leicht = runde.ergebnisse.filter(e => e.leicht).length;
   $('ende-text').textContent = `${E.name ? E.name + ', du' : 'Du'} hast ${E.runde} Aufgaben geschafft. ${leicht} davon ganz ohne Hilfe!`;
   $('sterne').innerHTML = runde.ergebnisse.map(e => STERN(e.leicht)).join('');
+  const neu = vergibAufkleber(), box = $('neuer-aufkleber');
+  box.hidden = !neu;
+  if (neu && neu.voll) box.innerHTML = '<div><strong>Dein Album ist voll!</strong>Super gesammelt.</div>';
+  else if (neu) box.innerHTML = `<div class="aufkleber-gross ploppen">${neu.svg}</div><div><strong>Neuer Aufkleber!</strong>${neu.name} · ${neu.nr} von ${neu.von} im Album</div>`;
   jubel(true);
   sage(`Geschafft! ${E.name ? E.name + ', du' : 'Du'} hast alle Aufgaben geschafft.`);
+  if (neu && !neu.voll) sageDanach('Ein neuer Aufkleber für dein Album.');
   window.scrollTo({ top: 0, behavior: 'smooth' });
   scanNeu();
 }
@@ -2111,6 +2237,7 @@ async function sageThorsten(text, vorlauf = 0) {
 }
 function vorlesenAufgabe() {
   if (!aufgabe) return;
+  if (wunschOffen()) return ladenOffen ? sage(wunschSatz()) : oeffneLaden();   // Wunschzettel: gleich in den Laden
   const zieh = E.geld === 'ziehen' || !L.foto, rueck = aufgabe.art === 'rueckgeld';
   const kauf = `Ich möchte ${warenSatz(aufgabe.waren)} kaufen.`;
   // Im Zieh-Modus gibt es kein Foto: dann "zieh das Geld in das Feld".
@@ -2152,7 +2279,8 @@ function scanZiele() {
   if (lehrkraftOffen()) return [];
   if (!$('kamera-ansicht').hidden) return [...document.querySelectorAll('[data-scan-kamera]')];
   if ($('dlg-stufe').open) return [...$('dlg-stufe').querySelectorAll('[data-scan-dialog]')];
-  if (ladenOffen) return [...$('laden-bild').querySelectorAll('.artikel'), ...$('zettel').querySelectorAll('.posten'), $('knopf-laden-zurueck')];
+  if (albumOffen) return [...$('album-reiter').querySelectorAll('button'), $('knopf-album-zurueck')];
+  if (ladenOffen) return [...$('laden-bild').querySelectorAll('.artikel:not(.zu-teuer)'), ...$('zettel').querySelectorAll('.posten, .fertig-ausgesucht'), $('knopf-laden-zurueck')];
   return [...document.querySelectorAll('[data-scan]')].filter(el => !el.disabled && el.offsetParent !== null && !el.closest('[hidden]'));
 }
 function scanMarkiere(el) {
@@ -2220,10 +2348,43 @@ function protokolliere(erkannt, richtig, ersetzen, grund) {
 function merkeAufgabe(leicht) {
   const liste = speicher.lesen('aufgaben', []);
   liste.push({ zeit: Date.now(), laden: E.laden, art: aufgabe.art, stufe: aufgabe.regeln.stufe, betrag: aufgabe.art === 'budget' ? aufgabe.summe : aufgabe.loesung,
-               anzahl: aufgabe.waren.length, versuche, hilfe: hilfeStufe, leicht });
+               anzahl: aufgabe.waren.length, versuche, hilfe: hilfeStufe, leicht, fehler: fehlerArten.slice(), wunsch: !!aufgabe.wunsch });
   speicher.schreiben('aufgaben', liste.slice(-1500));
 }
 const ARTNAME = { kaufen: 'Einkaufen', rueckgeld: 'Rückgeld', budget: 'Reicht das Geld?' };
+const artName = a => (ARTNAME[a.art] || a.art) + (a.wunsch ? ' (Wunschzettel)' : '');
+// Welcher Fehler steckt wahrscheinlich hinter einem falschen Betrag? (Name, Tipp für die Förderung)
+const FEHLERART = {
+  vergessen: ['eine Sache vergessen', 'Im Laden den Einkaufszettel abhaken lassen; beim Rechnen jede Sache einzeln antippen.'],
+  doppelt: ['eine Sache doppelt gezählt', 'Gerechnete Sachen abhaken bzw. zur Seite legen.'],
+  rueckgeld_preis: ['Preis statt Rückgeld gelegt', 'Rückgeld durch Ergänzen üben: vom Preis bis zum bezahlten Schein weiterzählen.'],
+  rueckgeld_schein: ['bezahlten Betrag gelegt', 'Klären: Rückgeld ist das, was man zurückbekommt.'],
+  stellenwert: ['Zehner / Stellenwert', 'Zehner und Einer getrennt legen, mit Scheinen bündeln (Bäckerei: 100 Cent = 1 Euro).'],
+  knapp: ['knapp verzählt', 'Geld noch einmal nachzählen lassen; Münzen sortiert hinlegen (große zuerst).'],
+  anders: ['anderer Fehler', ''],
+};
+function fehlerArt(summe, soll) {
+  const rueck = aufgabe.art === 'rueckgeld', preise = [...new Set(aufgabe.waren.map(p => p.preis))];
+  if (rueck && summe === aufgabe.summe) return 'rueckgeld_preis';
+  if (rueck && summe === aufgabe.bezahlt) return 'rueckgeld_schein';
+  const d = summe - soll, vz = rueck ? -1 : 1, ad = Math.abs(d);
+  if (aufgabe.waren.length > 1 && preise.some(p => d === -vz * p)) return 'vergessen';
+  if (preise.some(p => d === vz * p)) return 'doppelt';
+  if (L.cent ? (ad === 100 || ad === 1000 || summe * 10 === soll || summe === soll * 10) : (ad === 10 || ad === 100)) return 'stellenwert';
+  if (L.cent ? ad <= 10 : ad <= 1) return 'knapp';
+  return 'anders';
+}
+function fehlerTabelle(liste) {
+  const zaehl = new Map();
+  for (const a of liste) for (const f of a.fehler || []) zaehl.set(f, (zaehl.get(f) || 0) + 1);
+  const gesamt = [...zaehl.values()].reduce((s, n) => s + n, 0);
+  if (!gesamt) return { html: '', haeufig: null };
+  const zeilen = [...zaehl].sort((a, b) => b[1] - a[1]);
+  const html = `<div class="tabelle-huelle"><table class="tabelle"><thead><tr><th>Fehlerart</th><th>Anzahl</th><th>Anteil</th><th>Tipp</th></tr></thead><tbody>` +
+    zeilen.map(([f, n]) => `<tr><td>${FEHLERART[f] ? FEHLERART[f][0] : f}</td><td>${n}</td><td><span class="balken" style="width:${Math.round(60 * n / gesamt)}px;background:var(--hm)"></span>${Math.round(100 * n / gesamt)} %</td><td style="white-space:normal">${FEHLERART[f] ? FEHLERART[f][1] : ''}</td></tr>`).join('') +
+    '</tbody></table></div>';
+  return { html, haeufig: zeilen[0][0] !== 'anders' ? zeilen[0] : (zeilen[1] || null) };
+}
 function bereich(b) { return L.bereiche.find(([g]) => b <= g)[1]; }
 function aufgabenImZeitraum() {
   const tage = +$('a-zeitraum').value, ab = tage ? Date.now() - tage * 864e5 : 0;
@@ -2259,8 +2420,11 @@ function zeigeBericht() {
   if (stufen.length && STUFEN[stufen[stufen.length - 1] - 1]) text += ` Stufe zuletzt: ${stufen[stufen.length - 1]} („${STUFEN[stufen[stufen.length - 1] - 1].titel}“).`;
   if (sicher.length) text += ` Sicher: ${sicher.join(', ')}.`;
   if (schwer.length) text += ` Noch schwierig: ${schwer.join(', ')}.`;
+  const fehler = fehlerTabelle(liste);
+  if (fehler.haeufig) text += ` Häufigster Fehler: ${FEHLERART[fehler.haeufig[0]][0]} (${fehler.haeufig[1]}×). Tipp: ${FEHLERART[fehler.haeufig[0]][1]}`;
   box.innerHTML = `<p class="zusammenfassung">${text}</p>` +
-    tabelle('Aufgabe / Stufe', gruppiere(liste, a => a.stufe && STUFEN[a.stufe - 1] ? `Stufe ${a.stufe}: ${STUFEN[a.stufe - 1].titel}` : ARTNAME[a.art] || a.art).sort((a, b) => a.name.localeCompare(b.name, 'de', { numeric: true }))) +
+    fehler.html +
+    tabelle('Aufgabe / Stufe', gruppiere(liste, a => a.stufe && STUFEN[a.stufe - 1] ? `Stufe ${a.stufe}: ${STUFEN[a.stufe - 1].titel}` : artName(a)).sort((a, b) => a.name.localeCompare(b.name, 'de', { numeric: true }))) +
     tabelle('Betrag', nachBereich) +
     tabelle('Anzahl Sachen', gruppiere(liste, a => `${a.anzahl} ${a.anzahl === 1 ? 'Sache' : 'Sachen'}`).sort((a, b) => a.name.localeCompare(b.name, 'de', { numeric: true }))) +
     `<p class="fuss">Stand ${new Date().toLocaleDateString('de-DE')} · Kirmes-Kiosk ${VERSION}. „Ohne Hilfe gelöst“: mit höchstens 2 Fotos bzw. Antworten und ohne die Hilfe-Knöpfe.</p>`;
@@ -2269,9 +2433,10 @@ $('a-zeitraum').addEventListener('change', zeigeBericht);
 $('knopf-drucken').addEventListener('click', () => { zeigeBericht(); window.print(); });
 $('knopf-csv').addEventListener('click', () => {
   const liste = aufgabenImZeitraum();
-  const kopf = ['Datum', 'Uhrzeit', 'Laden', 'Aufgabe', 'Stufe', 'Betrag', 'Sachen', 'Versuche', 'Hilfe', 'ohne Hilfe gelöst'];
+  const kopf = ['Datum', 'Uhrzeit', 'Laden', 'Aufgabe', 'Stufe', 'Betrag', 'Sachen', 'Versuche', 'Hilfe', 'ohne Hilfe gelöst', 'Fehlerarten'];
   const zeilen = liste.map(a => { const d = new Date(a.zeit); return [d.toLocaleDateString('de-DE'), d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }),
-    L.name, ARTNAME[a.art] || a.art, a.stufe || '', fmt(a.betrag), a.anzahl, a.versuche, ['nein', 'Preise', 'Schritt für Schritt'][a.hilfe] || a.hilfe, a.leicht ? 'ja' : 'nein']; });
+    L.name, artName(a), a.stufe || '', fmt(a.betrag), a.anzahl, a.versuche, ['nein', 'Preise', 'Schritt für Schritt'][a.hilfe] || a.hilfe, a.leicht ? 'ja' : 'nein',
+    (a.fehler || []).map(f => FEHLERART[f] ? FEHLERART[f][0] : f).join(', ')]; });
   const csv = '﻿' + [kopf, ...zeilen].map(z => z.map(v => `"${String(v).replace(/"/g, '""')}"`).join(';')).join('\r\n');
   const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
   const a = document.createElement('a'); a.href = url; a.download = `${E.laden}-auswertung-${new Date().toISOString().slice(0, 10)}.csv`;
@@ -2285,14 +2450,16 @@ function speichereDatei(inhalt, typ, name) {
 }
 const heute = () => new Date().toISOString().slice(0, 10);
 $('knopf-lernstand-csv').addEventListener('click', () => {
-  const alle = speicher.lesen('aufgaben', []), kopf = ['Laden', 'Stufe', 'Inhalt', 'aktuelle Stufe', 'Aufgaben', 'ohne Hilfe gelöst', 'Anteil ohne Hilfe', 'zuletzt geübt'];
+  const alle = speicher.lesen('aufgaben', []), kopf = ['Laden', 'Stufe', 'Inhalt', 'aktuelle Stufe', 'Aufgaben', 'ohne Hilfe gelöst', 'Anteil ohne Hilfe', 'zuletzt geübt', 'häufigste Fehlerart'];
   const zeilen = [];
   for (const id of LADEN_FOLGE) {
     const LL = LAEDEN[id], nr = stufeVon(id), eigene = alle.filter(a => (a.laden || 'kirmes') === id);
     LL.stufen.forEach((st, i) => {
       const auf = eigene.filter(a => a.stufe === i + 1), ok = auf.filter(a => a.leicht).length;
       const zuletzt = auf.length ? new Date(Math.max(...auf.map(a => a.zeit))).toLocaleDateString('de-DE') : '';
-      zeilen.push([LL.name, i + 1, st.titel, i + 1 === nr ? (E.steigern ? 'ja' : 'ja (bleibt)') : '', auf.length, ok, auf.length ? Math.round(100 * ok / auf.length) + ' %' : '', zuletzt]);
+      const h = fehlerTabelle(auf).haeufig;
+      zeilen.push([LL.name, i + 1, st.titel, i + 1 === nr ? (E.steigern ? 'ja' : 'ja (bleibt)') : '', auf.length, ok, auf.length ? Math.round(100 * ok / auf.length) + ' %' : '', zuletzt,
+        h ? `${FEHLERART[h[0]][0]} (${h[1]}×)` : '']);
     });
     const ohne = eigene.filter(a => !a.stufe);
     if (ohne.length) zeilen.push([LL.name, '', 'feste Einstellungen', '', ohne.length, ohne.filter(a => a.leicht).length, '', new Date(Math.max(...ohne.map(a => a.zeit))).toLocaleDateString('de-DE')]);
@@ -2300,7 +2467,7 @@ $('knopf-lernstand-csv').addEventListener('click', () => {
   const csv = '﻿' + [[`Lernstand vom ${new Date().toLocaleDateString('de-DE')}`], kopf, ...zeilen].map(z => z.map(v => `"${String(v).replace(/"/g, '""')}"`).join(';')).join('\r\n');
   speichereDatei(csv, 'text/csv;charset=utf-8', `lernstand-${heute()}.csv`);
 });
-const LERNSTAND_KEYS = ['einstellungen', 'stufe', 'stufe-spielwaren', 'stufe-baeckerei', 'aufgaben', 'protokoll'];
+const LERNSTAND_KEYS = ['einstellungen', 'stufe', 'stufe-spielwaren', 'stufe-baeckerei', 'aufgaben', 'protokoll', 'album'];
 $('knopf-lernstand-sichern').addEventListener('click', () => {
   const daten = {};
   for (const k of LERNSTAND_KEYS) { const v = speicher.lesen(k, null); if (v !== null) daten[k] = v; }
@@ -2405,7 +2572,8 @@ const PIKTO_LADEN = {
 };
 const ZETTEL_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 11h7M9 15h7"/></svg>';
 const ladenSvgText = {};
-let ladenOffen = false, gefunden = new Set();
+let ladenOffen = false, gefunden = new Set(), korb = [];
+const KORB_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10h18l-2 10H5z"/><path d="M8 10l4-6 4 6M9 14v3M12 14v3M15 14v3"/></svg>';
 function holeLadenSvg(id) {
   if (!ladenSvgText[id]) ladenSvgText[id] = fetch('laeden/' + id + '.svg', { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(r.status); return r.text(); })
     .catch(e => { delete ladenSvgText[id]; throw e; });
@@ -2446,21 +2614,39 @@ async function oeffneLaden() {
     }
   } catch (e) { box.innerHTML = '<p style="padding:20px;font-size:20px">Der Laden kann gerade nicht geladen werden. Bitte einmal mit Internet öffnen.</p>'; box.dataset.laden = ''; }
   box.querySelectorAll('.markierung').forEach(m => m.remove());
-  if (markierungZeigen()) for (const [id, n] of einkaufsliste()) {
+  if (!wunschOffen() && markierungZeigen()) for (const [id, n] of einkaufsliste()) {
     const a = box.querySelector(`.artikel[data-id="${id}"]`);
     if (a) a.insertAdjacentHTML('beforeend', markierungSvg(a.dataset.box, n));
   }
   $('laden-ansicht-titel').textContent = L.name;
   zeigeZettel();
   $('laden-ansicht').hidden = false; ladenOffen = true; document.body.classList.add('laden-offen');
-  sage('Tippe auf eine Sache, dann hörst du den Preis.');
+  sage(wunschOffen() ? wunschSatz() : 'Tippe auf eine Sache, dann hörst du den Preis.');
   scanNeu();
 }
 function schliesseLaden() {
   $('laden-ansicht').hidden = true; ladenOffen = false; document.body.classList.remove('laden-offen');
   stoppeTon(); scanNeu();
 }
+// Wunschzettel: Korb unten statt Einkaufszettel; Sachen über dem Höchstbetrag sind blass
+function zeigeKorb() {
+  const n = aufgabe.regeln.anzahl, voll = korb.length >= n;
+  $('zettel').innerHTML = `<span class="korb-titel">${KORB_SVG}Dein Korb (${korb.length} von ${n}):</span>` +
+    (korb.length ? korb.map((p, i) => `<button class="posten gefunden" data-korb="${i}"><img src="${bild(p)}" alt=""><span class="was">${p.name}<small>${fmt(p.preis)}</small></span></button>`).join('')
+      : '<span class="korb-leer">Tippe auf eine Sache.</span>') +
+    (voll ? '<button class="fertig-ausgesucht" id="knopf-ausgesucht">Fertig ausgesucht</button>' : '');
+  const rest = wunschGrenze() - korb.reduce((s, p) => s + p.preis, 0);
+  const billig = Math.min(...PRODUKTE.map(p => p.preis)), frei = n - korb.length;
+  $('laden-bild').querySelectorAll('.artikel').forEach(a => {
+    const p = PRODUKTE.find(x => x.id === a.dataset.id);
+    const zuTeuer = !voll && p && (p.preis > rest - (frei - 1) * billig || (!E.doppelt && korb.some(k => k.id === p.id)));
+    a.classList.toggle('zu-teuer', !!zuTeuer);
+    const t = $('laden-bild').querySelector(`.schild[data-id="${a.dataset.id}"]`); if (t) t.classList.toggle('zu-teuer', !!zuTeuer);
+  });
+}
 function zeigeZettel() {
+  if (wunschOffen()) return zeigeKorb();
+  $('laden-bild').querySelectorAll('.zu-teuer').forEach(x => x.classList.remove('zu-teuer'));
   const liste = einkaufsliste(), alle = liste.every(([id]) => gefunden.has(id));
   $('zettel').innerHTML = `<span class="zettel-titel">${ZETTEL_SVG}Einkaufszettel:</span>` + liste.map(([id, n]) => {
     const p = PRODUKTE.find(x => x.id === id), ok = gefunden.has(id);
@@ -2476,6 +2662,14 @@ function leuchte(a) {
 }
 function tippeArtikel(a) {
   const p = PRODUKTE.find(x => x.id === a.dataset.id); if (!p) return;
+  if (wunschOffen()) {
+    leuchte(a);
+    if (korb.length >= aufgabe.regeln.anzahl) { sage('Dein Korb ist voll. Tippe auf Fertig.'); return; }
+    if (a.classList.contains('zu-teuer')) { sage(satzPreis(p)); sageDanach('Das ist zu teuer.', .15); return; }
+    korb.push(p); zeigeKorb(); sage(satzPreis(p));
+    if (korb.length >= aufgabe.regeln.anzahl) sageDanach('Dein Korb ist voll. Tippe auf Fertig.');
+    scanNeu(); return;
+  }
   leuchte(a); sage(satzPreis(p));
   if (einkaufsliste().some(([id]) => id === p.id) && !gefunden.has(p.id)) {
     gefunden.add(p.id); zeigeZettel();
@@ -2490,6 +2684,9 @@ $('laden-bild').addEventListener('click', ev => {
   if (a) tippeArtikel(a);
 });
 $('zettel').addEventListener('click', ev => {
+  if (ev.target.closest('#knopf-ausgesucht')) return wunschFertig();
+  const k = ev.target.closest('[data-korb]');
+  if (k) { korb.splice(+k.dataset.korb, 1); zeigeKorb(); scanNeu(); return; }   // wieder zurück ins Regal
   const b = ev.target.closest('.posten'); if (!b) return;
   const a = $('laden-bild').querySelector(`.artikel[data-id="${b.dataset.id}"]`);
   const p = PRODUKTE.find(x => x.id === b.dataset.id);
@@ -2500,6 +2697,81 @@ $('knopf-zum-laden').addEventListener('click', oeffneLaden);
 $('knopf-laden-zurueck').addEventListener('click', schliesseLaden);
 $('knopf-laden-vorlesen').addEventListener('click', () => sage('Tippe auf eine Sache, dann hörst du den Preis.'));
 document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && ladenOffen && E.taster === 'aus') schliesseLaden(); });
+
+// ---------------------------------------------------------------------------
+// Sammelalbum: nach jeder geschafften Runde ein Aufkleber für die Seite des Ladens (12 je Laden).
+// Belohnt das Dranbleiben – unabhängig von Fehlern, ohne Punkte oder Vergleich. Aufkleber: aufkleber.js
+// ---------------------------------------------------------------------------
+const albumStand = () => Object.assign({ kirmes: 0, baeckerei: 0, spielwaren: 0 }, speicher.lesen('album', {}));
+let albumOffen = false, albumLaden = 'kirmes', albumNeu = null;
+function vergibAufkleber() {
+  if (!window.AUFKLEBER) return null;
+  const a = albumStand(), n = a[E.laden] || 0, liste = AUFKLEBER[E.laden];
+  if (n >= liste.length) return { voll: true };
+  a[E.laden] = n + 1; speicher.schreiben('album', a);
+  albumNeu = { laden: E.laden, i: n };
+  return { name: liste[n][0], svg: liste[n][1], nr: n + 1, von: liste.length };
+}
+function zeigeAlbumSeite() {
+  const a = albumStand(), liste = AUFKLEBER[albumLaden], n = Math.min(a[albumLaden] || 0, liste.length);
+  $('album-reiter').innerHTML = LADEN_FOLGE.map(id => `<button style="--f:${LAEDEN[id].farbe}" aria-pressed="${id === albumLaden}" data-laden="${id}" data-scan-album>${LAEDEN[id].name}</button>`).join('');
+  $('album-seite').style.setProperty('--f', LAEDEN[albumLaden].farbe);
+  let plaetze = '';
+  liste.forEach(([name, svg], i) => {
+    const voll = i < n, neu = voll && albumNeu && albumNeu.laden === albumLaden && albumNeu.i === i;
+    plaetze += `<div class="platz${voll ? ' voll' : ''}${neu ? ' neu' : ''}" style="--dreh:${(i * 37) % 9 - 4}deg"><div class="rahmen">${voll ? svg : i + 1}</div><span>${voll ? name : '&nbsp;'}</span></div>`;
+  });
+  $('album-seite').innerHTML = `<div class="album-seite-kopf"><h2>${LAEDEN[albumLaden].name}-album</h2><span>${n} von ${liste.length} Aufklebern</span></div><div class="plaetze">${plaetze}</div>`;
+}
+function oeffneAlbum(laden) {
+  if (!window.AUFKLEBER) return;
+  albumLaden = laden || E.laden; zeigeAlbumSeite();
+  $('album-ansicht').hidden = false; albumOffen = true; document.body.classList.add('laden-offen');
+  albumNeu = null;   // „neu“-Animation nur beim ersten Ansehen
+  scanNeu();
+}
+function schliesseAlbum() { $('album-ansicht').hidden = true; albumOffen = false; document.body.classList.remove('laden-offen'); scanNeu(); }
+$('album-reiter').addEventListener('click', ev => { const b = ev.target.closest('[data-laden]'); if (b) { albumLaden = b.dataset.laden; zeigeAlbumSeite(); scanNeu(); } });
+$('knopf-album').addEventListener('click', () => oeffneAlbum());
+$('knopf-album-ende').addEventListener('click', () => oeffneAlbum());
+$('knopf-album-zurueck').addEventListener('click', schliesseAlbum);
+
+// ---------------------------------------------------------------------------
+// Druckvorlagen: Preisschilder der Waren, Betrags-Schilder (für „Gesamtbetrag aus 4 wählen“)
+// ---------------------------------------------------------------------------
+const DRUCK = { kirmes: { schritt: 1, max: 30 }, baeckerei: { schritt: 10, max: 1000 }, spielwaren: { schritt: 1, max: 200 } };
+function druckBereich() {
+  const id = $('d-laden').value, d = DRUCK[id], werte = [];
+  for (let v = d.schritt; v <= d.max; v += d.schritt) werte.push(v);
+  $('d-von').innerHTML = $('d-bis').innerHTML = werte.map(v => `<option value="${v}">${betragVon(id, v)}</option>`).join('');
+  $('d-von').value = String(werte[0]); $('d-bis').value = String(id === 'spielwaren' ? 50 : werte[werte.length - 1]);
+}
+function druckArt() { $('d-bereich').style.display = $('d-art').value === 'betraege' ? 'inline-flex' : 'none'; }
+$('d-laden').addEventListener('change', druckBereich);
+$('d-art').addEventListener('change', druckArt);
+$('knopf-druckvorlage').addEventListener('click', async () => {
+  const id = $('d-laden').value, LL = LAEDEN[id], art = $('d-art').value;
+  let karten, proBlatt;
+  if (art === 'waren') {
+    karten = LL.produkte.slice().sort((a, b) => a.preis - b.preis).map(p =>
+      `<div class="karte"><span class="band"></span><img src="${LL.ordner}${p.id}.svg" alt=""><span class="name">${p.name}</span><span class="preis">${betragVon(id, p.preis)}</span></div>`);
+    proBlatt = 12;
+  } else {
+    karten = [];
+    for (let v = +$('d-von').value; v <= +$('d-bis').value; v += DRUCK[id].schritt) { const t = betragVon(id, v); karten.push(`<div class="schild${t.length > 6 ? ' klein' : ''}"><div><span>${t}</span></div></div>`); }
+    proBlatt = 24;
+  }
+  const titel = `${art === 'waren' ? 'Preisschilder' : 'Betrags-Schilder'} · ${LL.name}`, n = Math.ceil(karten.length / proBlatt);
+  const bogen = $('druckbogen');
+  bogen.style.setProperty('--druck-farbe', LL.farbe);
+  bogen.innerHTML = Array.from({ length: n }, (_, i) => `<section class="blatt"><div class="blatt-kopf"><span>${titel}</span><span>Blatt ${i + 1} von ${n}</span></div>` +
+    `<div class="raster ${art}">${karten.slice(i * proBlatt, (i + 1) * proBlatt).join('')}</div></section>`).join('');
+  await Promise.all([...bogen.querySelectorAll('img')].map(i => (i.decode ? i.decode() : Promise.resolve()).catch(() => {})));
+  document.documentElement.classList.add('drucke-vorlage');
+  window.print();
+});
+addEventListener('afterprint', () => { document.documentElement.classList.remove('drucke-vorlage'); $('druckbogen').innerHTML = ''; });
+$('knopf-drucken').addEventListener('click', () => document.documentElement.classList.remove('drucke-vorlage'), true);
 
 // Lehrkraft-Bereich nur mit Code: 4 Zahlen, als Wörter angezeigt, jedes Mal neu.
 // Ein Kind, das (noch) nicht liest, kann damit nichts anfangen.
@@ -2556,6 +2828,7 @@ function oeffneLehrkraft() {
     (tonStand ? ` · Ansagen offline: ${tonStand.fertig === tonStand.gesamt ? 'alle' : `${tonStand.fertig} von ${tonStand.gesamt}`}` : '');
   modusAnzeigen(); aktualisiereLink(); zeigeProtokoll(); zeigeBericht();
   $('loeschen-frage').hidden = true; $('alles-frage').hidden = true;
+  $('d-laden').value = E.laden; druckBereich(); druckArt();
   $('dlg-lehrkraft').showModal();
 }
 function stufeInfo() {

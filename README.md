@@ -17,6 +17,7 @@ Alles läuft im Browser: kein Server, kein Konto, keine KI-Dienste. Die Fotos ve
 | `bilder/` | Produktbilder: eigens für diese App gezeichnete Vektorgrafiken (SVG), keine fremden Bilder; `bilder/spielwaren/` und `bilder/baeckerei/` für die weiteren Läden |
 | `ton/` | Ansagen mit der Thorsten-Stimme (AAC), `ton/index.json` ordnet Text → Datei zu |
 | `werkzeuge/ansagen.py` | Erzeugt die Ansagen neu (siehe „Vorlesen“) |
+| `aufkleber.js`, `werkzeuge/aufkleber.py` | Aufkleber für das Sammelalbum und das Skript, das sie zeichnet |
 | `laeden/`, `werkzeuge/laeden.py` | Die drei gezeichneten Läden (SVG) und das Skript, das sie erzeugt (`python3 werkzeuge/laeden.py`); Preise und Markierungen setzt die App selbst ein |
 | `schriften/` | Schriften Andika und Grandstander (SIL Open Font License), lokal eingebunden |
 | `tests/` | Automatischer Test mit künstlichen Szenen und eine Prüfseite für echte Fotos |
@@ -60,6 +61,8 @@ Es gibt zwei Wege, das Geld zu legen (umschaltbar im Lehrkraft-Bereich unter **�
 - **Reicht das Geld?**: „Ich habe 10 €“ – mit großem Knopf *Ja, das reicht* / *Nein, zu wenig* antworten.
 - **Gesamtbetrag wählen** (per Haken im Lehrkraft-Bereich, unabhängig von Stufe und Schwierigkeit): Am Ende wählt das Kind den Gesamtbetrag bzw. das Rückgeld aus 4 Preis-Schildern. Solange der Haken gesetzt ist, nennt die App vorher keinen Betrag.
 - Knopf oben: **Vorlesen** (Lautsprecher).
+- **Wunschzettel** (Lehrkraft-Bereich → Laden, an/aus): Jede 3. Aufgabe einer Runde sucht das Kind die Sachen selbst im Laden aus. Die Anzahl gibt die Stufe vor; Sachen, die den Höchstbetrag der Stufe sprengen würden, sind blass und lassen sich nicht wählen („Das ist zu teuer.“). Gewähltes landet unten im **Korb** (antippen = zurücklegen); ist er voll, geht es mit **Fertig ausgesucht** wie gewohnt weiter (rechnen, Geld legen). Link: `…&wunsch=0` schaltet ihn aus.
+- **Sammelalbum** („Mein Album“ auf der Startseite und nach jeder Runde): Nach jeder geschafften Runde gibt es einen Aufkleber für die Seite des Ladens – 12 je Laden (Kirmes: Riesenrad, Karussell …; Bäckerei: Backofen, Brezel …; Spielwaren: Teddy, Rakete …), flach im Stil München 72 (`aufkleber.js`, erzeugt mit `werkzeuge/aufkleber.py`). Unabhängig von Fehlern, ohne Punkte oder Vergleich.
 - **Zum Laden** (großer Knopf in der Ladenfarbe bei „Das möchte ich kaufen“): öffnet den gezeichneten Laden über den ganzen Bildschirm – Kirmes-Bude, Bäckerei oder Spielwarenladen mit allen 20 Waren und weißen Preisschildern, Theke, Kasse und Verkäufer/in. **Antippen** einer Ware: Sie leuchtet auf, ihr Preisschild blinkt, Thorsten sagt z. B. „Ein Kakao kostet 1 Euro 90.“ **Einkaufszettel** unten: die gesuchten Sachen; Antippen eines Postens zeigt die Ware im Laden. Findet das Kind eine gesuchte Ware im Laden und tippt sie an, wird sie **abgehakt** und ihr Preis steht auf dem Zettel („Alles gefunden!“). **Markierung** der gesuchten Waren (grüner Rahmen mit Korb, „2×“) je nach Einstellung *als Hilfe nach einem Fehlversuch* (Standard), *immer* oder *nie* (Lehrkraft-Bereich → Hilfen; Link: `…&markieren=immer`). Mit dem Taster wandert die Markierung über die Waren, den Zettel und „Zurück“.
 
 ### Kamera mit Rahmen
@@ -110,6 +113,8 @@ Nach einer einstellbaren Zahl gelöster Aufgaben (Standard 8; gezählt werden Au
   Der Name kommt absichtlich nicht in den Link.
 - **Auswertung für den Förderplan**: Zusammenfassung („… davon 85 % ohne Hilfe gelöst. Sicher: bis 10 €. Noch schwierig: 16–20 €.“) und Tabellen nach Stufe, Betrag und Anzahl der Sachen, für 7 Tage, 30 Tage oder alles. **Drucken** oder **Als Tabelle speichern** (CSV, öffnet in Excel/Numbers).
 - **Lernstand**: *Übersicht als Tabelle* (alle drei Läden, je Stufe: Aufgaben, ohne Hilfe gelöst, Anteil, zuletzt geübt, aktuelle Stufe), *Lernstand als Datei sichern* (JSON mit Stufen, Einstellungen, Auswertung und Protokoll) und *Lernstand laden* (z. B. auf einem anderen Gerät; ersetzt den Stand dort nach Rückfrage). Der Name und Vorschaubilder kommen nicht in die Dateien.
+- **Fehlerarten** in der Auswertung: Bei jedem falschen Betrag erkennt die App den wahrscheinlichen Fehler – *eine Sache vergessen*, *eine Sache doppelt gezählt*, *Preis statt Rückgeld gelegt*, *bezahlten Betrag gelegt*, *Zehner/Stellenwert*, *knapp verzählt* oder *anderer Fehler* – mit Tabelle, Anteil und Förder-Tipp; „Häufigster Fehler“ steht in der Zusammenfassung. Auch in der CSV-Tabelle und der Lernstand-Übersicht.
+- **Druckvorlagen** (DIN A4, zum Ausschneiden): *Preisschilder* aller Waren eines Ladens (Bild, Name, Preis) für den Klassen-Kaufladen und *Betrags-Schilder* (Bereich wählbar, z. B. 1–30 € oder 0,10–10,00 €) für „Gesamtbetrag aus 4 wählen“ am Tisch. Am iPad öffnet sich das Drucken-Fenster (auch „als PDF sichern“).
 - **Protokoll der Fotos** mit Ergebnis, auf Wunsch mit Vorschaubild.
 - **Wenn die Erkennung sich irrt**: unter dem Foto *Erkennung korrigieren* → Markierung antippen wechselt 1 € → 2 € → 5 € → 10 € → 20 € → entfernen; leere Stelle antippen fügt 1 € hinzu.
 - Unten: Versionsnummer und ob die App offline verfügbar ist.

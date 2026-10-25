@@ -146,7 +146,10 @@ def sammle(lob_stimme):
          'Welches Preis-Schild passt?', 'Schau noch mal.', 'Zähle dein Geld im Feld.', 'Zähle dein Geld auf dem Foto.',
          'Das Geld reicht.', 'Das Geld reicht nicht.', 'Schau noch einmal.', 'Rechne die Preise zusammen und vergleiche mit deinem Geld.',
          'Du hast alle Aufgaben geschafft.', 'Wir üben das noch ein bisschen.', 'Du bist bereit für eine Neuerung:',
-         'Tippe auf eine Sache, dann hörst du den Preis.', 'Du hast alles gefunden.')
+         'Tippe auf eine Sache, dann hörst du den Preis.', 'Du hast alles gefunden.',
+         'Was möchtest du kaufen?', 'Das ist zu teuer.', 'Dein Korb ist voll. Tippe auf Fertig.', 'Ein neuer Aufkleber für dein Album.',
+         'Such dir eine Sache im Laden aus.', 'Such dir zwei Sachen im Laden aus.', 'Such dir drei Sachen im Laden aus.',
+         'Such dir vier Sachen im Laden aus.', 'Such dir fünf Sachen im Laden aus.')
 
     # Laden-Ansicht: „Ein Kakao kostet 1 Euro 90.“ (wie satzPreis() in index.html: Nominativ, Betrag wie sprichBetrag)
     sprech = dict((m[0].strip("'"), m[1]) for m in re.findall(r"('?[\w-]+'?): \['([^']+)', '[^']+'\]", html[html.index('const SPRECH'):html.index('const ZAHL_SPRECH')]))
