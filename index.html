@@ -29,6 +29,8 @@
   --holz-hell: #5b7491;
   --markise: #1f6fae;       /* Akzent für Bedienelemente (Blau) */
   --markise-text: #ffffff;
+  --auf-markise: #ffffff;   /* Schrift auf Blau (dunkel: dunkle Schrift auf hellem Blau) */
+  --aus: #c5ccd3;           /* Schiebeschalter aus */
   --senf: #9fd3f0;          /* Fläche für Knöpfe (Hellblau) */
   --laden: #f39325; --laden-rand: #c76f0a;   /* Leitfarbe des Ladens (wird per Skript gesetzt) */
   --gut: #2f9e55;
@@ -47,13 +49,13 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --himmel: #121c27; --tresen: #1b2735; --flaeche: #243345; --holz: #e8f0f7; --holz-hell: #9fb3c8;
-    --markise: #6bb8ea; --senf: #9fd3f0;
+    --markise: #6bb8ea; --senf: #9fd3f0; --auf-markise: #0f2133; --aus: #3d5168;
     --gut: #45b86b; --gut-hell: #17331f; --hm: #f3a24a; --hm-hell: #3a2914; --linie: #2c3d50; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --himmel: #121c27; --tresen: #1b2735; --flaeche: #243345; --holz: #e8f0f7; --holz-hell: #9fb3c8;
-  --markise: #6bb8ea; --senf: #9fd3f0;
+  --markise: #6bb8ea; --senf: #9fd3f0; --auf-markise: #0f2133; --aus: #3d5168;
   --gut: #45b86b; --gut-hell: #17331f; --hm: #f3a24a; --hm-hell: #3a2914; --linie: #2c3d50; color-scheme: dark;
 }
 
@@ -218,28 +220,6 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
 }
 .dialog-inhalt { padding: 18px; display: grid; gap: 18px; }
 
-.einstellungen { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px 22px; }
-.feld { display: grid; gap: 6px; font-size: 17px; align-content: start; }
-.feld label, .feld .label { font-weight: 700; }
-.feld select, .feld input[type="text"] {
-  font: inherit; font-size: 18px; padding: 10px 12px; border-radius: 12px; border: 3px solid var(--linie);
-  background: var(--himmel); color: var(--holz); min-height: 52px; width: 100%;
-}
-.feld .hilfe { font-size: 15px; color: var(--holz-hell); }
-.schalter { display: flex; gap: 12px; align-items: flex-start; font-size: 17px; line-height: 1.3; cursor: pointer; }
-.schalter input { flex: none; appearance: none; -webkit-appearance: none; width: 28px; height: 28px; margin: -3px 0 0;
-  border: 2px solid var(--holz-hell); border-radius: 7px; background: var(--tresen); cursor: pointer; display: grid; place-content: center; }
-.schalter input::after { content: ""; width: 8px; height: 15px; margin-top: -3px; border: solid #fff; border-width: 0 4px 4px 0; transform: rotate(45deg) scale(0); transition: transform .12s; }
-.schalter input:checked { background: var(--markise); border-color: var(--markise); }
-.schalter input:checked::after { transform: rotate(45deg) scale(1); }
-.schalter input:focus-visible { outline: 3px solid var(--markise); outline-offset: 2px; }
-.abschnitt { border-top: 3px solid var(--linie); padding-top: 16px; display: grid; gap: 12px; }
-.abschnitt h3 { margin: 0; font-family: var(--anzeige); font-size: 22px; }
-.linkfeld { display: flex; gap: 10px; flex-wrap: wrap; }
-.linkfeld code {
-  flex: 1 1 280px; min-width: 0; overflow-wrap: anywhere; background: var(--himmel); border: 2px solid var(--linie);
-  border-radius: 10px; padding: 10px 12px; font-size: 15px; user-select: all;
-}
 .mittelknopf {
   border: 3px solid var(--holz); background: var(--tresen); border-radius: 14px; padding: 10px 16px;
   font-weight: 700; font-size: 17px; min-height: 52px;
@@ -339,9 +319,15 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
   html.drucke-vorlage body > *:not(#druckbogen) { display: none !important; }
   html.drucke-vorlage #druckbogen { display: block !important; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  dialog#dlg-lehrkraft { position: static; border: none; width: auto; max-height: none; }
+  dialog#dlg-lehrkraft { position: static; border: none; width: auto; height: auto; max-height: none; overflow: visible; display: block; }
   dialog::backdrop { display: none; }
-  #dlg-lehrkraft .dialog-kopf, #dlg-lehrkraft .abschnitt:not(.druck), #dlg-lehrkraft .einstellungen, #dlg-lehrkraft .nicht-drucken { display: none !important; }
+  #dlg-lehrkraft .lk-kopf, #dlg-lehrkraft .lk-navi, #dlg-lehrkraft .lk-runde, #dlg-lehrkraft .lk-seite:not(.lk-auswertung), #dlg-lehrkraft .nicht-drucken { display: none !important; }
+  #dlg-lehrkraft .lk-koerper { display: block; }
+  #dlg-lehrkraft .lk-inhalt { display: block !important; overflow: visible; padding: 0; background: none; }
+  #dlg-lehrkraft .lk-auswertung { display: grid !important; max-width: none; }
+  #dlg-lehrkraft .lk-karte { border: none; }
+  #dlg-lehrkraft .tabelle-huelle { overflow: visible; }
+  #dlg-lehrkraft .tabelle th, #dlg-lehrkraft .tabelle td { white-space: normal; }
 }
 
 /* --- Geld auf dem Gerät ziehen --- */
@@ -614,13 +600,10 @@ main { margin-top: 30px; }
 dialog { border: 2px solid var(--linie); border-radius: 10px; }
 dialog::backdrop { background: rgba(29, 58, 92, .45); }
 .dialog-kopf { border-bottom: 2px solid var(--linie); }
-.feld select, .feld input[type="text"] { border-radius: var(--r); border-width: 2px; }
-.schalter input { border-radius: 4px; }
-.abschnitt { border-top-width: 2px; }
 .mittelknopf { border: 2px solid var(--markise); color: var(--markise); border-radius: var(--r); background: var(--tresen); }
 .mittelknopf.primaer { background: var(--markise); color: var(--markise-text); }
 .mittelknopf.warnung { border-color: var(--hm); color: var(--hm); }
-.eintrag, .linkfeld code { border-radius: var(--r); }
+.eintrag { border-radius: var(--r); }
 .neu-karte { border-color: var(--laden); }
 .neu-band { background: var(--laden); color: #1d3a5c; font-family: var(--anzeige); font-weight: 700; border-radius: 3px; }
 .neu-karte h2, .code-woerter, .start-frage { font-family: var(--anzeige); }
@@ -657,21 +640,144 @@ dialog::backdrop { background: rgba(29, 58, 92, .45); }
 }
 .vorhang-schild { background: #fff; color: #1d3a5c; border-radius: var(--r); padding: 10px 40px; font-size: clamp(36px, 7vw, 60px); transform: translate(-50%, -50%); font-weight: 700; }
 .vorhang.auf .vorhang-schild { transform: translate(-50%, -50%) scale(.9); opacity: 0; }
-/* Schwierigkeit je Laden (Lehrkraft) */
-.sw-laden { display: grid; gap: 10px; border: 3px solid var(--karte, var(--linie)); border-radius: 16px; padding: 14px; }
-.sw-laden h3 { margin: 0; font-family: var(--anzeige); font-size: 24px; color: var(--karte, var(--holz)); }
-.sw-laden p { margin: 0; font-size: 16px; line-height: 1.4; }
-.sw-baender, .sw-modus { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
-.sw-band {
-  display: grid; gap: 2px; text-align: left; font: inherit; color: var(--holz); cursor: pointer;
-  border: 3px solid var(--linie); border-radius: 14px; background: var(--tresen); padding: 10px 12px;
+/* Lehrkraft-Bereich: Seitenleiste mit Abschnitten (wie die iPad-Einstellungen), rechts der Inhalt.
+   Auf schmalen Geräten erst die Liste, dann der Abschnitt mit „‹ Übersicht“. Änderungen gelten sofort. */
+#dlg-lehrkraft { width: min(920px, calc(100vw - 24px)); height: calc(100vh - 24px); height: calc(100dvh - 24px); overflow: hidden; }
+#dlg-lehrkraft[open] { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; grid-template-columns: minmax(0, 1fr); }
+.lk-kopf { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 2px solid var(--linie); background: var(--tresen); }
+.lk-kopf h2 { flex: 1; margin: 0; min-width: 0; font-family: var(--anzeige); font-weight: 700; font-size: 24px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lk-zurueck { display: none; border: none; background: none; color: var(--markise); font-weight: 700; font-size: 17px; padding: 8px 4px; min-height: 44px; white-space: nowrap; }
+.lk-fertig { border: none; background: var(--markise); color: var(--auf-markise); border-radius: var(--r); font-weight: 700; font-size: 18px; padding: 10px 26px; min-height: 48px; }
+.lk-koerper { display: grid; grid-template-columns: 272px minmax(0, 1fr); min-height: 0; }
+.lk-navi { overflow: auto; border-right: 2px solid var(--linie); padding: 8px 10px 16px; display: flex; flex-direction: column; gap: 2px; background: var(--tresen); }
+.lk-navi-gruppe { margin: 14px 10px 4px; font-size: 13px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--holz-hell); }
+.lk-navi-gruppe:first-child { margin-top: 6px; }
+.lk-punkt { display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: center; text-align: left;
+  border: none; background: none; padding: 9px 10px; border-radius: var(--r); color: var(--holz); min-height: 58px; }
+.lk-punkt svg { width: 26px; height: 26px; color: var(--markise); }
+.lk-punkt-name { display: block; font-weight: 700; font-size: 17px; line-height: 1.25; }
+.lk-punkt-stand { display: block; font-size: 14px; color: var(--holz-hell); line-height: 1.3; margin-top: 1px; }
+.lk-pfeil { display: none; color: var(--holz-hell); font-size: 24px; line-height: 1; }
+.lk-punkt[aria-current="page"] { background: var(--markise); color: var(--auf-markise); }
+.lk-punkt[aria-current="page"] svg, .lk-punkt[aria-current="page"] .lk-punkt-stand { color: var(--auf-markise); }
+.lk-punkt[aria-current="page"] .lk-punkt-stand { opacity: .85; }
+.lk-inhalt { overflow: auto; -webkit-overflow-scrolling: touch; background: var(--himmel); padding: 18px 22px 30px; }
+.lk-seite { display: grid; gap: 20px; max-width: 640px; }
+.lk-seite-titel { margin: 0; font-family: var(--anzeige); font-weight: 700; font-size: 26px; }
+.lk-gruppe { display: grid; gap: 8px; }
+.lk-gruppe > h4 { margin: 0 4px; font-size: 13px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--holz-hell); }
+.lk-gruppe.gefahr > h4 { color: var(--hm); }
+.lk-gruppe-hinweis { margin: 0 4px; font-size: 15px; color: var(--holz-hell); }
+.lk-karte { background: var(--tresen); border: 2px solid var(--linie); border-radius: var(--r); display: grid; }
+.lk-zeile { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px 16px; padding: 12px 14px; font-size: 17px; }
+.lk-zeile.wahl { grid-template-columns: minmax(0, 1fr); }
+label.lk-zeile { cursor: pointer; }
+.lk-karte > .lk-zeile:not([hidden]) ~ .lk-zeile { border-top: 2px solid var(--linie); }
+.lk-text { display: grid; gap: 2px; min-width: 0; }
+.lk-text strong { font-weight: 700; }
+.lk-text small { font-size: 15px; color: var(--holz-hell); line-height: 1.35; }
+.lk-immer { font-size: 14px; font-weight: 700; color: var(--gut); white-space: nowrap; }
+/* Schiebeschalter */
+.lk-schiebe { appearance: none; -webkit-appearance: none; margin: 0; flex: none; width: 54px; height: 32px; border-radius: 16px; background: var(--aus); position: relative; cursor: pointer; transition: background .15s; }
+.lk-schiebe::after { content: ""; position: absolute; top: 3px; left: 3px; width: 26px; height: 26px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0, 0, 0, .25); transition: transform .15s; }
+.lk-schiebe:checked { background: var(--markise); }
+.lk-schiebe:checked::after { transform: translateX(22px); }
+.lk-schiebe:disabled { opacity: .4; cursor: default; }
+/* Auswahl-Knöpfe */
+.lk-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.lk-chips button { font-size: 16px; font-weight: 700; min-height: 44px; padding: 8px 14px; border-radius: var(--r); border: 2px solid var(--linie); background: var(--tresen); color: var(--holz); }
+.lk-chips button[aria-pressed="true"] { background: var(--markise); border-color: var(--markise); color: var(--auf-markise); }
+.lk-laden-chips button { display: inline-flex; align-items: center; gap: 8px; border-color: var(--c); }
+.lk-laden-chips button::before { content: ""; width: 12px; height: 12px; border-radius: 50%; background: var(--c); }
+.lk-laden-chips button[aria-pressed="true"] { background: var(--c); border-color: var(--c); color: #1d3a5c; }
+.lk-laden-chips button[aria-pressed="true"]::before { background: #fff; }
+.lk-chips-paar { display: flex; flex-wrap: wrap; gap: 10px 18px; }
+/* Stufe je Laden */
+.lk-stufen { display: grid; gap: 12px; }
+.lk-ruht .lk-stufen { opacity: .45; pointer-events: none; }
+.lk-sk { background: var(--tresen); border: 2px solid var(--linie); border-left: 8px solid var(--c); border-radius: var(--r); padding: 12px 14px; display: grid; gap: 10px; }
+.lk-sk-kopf { display: flex; align-items: center; gap: 12px; }
+.lk-sk-bilder { display: flex; gap: 2px; flex: none; }
+.lk-sk-bilder img { width: 32px; height: 32px; }
+.lk-sk-titel { flex: 1; min-width: 0; display: grid; }
+.lk-sk-name { font-family: var(--anzeige); font-weight: 700; font-size: 20px; }
+.lk-sk-jetzt { font-size: 15px; color: var(--holz-hell); }
+.lk-baender { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.lk-band { text-align: left; border: 2px solid var(--linie); border-radius: var(--r); background: var(--tresen); padding: 8px 10px; display: grid; gap: 2px; color: var(--holz); align-content: start; }
+.lk-band strong { font-family: var(--anzeige); font-size: 18px; }
+.lk-band span { font-size: 14px; color: var(--holz-hell); line-height: 1.3; }
+.lk-band[aria-pressed="true"] { border-color: var(--rand); box-shadow: inset 0 0 0 2px var(--rand); background: var(--himmel); background: color-mix(in srgb, var(--c) 16%, var(--tresen)); }
+.lk-sk-genau { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px; font-size: 15px; font-weight: 700; }
+.lk-feld { font: inherit; font-size: 16px; padding: 8px 10px; border-radius: var(--r); border: 2px solid var(--linie); background: var(--himmel); color: var(--holz); min-height: 44px; width: 100%; }
+.lk-von-bis { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.lk-von-bis .lk-feld { width: auto; min-width: 110px; }
+/* „i“ für längere Erklärungen */
+.lk-i { flex: none; width: 32px; height: 32px; border-radius: 50%; border: none; background: var(--flaeche); color: var(--markise); font-family: Georgia, serif; font-style: italic; font-weight: 700; font-size: 18px; }
+.lk-i[aria-expanded="true"] { background: var(--markise); color: var(--auf-markise); }
+.lk-info { margin: 0; font-size: 15px; line-height: 1.45; background: var(--himmel); border-radius: var(--r); padding: 10px 12px; }
+/* Aufklappbereich „Eigene Aufgabe“ */
+.lk-aufklapp { gap: 0; }
+.lk-aufklapp > summary { list-style: none; cursor: pointer; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; padding: 12px 14px; background: var(--tresen); border: 2px solid var(--linie); border-radius: var(--r); font-weight: 700; }
+.lk-aufklapp > summary::-webkit-details-marker { display: none; }
+.lk-aufklapp > summary::before { content: "›"; display: inline-block; width: 12px; color: var(--markise); font-size: 22px; line-height: 1; transition: transform .15s; }
+.lk-aufklapp[open] > summary::before { transform: rotate(90deg); }
+.lk-aufklapp > summary small { font-weight: 400; font-size: 15px; color: var(--holz-hell); }
+.lk-aufklapp[open] > summary { border-radius: var(--r) var(--r) 0 0; }
+.lk-aufklapp > .lk-karte { border-top: none; border-radius: 0 0 var(--r) var(--r); }
+/* Knöpfe */
+.lk-knopf { display: inline-flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; min-height: 44px; padding: 8px 16px; border-radius: var(--r);
+  border: 2px solid var(--markise); color: var(--markise); background: var(--tresen); white-space: nowrap; cursor: pointer; }
+.lk-knopf.primaer { background: var(--markise); color: var(--auf-markise); }
+.lk-knopf.gefahr { border-color: var(--hm); color: var(--hm); }
+.lk-knopf.gefahr.voll { background: var(--hm); color: #fff; }
+.lk-knopfreihe { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.lk-frage { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-weight: 700; grid-column: 1 / -1; }
+/* Auswertung, Lernstand, Protokoll */
+#bericht .zusammenfassung { font-size: 16px; line-height: 1.5; }
+#bericht .tabelle { font-size: 15px; }
+.lk-tipp { border-left: 6px solid var(--hm); background: var(--hm-hell); padding: 8px 12px; border-radius: var(--r); display: grid; gap: 2px; font-size: 15px; }
+.lk-mehr > summary { cursor: pointer; font-weight: 700; color: var(--markise); font-size: 15px; }
+.lk-mehr[open] > summary { margin-bottom: 10px; }
+.lk-mehr > .tabelle-huelle + .tabelle-huelle { margin-top: 12px; }
+.lk-ls { display: grid; grid-template-columns: 8px minmax(0, 1fr); gap: 12px; }
+.lk-ls i { border-radius: 4px; background: var(--c); }
+.lk-ls b { font-family: var(--anzeige); }
+.lk-ls small { display: block; font-size: 15px; color: var(--holz-hell); }
+.lk-link { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.lk-link code { flex: 1 1 260px; min-width: 0; overflow-wrap: anywhere; background: var(--himmel); border: 2px solid var(--linie); border-radius: var(--r); padding: 8px 10px; font-size: 14px; user-select: all; -webkit-user-select: all; }
+.lk-datenschutz { margin: 0; padding: 12px 14px 12px 32px; display: grid; gap: 4px; font-size: 15px; }
+.lk-fuss { margin: 0 4px; }
+.lk-runde { display: flex; align-items: center; gap: 10px; padding: 10px 16px; background: var(--hm-hell); border-top: 2px solid var(--linie); font-size: 15px; }
+.lk-runde svg { width: 22px; height: 22px; flex: none; color: var(--hm); }
+/* iPad hoch: schmalere Seitenleiste, Stufen untereinander */
+@media (max-width: 900px) {
+  .lk-koerper { grid-template-columns: 236px minmax(0, 1fr); }
+  .lk-punkt-stand { font-size: 13px; }
+  .lk-inhalt { padding: 16px 16px 28px; }
+  .lk-baender { grid-template-columns: minmax(0, 1fr); }
+  .lk-sk-bilder { display: none; }
 }
-.sw-band strong { font-family: var(--anzeige); font-size: 21px; }
-.sw-band span { font-size: 15px; color: var(--holz-hell); }
-.sw-band[aria-pressed="true"] { border-color: var(--karte, var(--markise)); background: var(--himmel); box-shadow: inset 0 0 0 2px var(--karte, var(--markise)); }
-.sw-laden details summary { cursor: pointer; font-weight: 700; font-size: 16px; }
-.sw-laden details select { margin-top: 8px; width: 100%; font: inherit; font-size: 16px; padding: 8px 10px; border-radius: 10px; border: 2px solid var(--linie); background: var(--himmel); color: var(--holz); }
-.sw-aktuell { font-size: 15px; color: var(--holz-hell); }
+/* Handy: erst die Liste, dann der Abschnitt */
+@media (max-width: 660px) {
+  .lk-koerper { grid-template-columns: minmax(0, 1fr); }
+  #dlg-lehrkraft:not(.detail) .lk-inhalt { display: none; }
+  #dlg-lehrkraft.detail .lk-navi { display: none; }
+  .lk-navi { border-right: none; padding-inline: 6px; }
+  .lk-punkt { grid-template-columns: 28px 1fr auto; border-radius: 0; border-bottom: 1px solid var(--linie); }
+  .lk-pfeil { display: block; }
+  .lk-punkt[aria-current="page"] { background: none; color: var(--holz); }
+  .lk-punkt[aria-current="page"] svg { color: var(--markise); }
+  .lk-punkt[aria-current="page"] .lk-punkt-stand { color: var(--holz-hell); opacity: 1; }
+  .lk-punkt-stand { font-size: 14px; }
+  #dlg-lehrkraft.detail .lk-zurueck { display: inline-flex; align-items: center; }
+  #dlg-lehrkraft.detail .lk-kopf h2 { visibility: hidden; }
+  .lk-kopf { padding: 10px 12px; }
+  .lk-kopf h2 { font-size: 20px; }
+  .lk-fertig { padding: 10px 18px; }
+  .lk-inhalt { padding: 14px 12px 24px; }
+  .lk-seite-titel { font-size: 23px; }
+}
+@media (max-width: 480px) { .lk-zeile.zwei { grid-template-columns: minmax(0, 1fr); } }
 </style>
 </head>
 <body>
@@ -885,257 +991,390 @@ dialog::backdrop { background: rgba(29, 58, 92, .45); }
   <div class="dialog-inhalt" id="info-inhalt"></div>
 </dialog>
 
-<dialog id="dlg-schwierigkeit" aria-labelledby="sw-titel">
-  <div class="dialog-kopf">
-    <h2 id="sw-titel">Schwierigkeit je Laden</h2>
-    <button class="mittelknopf primaer" id="knopf-sw-fertig">Fertig</button>
-  </div>
-  <div class="dialog-inhalt">
-    <p style="margin:0;font-size:16px">Das Kind wählt beim Start den Laden. Hier legen Sie fest, auf welcher Stufe es in jedem Laden beginnt. Die Wahl gilt sofort.</p>
-    <div id="sw-laeden" style="display:grid;gap:16px"></div>
-    <div class="abschnitt">
-      <h3>Wie geht es weiter?</h3>
-      <div class="sw-modus" id="sw-modus">
-        <button class="sw-band" data-steigern="1"><strong>Steigert sich</strong><span>Nach gelösten Aufgaben kommt die nächste Stufe.</span></button>
-        <button class="sw-band" data-steigern="0"><strong>Bleibt</strong><span>Das Kind übt auf der gewählten Stufe weiter.</span></button>
-      </div>
-    </div>
-  </div>
-</dialog>
-
-<dialog id="dlg-lehrkraft" aria-labelledby="lk-titel">
-  <div class="dialog-kopf">
+<dialog id="dlg-lehrkraft" class="lk" aria-labelledby="lk-titel">
+  <div class="lk-kopf">
+    <button class="lk-zurueck" id="knopf-lk-zurueck">‹ Übersicht</button>
     <h2 id="lk-titel">Lehrkraft-Bereich</h2>
-    <button class="mittelknopf primaer" id="knopf-uebernehmen">Übernehmen &amp; neue Runde</button>
-    <button class="mittelknopf" data-schliessen>Schließen</button>
+    <button class="lk-fertig" id="knopf-lk-fertig">Fertig</button>
   </div>
-  <div class="dialog-inhalt">
-    <div class="einstellungen">
-      <div class="feld">
-        <label for="e-name">Name des Kindes</label>
-        <input type="text" id="e-name" placeholder="optional, z. B. nur der Vorname" autocomplete="off" maxlength="30" spellcheck="false">
-        <span class="hilfe">Erscheint in Begrüßung und Lob. Bleibt nur auf diesem Gerät und kommt nicht in den Link.</span>
-      </div>
-      <div class="feld">
-        <label for="e-modus">Ablauf</label>
-        <select id="e-modus">
-          <option value="stufen">Stufen</option>
-          <option value="fest">Feste Einstellungen (unten)</option>
-        </select>
-        <span class="hilfe" id="stufe-info"></span>
-        <button class="mittelknopf" id="knopf-lk-schwierigkeit" type="button" style="justify-self:start">Schwierigkeit je Laden festlegen</button>
-      </div>
-      <div class="feld">
-        <label for="e-laden">Laden</label>
-        <select id="e-laden">
-          <option value="kirmes">Kirmes-Kiosk (ganze Euro bis ca. 30 €)</option>
-          <option value="spielwaren">Spielwarenladen (ganze Euro bis ca. 200 €)</option>
-          <option value="baeckerei">Bäckerei (Euro und Cent bis ca. 10 €)</option>
-        </select>
-        <span class="hilfe">Jeder Laden hat eigene Waren, Stufen und eine eigene Auswertung.</span>
-        <label class="schalter"><input type="checkbox" id="e-wahl"> Das Kind darf beim Start den Laden selbst wählen</label>
-        <label class="schalter"><input type="checkbox" id="e-wunsch"> Wunschzettel: Ab und zu (jede 3. Aufgabe) sucht das Kind die Sachen im Laden selbst aus</label>
-      </div>
-      <div class="feld">
-        <label for="e-geld">Geld legen</label>
-        <select id="e-geld">
-          <option value="foto">Spielgeld legen und fotografieren</option>
-          <option value="ziehen">Geld auf dem Gerät ins Feld ziehen</option>
-        </select>
-        <span class="hilfe" id="geld-hilfe">Ohne Kamera: Münzen und Scheine werden auf dem Bildschirm ins Feld gezogen oder angetippt.</span>
-      </div>
-      <div class="feld nur-stufen">
-        <label for="e-start">Stufe</label>
-        <select id="e-start"></select>
-        <span class="hilfe">Beim Übernehmen beginnt das Kind auf dieser Stufe.</span>
-      </div>
-      <div class="feld nur-stufen">
-        <label for="e-aufstieg">Nächste Stufe nach</label>
-        <select id="e-aufstieg">
-          <option value="5">5 gelösten Aufgaben</option><option value="8">8 gelösten Aufgaben</option>
-          <option value="10">10 gelösten Aufgaben</option><option value="15">15 gelösten Aufgaben</option>
-        </select>
-        <span class="hilfe">Zählt nur Aufgaben, die mit höchstens 2 Fotos und ohne Hilfe gelöst wurden.</span>
-        <label class="schalter"><input type="checkbox" id="e-steigern"> Stufe steigt automatisch (sonst bleibt sie)</label>
-        <label class="schalter"><input type="checkbox" id="e-abstieg"> Eine Stufe zurück nach 3 schweren Aufgaben in Folge</label>
-      </div>
+  <div class="lk-koerper">
+    <nav class="lk-navi" id="lk-navi" aria-label="Abschnitte">
+      <p class="lk-navi-gruppe">Üben</p>
+      <button class="lk-punkt" data-seite="1">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h5v-5h5v-5h5V5h3"/><path d="M3 20h18"/></svg>
+        <span><span class="lk-punkt-name">Laden &amp; Schwierigkeit</span><span class="lk-punkt-stand" data-stand="1"></span></span><span class="lk-pfeil">›</span>
+      </button>
+      <button class="lk-punkt" data-seite="2">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 6h10M10 12h10M10 18h10"/><path d="M3.5 6l1.5 1.5L7.5 5M3.5 12l1.5 1.5 2.5-2.5M3.5 18l1.5 1.5 2.5-2.5"/></svg>
+        <span><span class="lk-punkt-name">Aufgaben</span><span class="lk-punkt-stand" data-stand="2"></span></span><span class="lk-pfeil">›</span>
+      </button>
+      <button class="lk-punkt" data-seite="3">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M5.6 5.6l3.6 3.6M14.8 14.8l3.6 3.6M18.4 5.6l-3.6 3.6M9.2 14.8l-3.6 3.6"/></svg>
+        <span><span class="lk-punkt-name">Hilfen</span><span class="lk-punkt-stand" data-stand="3"></span></span><span class="lk-pfeil">›</span>
+      </button>
+      <button class="lk-punkt" data-seite="4">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.6a4.2 4.2 0 1 0 0 6.8M7 11h6.5M7 13.5h6.5"/></svg>
+        <span><span class="lk-punkt-name">Geld &amp; Kamera</span><span class="lk-punkt-stand" data-stand="4"></span></span><span class="lk-pfeil">›</span>
+      </button>
+      <button class="lk-punkt" data-seite="5">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5v5h3.5L12 18V6L7.5 9.5z"/><path d="M15.5 9a4.2 4.2 0 0 1 0 6M18.2 6.5a8 8 0 0 1 0 11"/></svg>
+        <span><span class="lk-punkt-name">Ton &amp; Bedienung</span><span class="lk-punkt-stand" data-stand="5"></span></span><span class="lk-pfeil">›</span>
+      </button>
+      <p class="lk-navi-gruppe">Auswerten &amp; Material</p>
+      <button class="lk-punkt" data-seite="6">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><rect x="5" y="11" width="3.5" height="6"/><rect x="10.25" y="6" width="3.5" height="11"/><rect x="15.5" y="13" width="3.5" height="4"/></svg>
+        <span><span class="lk-punkt-name">Auswertung</span><span class="lk-punkt-stand" data-stand="6"></span></span><span class="lk-pfeil">›</span>
+      </button>
+      <button class="lk-punkt" data-seite="7">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 9V4h10v5"/><rect x="3.5" y="9" width="17" height="7.5" rx="1"/><path d="M7 14h10v6H7z"/></svg>
+        <span><span class="lk-punkt-name">Material</span><span class="lk-punkt-stand" data-stand="7"></span></span><span class="lk-pfeil">›</span>
+      </button>
+      <button class="lk-punkt" data-seite="8">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.4-3.4 7.9-8 9-4.6-1.1-8-4.6-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
+        <span><span class="lk-punkt-name">Daten</span><span class="lk-punkt-stand" data-stand="8"></span></span><span class="lk-pfeil">›</span>
+      </button>
+    </nav>
 
-      <div class="feld nur-fest">
-        <label for="e-art">Aufgabe</label>
-        <select id="e-art">
-          <option value="kaufen">Einkaufen: Geld legen</option>
-          <option value="rueckgeld">Rückgeld legen</option>
-          <option value="budget">Reicht das Geld?</option>
-        </select>
-      </div>
-      <div class="feld nur-fest">
-        <label for="e-anzahl">Wie viele Sachen?</label>
-        <select id="e-anzahl">
-          <option value="1">1 Sache</option><option value="2">2 Sachen</option><option value="3">3 Sachen</option>
-          <option value="4">4 Sachen</option><option value="5">5 Sachen</option>
-        </select>
-      </div>
-      <div class="feld nur-fest">
-        <label for="e-betrag" id="betrag-label">Betrag (Preis bzw. Rückgeld)</label>
-        <select id="e-betrag">
-          <option value="alle">gerade und ungerade</option>
-          <option value="gerade">nur gerade Beträge</option>
-          <option value="ungerade">nur ungerade Beträge</option>
-        </select>
-      </div>
-      <div class="feld nur-fest">
-        <label for="e-max">Höchstens</label>
-        <select id="e-max">
-          <option value="5">5 €</option><option value="10">10 €</option><option value="12">12 €</option>
-          <option value="15">15 €</option><option value="20">20 €</option><option value="30">30 €</option>
-        </select>
-      </div>
-      <div class="feld nur-fest">
-        <label for="e-bezahlt">Bezahlen mit (Rückgeld) / im Geldbeutel (Reicht das Geld?)</label>
-        <select id="e-bezahlt">
-          <option value="10">10 €</option><option value="15">15 €</option><option value="20">20 €</option>
-        </select>
-      </div>
-      <div class="feld nur-fest">
-        <label for="e-einer">1-€-Münzen</label>
-        <select id="e-einer">
-          <option value="0">beliebig viele</option>
-          <option value="1">höchstens eine</option>
-          <option value="2">höchstens zwei</option>
-          <option value="3">höchstens drei</option>
-        </select>
-        <span class="hilfe">Übt das Bündeln: zwei 1 € gegen ein 2-€-Stück tauschen.</span>
-      </div>
-      <div class="feld">
-        <span class="label">Gesamtbetrag wählen</span>
-        <label class="schalter"><input type="checkbox" id="e-schild"> Am Ende den Gesamtbetrag aus 4 Möglichkeiten wählen</label>
-        <span class="hilfe">Gilt auf jeder Stufe und bei festen Einstellungen. Wenn an, nennt die App vorher keinen Betrag – das Kind bestimmt ihn selbst.</span>
-      </div>
-      <div class="feld">
-        <label for="e-runde">Aufgaben pro Runde</label>
-        <select id="e-runde">
-          <option value="3">3</option><option value="5">5</option><option value="10">10</option>
-          <option value="15">15</option><option value="20">20</option>
-        </select>
-      </div>
-      <div class="feld">
-        <span class="label">Hilfen</span>
-        <label class="schalter"><input type="checkbox" id="e-preise"> Preise immer unter den Sachen zeigen</label>
-        <label class="schalter"><input type="checkbox" id="e-hilfe"> Hilfe anbieten nach 2 und 3 Fehlversuchen</label>
-        <label class="schalter"><input type="checkbox" id="e-doppelt"> Gleiche Sachen mehrmals erlauben</label>
-        <label class="schalter"><input type="checkbox" id="e-betragzeigen"> Erkanntes Geld als Betrag zeigen (nicht, wenn Preis-Schild wählen an ist)</label>
-        <label for="e-markieren" style="margin-top:6px">Im Laden zeigen, was gekauft werden soll</label>
-        <select id="e-markieren">
-          <option value="hilfe">als Hilfe nach einem Fehlversuch</option>
-          <option value="immer">immer</option>
-          <option value="nie">nie</option>
-        </select>
-      </div>
-      <div class="feld">
-        <span class="label">Bedienung</span>
-        <label class="schalter"><input type="checkbox" id="e-ton"> Töne und Vorlesen</label>
-        <select id="e-stimme" aria-label="Stimme beim Vorlesen">
-          <option value="thorsten">Stimme: Thorsten (natürlich, offline)</option>
-          <option value="geraet">Stimme: Stimme des Geräts</option>
-        </select>
-        <label class="schalter"><input type="checkbox" id="e-kamera"> Kamera in der App mit Rahmen (sonst Kamera-App des Geräts)</label>
-        <label class="schalter"><input type="checkbox" id="e-fotos"> Vorschaubilder im Protokoll speichern</label>
-      </div>
-      <div class="feld">
-        <label for="e-taster">Bedienung mit einem Taster</label>
-        <select id="e-taster">
-          <option value="aus">aus</option>
-          <option value="taste">an: Leertaste / Enter wählt aus</option>
-          <option value="bildschirm">an: Tippen irgendwo wählt aus</option>
-        </select>
-        <select id="e-tempo" aria-label="Tempo">
-          <option value="1500">Markierung springt alle 1,5 s</option>
-          <option value="2500">Markierung springt alle 2,5 s</option>
-          <option value="4000">Markierung springt alle 4 s</option>
-        </select>
-        <span class="hilfe">Die Markierung wandert von Knopf zu Knopf. Für externe Taster: viele senden Leertaste oder Enter.</span>
-      </div>
-    </div>
+    <div class="lk-inhalt" id="lk-inhalt">
 
-    <div class="abschnitt nicht-drucken">
-      <h3>Link mit diesen Einstellungen</h3>
-      <p class="leer" style="margin:0">Für TaskCards oder einen QR-Code: Der Link öffnet die App direkt mit diesen Einstellungen. Der Name ist nicht enthalten.</p>
-      <div class="linkfeld"><code id="link-text"></code><button class="mittelknopf" id="knopf-link">Kopieren</button></div>
-    </div>
+      <!-- 1 · Laden & Schwierigkeit -->
+      <section class="lk-seite" data-seite="1">
+        <h3 class="lk-seite-titel">Laden &amp; Schwierigkeit</h3>
+        <div class="lk-gruppe">
+          <h4>Laden beim Start</h4>
+          <div class="lk-karte">
+            <div class="lk-zeile wahl">
+              <div class="lk-chips" data-key="wahl"><button data-wert="1">Kind wählt selbst</button><button data-wert="0">Immer derselbe Laden</button></div>
+            </div>
+            <div class="lk-zeile wahl" data-wenn="!wahl">
+              <span class="lk-text"><strong>Welcher Laden?</strong></span>
+              <div class="lk-chips lk-laden-chips" data-key="laden"></div>
+            </div>
+          </div>
+        </div>
+        <div class="lk-gruppe" id="lk-gruppe-stufen">
+          <h4>Stufe je Laden</h4>
+          <p class="lk-gruppe-hinweis" data-wenn="fest">Die Stufen ruhen, solange die eigene Aufgabe eingeschaltet ist.</p>
+          <div class="lk-stufen" id="lk-stufen"></div>
+        </div>
+        <div class="lk-gruppe" data-wenn="!fest">
+          <h4>Wie geht es weiter?</h4>
+          <div class="lk-karte">
+            <div class="lk-zeile wahl">
+              <div class="lk-chips" data-key="steigern"><button data-wert="1">Steigert sich</button><button data-wert="0">Bleibt auf der Stufe</button></div>
+            </div>
+            <div class="lk-zeile wahl" data-wenn="steigern">
+              <span class="lk-text"><strong>Nächste Stufe nach</strong><small>Es zählen nur Aufgaben ohne Hilfe und mit höchstens 2 Fotos.</small></span>
+              <div class="lk-chips" data-key="aufstieg"><button data-wert="5">5 Aufgaben</button><button data-wert="8">8 Aufgaben</button><button data-wert="10">10 Aufgaben</button><button data-wert="15">15 Aufgaben</button></div>
+            </div>
+            <label class="lk-zeile">
+              <span class="lk-text"><strong>Eine Stufe zurück</strong><small>nach 3 schweren Aufgaben in Folge</small></span>
+              <input type="checkbox" class="lk-schiebe" data-key="abstieg">
+            </label>
+          </div>
+        </div>
+        <details class="lk-gruppe lk-aufklapp" id="lk-fest">
+          <summary>Eigene Aufgabe statt Stufen <small>für Fortgeschrittene</small></summary>
+          <div class="lk-karte">
+            <label class="lk-zeile">
+              <span class="lk-text"><strong>Eigene Aufgabe verwenden</strong><small id="lk-fest-text"></small></span>
+              <input type="checkbox" class="lk-schiebe" data-key="fest">
+            </label>
+            <div class="lk-zeile wahl" data-wenn="fest">
+              <span class="lk-text"><strong>Aufgabe</strong></span>
+              <div class="lk-chips" data-key="art"><button data-wert="kaufen">Geld legen</button><button data-wert="rueckgeld">Rückgeld legen</button><button data-wert="budget">Reicht das Geld?</button></div>
+            </div>
+            <div class="lk-zeile wahl" data-wenn="fest">
+              <span class="lk-text"><strong>Wie viele Sachen?</strong></span>
+              <div class="lk-chips" data-key="anzahl"><button data-wert="1">1</button><button data-wert="2">2</button><button data-wert="3">3</button><button data-wert="4">4</button><button data-wert="5">5</button></div>
+            </div>
+            <div class="lk-zeile wahl" data-wenn="fest&amp;!cent">
+              <span class="lk-text"><strong>Beträge</strong></span>
+              <div class="lk-chips" data-key="betrag"><button data-wert="alle">gerade und ungerade</button><button data-wert="gerade">nur gerade</button><button data-wert="ungerade">nur ungerade</button></div>
+            </div>
+            <div class="lk-zeile wahl" data-wenn="fest">
+              <span class="lk-text"><strong>Höchstens</strong></span>
+              <div class="lk-chips" data-key="max" id="lk-max"></div>
+            </div>
+            <div class="lk-zeile wahl" data-wenn="fest&amp;art!=kaufen">
+              <span class="lk-text"><strong>Bezahlen mit</strong><small>Bei „Reicht das Geld?“: so viel ist im Geldbeutel.</small></span>
+              <div class="lk-chips" data-key="bezahlt" id="lk-bezahlt"></div>
+            </div>
+            <div class="lk-zeile wahl" data-wenn="fest">
+              <span class="lk-text"><strong>1-€-Münzen</strong><small>Übt das Bündeln: zwei 1 € gegen ein 2-€-Stück tauschen.</small></span>
+              <div class="lk-chips" data-key="einer"><button data-wert="0">beliebig viele</button><button data-wert="1">höchstens 1</button><button data-wert="2">höchstens 2</button><button data-wert="3">höchstens 3</button></div>
+            </div>
+          </div>
+        </details>
+      </section>
 
-    <div class="abschnitt druck">
-      <h3>Auswertung für den Förderplan</h3>
-      <div class="knopfreihe nicht-drucken" style="justify-content:flex-start">
-        <select id="a-zeitraum" class="mittelknopf" style="flex:0 0 auto">
-          <option value="7">letzte 7 Tage</option><option value="30">letzte 30 Tage</option><option value="0">alles</option>
-        </select>
-        <button class="mittelknopf" id="knopf-csv" style="flex:0 0 auto">Als Tabelle speichern</button>
-        <button class="mittelknopf" id="knopf-drucken" style="flex:0 0 auto">Drucken</button>
-      </div>
-      <div class="bericht" id="bericht"></div>
-    </div>
+      <!-- 2 · Aufgaben -->
+      <section class="lk-seite" data-seite="2" hidden>
+        <h3 class="lk-seite-titel">Aufgaben</h3>
+        <div class="lk-gruppe">
+          <h4>Runde</h4>
+          <div class="lk-karte">
+            <div class="lk-zeile wahl">
+              <span class="lk-text"><strong>Aufgaben pro Runde</strong><small>Nach jeder Runde gibt es einen Aufkleber fürs Album.</small></span>
+              <div class="lk-chips" data-key="runde"><button data-wert="3">3</button><button data-wert="5">5</button><button data-wert="10">10</button><button data-wert="15">15</button><button data-wert="20">20</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="lk-gruppe">
+          <h4>Abwechslung</h4>
+          <div class="lk-karte">
+            <label class="lk-zeile">
+              <span class="lk-text"><strong>Wunschzettel</strong><small>Bei jeder 3. Aufgabe sucht das Kind die Sachen im Laden selbst aus.</small></span>
+              <input type="checkbox" class="lk-schiebe" data-key="wunsch">
+            </label>
+            <label class="lk-zeile">
+              <span class="lk-text"><strong>Gesamtbetrag aus 4 wählen</strong><small>Das Kind tippt am Ende den richtigen Betrag an. Die App nennt ihn vorher nicht.</small></span>
+              <input type="checkbox" class="lk-schiebe" data-key="schild">
+            </label>
+            <label class="lk-zeile">
+              <span class="lk-text"><strong>Gleiche Sachen mehrmals</strong><small>Zum Beispiel zweimal Popcorn in einer Aufgabe.</small></span>
+              <input type="checkbox" class="lk-schiebe" data-key="doppelt">
+            </label>
+          </div>
+        </div>
+      </section>
 
-    <div class="abschnitt nicht-drucken">
-      <h3>Lernstand</h3>
-      <p class="leer">Übersicht über alle drei Läden (Stufen, Aufgaben, ohne Hilfe gelöst) als Tabelle – oder den ganzen Lernstand als Datei sichern, z. B. um auf einem anderen Gerät weiterzumachen. Der Name des Kindes kommt nicht in die Dateien.</p>
-      <div class="knopfreihe" style="justify-content:flex-start">
-        <button class="mittelknopf" id="knopf-lernstand-csv" style="flex:0 0 auto">Übersicht als Tabelle</button>
-        <button class="mittelknopf" id="knopf-lernstand-sichern" style="flex:0 0 auto">Lernstand als Datei sichern</button>
-        <label class="mittelknopf" for="lernstand-datei" style="flex:0 0 auto;cursor:pointer">Lernstand laden …</label>
-        <input type="file" id="lernstand-datei" accept=".json,application/json" hidden>
-      </div>
-      <p class="leer" id="lernstand-meldung" aria-live="polite"></p>
-      <span id="lernstand-frage" hidden style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-        <span id="lernstand-frage-text"></span>
-        <button class="mittelknopf warnung" id="knopf-lernstand-ja">Ja, ersetzen</button>
-        <button class="mittelknopf" id="knopf-lernstand-nein">Abbrechen</button>
-      </span>
-    </div>
+      <!-- 3 · Hilfen -->
+      <section class="lk-seite" data-seite="3" hidden>
+        <h3 class="lk-seite-titel">Hilfen</h3>
+        <div class="lk-gruppe">
+          <h4>Beim Rechnen und Legen</h4>
+          <div class="lk-karte">
+            <label class="lk-zeile">
+              <span class="lk-text"><strong>Preise unter den Sachen</strong><small>Die Preise stehen immer sichtbar unter den Bildern.</small></span>
+              <input type="checkbox" class="lk-schiebe" data-key="preise">
+            </label>
+            <label class="lk-zeile">
+              <span class="lk-text"><strong>Hilfe nach Fehlversuchen</strong><small>Nach dem 2. und 3. falschen Versuch erscheint ein Hilfe-Knopf.</small></span>
+              <input type="checkbox" class="lk-schiebe" data-key="hilfe">
+            </label>
+            <label class="lk-zeile">
+              <span class="lk-text"><strong>Gelegtes Geld als Betrag zeigen</strong><small id="lk-betrag-text"></small></span>
+              <input type="checkbox" class="lk-schiebe" data-key="betragzeigen">
+            </label>
+          </div>
+        </div>
+        <div class="lk-gruppe">
+          <h4>Im Laden</h4>
+          <div class="lk-karte">
+            <div class="lk-zeile wahl">
+              <span class="lk-text"><strong>Zeigen, was gekauft werden soll</strong><small>Die Sachen leuchten im Laden auf.</small></span>
+              <div class="lk-chips" data-key="markieren"><button data-wert="hilfe">nach einem Fehlversuch</button><button data-wert="immer">immer</button><button data-wert="nie">nie</button></div>
+            </div>
+            <div class="lk-zeile">
+              <span class="lk-text"><strong>Antippen liest den Preis vor</strong><small>Gilt für alle Sachen im Laden.</small></span>
+              <span class="lk-immer">immer an</span>
+            </div>
+          </div>
+        </div>
+      </section>
 
-    <div class="abschnitt nicht-drucken">
-      <h3>Druckvorlagen</h3>
-      <p class="leer">Zum Ausdrucken (DIN A4, an den gestrichelten Linien ausschneiden): Preisschilder aller Waren für den Klassen-Kaufladen oder Betrags-Schilder für „Gesamtbetrag aus 4 wählen“ am Tisch. Am iPad öffnet sich das Drucken-Fenster; dort kann man auch als PDF sichern.</p>
-      <div class="knopfreihe" style="justify-content:flex-start;align-items:center">
-        <select id="d-laden" class="mittelknopf" style="flex:0 0 auto"><option value="kirmes">Kirmes-Kiosk</option><option value="baeckerei">Bäckerei</option><option value="spielwaren">Spielwarenladen</option></select>
-        <select id="d-art" class="mittelknopf" style="flex:0 0 auto"><option value="waren">Preisschilder der Waren</option><option value="betraege">Betrags-Schilder</option></select>
-        <span id="d-bereich" style="display:inline-flex;gap:8px;align-items:center;flex:0 0 auto"><select id="d-von" class="mittelknopf"></select> bis <select id="d-bis" class="mittelknopf"></select></span>
-        <button class="mittelknopf primaer" id="knopf-druckvorlage" style="flex:0 0 auto">Drucken</button>
-      </div>
-    </div>
+      <!-- 4 · Geld & Kamera -->
+      <section class="lk-seite" data-seite="4" hidden>
+        <h3 class="lk-seite-titel">Geld &amp; Kamera</h3>
+        <div class="lk-gruppe">
+          <h4>Wie wird das Geld gelegt?</h4>
+          <div class="lk-karte">
+            <div class="lk-zeile wahl">
+              <div class="lk-chips" data-key="geld"><button data-wert="foto">Spielgeld legen und fotografieren</button><button data-wert="ziehen">Auf dem Gerät ins Feld ziehen</button></div>
+              <span class="lk-text"><small>Fotografieren gibt es nur im Kirmes-Kiosk. In Bäckerei und Spielwarenladen wird das Geld immer gezogen.</small></span>
+            </div>
+          </div>
+        </div>
+        <div class="lk-gruppe" data-wenn="geld=foto">
+          <h4>Kamera</h4>
+          <div class="lk-karte">
+            <label class="lk-zeile">
+              <span class="lk-text"><strong>Kamera in der App</strong><small>Mit Rahmen zum Ausrichten. Sonst öffnet sich die Kamera-App des Geräts.</small></span>
+              <input type="checkbox" class="lk-schiebe" data-key="kamera">
+            </label>
+            <label class="lk-zeile">
+              <span class="lk-text"><strong>Vorschaubilder speichern</strong><small>Kleine Fotos vom gelegten Geld im Protokoll, nur auf diesem Gerät.</small></span>
+              <input type="checkbox" class="lk-schiebe" data-key="fotos">
+            </label>
+          </div>
+        </div>
+      </section>
 
-    <div class="abschnitt nicht-drucken">
-      <h3>Protokoll der Fotos</h3>
-      <div class="statistik" id="statistik"></div>
-      <div class="protokoll" id="protokoll"></div>
-      <div class="knopfreihe" style="justify-content:flex-start">
-        <button class="mittelknopf warnung" id="knopf-protokoll-loeschen" style="flex:0 0 auto">Protokoll und Auswertung löschen</button>
-        <span id="loeschen-frage" hidden style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;flex:0 0 auto">
-          Wirklich löschen?
-          <button class="mittelknopf warnung" id="knopf-loeschen-ja">Ja, löschen</button>
-          <button class="mittelknopf" id="knopf-loeschen-nein">Nein</button>
-        </span>
-      </div>
-      <p class="leer" style="margin:0">Protokoll und Auswertung bleiben nur auf diesem Gerät gespeichert. Sie enthalten keinen Namen.</p>
-    </div>
+      <!-- 5 · Ton & Bedienung -->
+      <section class="lk-seite" data-seite="5" hidden>
+        <h3 class="lk-seite-titel">Ton &amp; Bedienung</h3>
+        <div class="lk-gruppe">
+          <h4>Kind</h4>
+          <div class="lk-karte">
+            <label class="lk-zeile wahl">
+              <span class="lk-text"><strong>Name des Kindes</strong><small>Für Begrüßung und Lob. Bleibt nur auf diesem Gerät und kommt nicht in Links oder Dateien.</small></span>
+              <input type="text" class="lk-feld" id="e-name" placeholder="optional, z. B. nur der Vorname" maxlength="30" autocomplete="off" spellcheck="false">
+            </label>
+          </div>
+        </div>
+        <div class="lk-gruppe">
+          <h4>Vorlesen</h4>
+          <div class="lk-karte">
+            <label class="lk-zeile">
+              <span class="lk-text"><strong>Töne und Vorlesen</strong></span>
+              <input type="checkbox" class="lk-schiebe" data-key="ton">
+            </label>
+            <div class="lk-zeile wahl" data-wenn="ton">
+              <span class="lk-text"><strong>Stimme</strong><small data-wenn="stimme=thorsten" id="lk-ton-stand"></small></span>
+              <div class="lk-chips" data-key="stimme"><button data-wert="thorsten">Thorsten (natürlich)</button><button data-wert="geraet">Stimme des Geräts</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="lk-gruppe">
+          <h4>Bedienung mit einem Taster</h4>
+          <div class="lk-karte">
+            <div class="lk-zeile wahl">
+              <div class="lk-chips" data-key="taster"><button data-wert="aus">aus</button><button data-wert="taste">Leertaste / Enter</button><button data-wert="bildschirm">Tippen irgendwo</button></div>
+              <span class="lk-text"><small>Eine Markierung wandert von Knopf zu Knopf. Viele externe Taster senden Leertaste oder Enter.</small></span>
+            </div>
+            <div class="lk-zeile wahl" data-wenn="taster!=aus">
+              <span class="lk-text"><strong>Markierung springt alle</strong></span>
+              <div class="lk-chips" data-key="tempo"><button data-wert="1500">1,5 s</button><button data-wert="2500">2,5 s</button><button data-wert="4000">4 s</button></div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-    <div class="abschnitt nicht-drucken">
-      <h3>Datenschutz</h3>
-      <ul class="leer" style="margin:0;padding-left:1.2em;display:grid;gap:4px">
-        <li>Fotos werden nur im Browser ausgewertet und nirgendwohin geschickt.</li>
-        <li>Name, Einstellungen, Stufe, Protokoll und Auswertung liegen nur im Speicher dieses Browsers.</li>
-        <li>Die App lädt nichts von fremden Servern (keine Schriften, keine Statistik, keine Werbung).</li>
-        <li>Vorlesen nutzt nur Stimmen, die auf dem Gerät installiert sind.</li>
-      </ul>
-      <div class="knopfreihe" style="justify-content:flex-start">
-        <button class="mittelknopf warnung" id="knopf-alles-loeschen" style="flex:0 0 auto">Alle Daten auf diesem Gerät löschen</button>
-        <span id="alles-frage" hidden style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;flex:0 0 auto">
-          Name, Einstellungen, Stufe, Protokoll und Auswertung löschen?
-          <button class="mittelknopf warnung" id="knopf-alles-ja">Ja, alles löschen</button>
-          <button class="mittelknopf" id="knopf-alles-nein">Nein</button>
-        </span>
-      </div>
-      <p class="fuss" id="version"></p>
+      <!-- 6 · Auswertung -->
+      <section class="lk-seite lk-auswertung" data-seite="6" hidden>
+        <h3 class="lk-seite-titel nicht-drucken">Auswertung</h3>
+        <div class="lk-gruppe">
+          <h4>Auswertung für den Förderplan</h4>
+          <div class="lk-karte">
+            <div class="lk-zeile wahl nicht-drucken">
+              <div class="lk-chips-paar">
+                <div class="lk-chips lk-laden-chips" data-key="aLaden"></div>
+                <div class="lk-chips" data-key="aZeitraum"><button data-wert="7">7 Tage</button><button data-wert="30">30 Tage</button><button data-wert="0">alles</button></div>
+              </div>
+            </div>
+            <div class="lk-zeile wahl bericht" id="bericht"></div>
+            <div class="lk-zeile wahl nicht-drucken">
+              <div class="lk-knopfreihe"><button class="lk-knopf" id="knopf-csv">Als Tabelle speichern</button><button class="lk-knopf" id="knopf-drucken">Drucken</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="lk-gruppe nicht-drucken">
+          <h4>Lernstand aller Läden</h4>
+          <div class="lk-karte" id="lk-lernstand"></div>
+          <div class="lk-knopfreihe"><button class="lk-knopf" id="knopf-lernstand-csv">Übersicht als Tabelle</button></div>
+        </div>
+        <div class="lk-gruppe nicht-drucken">
+          <h4>Foto-Protokoll</h4>
+          <div class="lk-karte">
+            <div class="lk-zeile wahl">
+              <span class="lk-text" id="statistik"></span>
+              <details class="lk-mehr" id="protokoll-mehr">
+                <summary>Einträge anzeigen</summary>
+                <div class="protokoll" id="protokoll"></div>
+              </details>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7 · Material -->
+      <section class="lk-seite" data-seite="7" hidden>
+        <h3 class="lk-seite-titel">Material</h3>
+        <div class="lk-gruppe">
+          <h4>Druckvorlagen</h4>
+          <div class="lk-karte">
+            <div class="lk-zeile wahl">
+              <span class="lk-text"><strong>Laden</strong></span>
+              <div class="lk-chips lk-laden-chips" data-key="dLaden"></div>
+            </div>
+            <div class="lk-zeile wahl">
+              <span class="lk-text"><strong>Was drucken?</strong></span>
+              <div class="lk-chips" data-key="dArt"><button data-wert="waren">Preisschilder der Waren</button><button data-wert="betraege">Betrags-Schilder</button></div>
+              <span class="lk-text"><small id="lk-druck-text"></small></span>
+            </div>
+            <div class="lk-zeile wahl" data-wenn="dArt=betraege">
+              <span class="lk-text"><strong>Beträge</strong></span>
+              <div class="lk-von-bis"><select class="lk-feld" id="d-von" aria-label="von"></select> bis <select class="lk-feld" id="d-bis" aria-label="bis"></select></div>
+            </div>
+            <div class="lk-zeile zwei">
+              <span class="lk-text"><small>DIN A4, an den gestrichelten Linien ausschneiden. Am iPad lässt sich im Drucken-Fenster auch ein PDF sichern.</small></span>
+              <button class="lk-knopf primaer" id="knopf-druckvorlage">Drucken</button>
+            </div>
+          </div>
+        </div>
+        <div class="lk-gruppe">
+          <h4>Link für TaskCards oder QR-Code</h4>
+          <div class="lk-karte">
+            <div class="lk-zeile wahl">
+              <span class="lk-text"><small>Öffnet die App direkt mit diesen Einstellungen. Der Name ist nicht enthalten.</small></span>
+              <div class="lk-link"><code id="link-text"></code><button class="lk-knopf" id="knopf-link">Kopieren</button></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 8 · Daten -->
+      <section class="lk-seite" data-seite="8" hidden>
+        <h3 class="lk-seite-titel">Daten</h3>
+        <div class="lk-gruppe">
+          <h4>Lernstand sichern</h4>
+          <div class="lk-karte">
+            <div class="lk-zeile wahl">
+              <span class="lk-text"><small>Alle Läden, Stufen, Aufgaben und das Album als Datei – zum Beispiel, um auf einem anderen Gerät weiterzumachen. Der Name kommt nicht in die Datei.</small></span>
+              <div class="lk-knopfreihe">
+                <button class="lk-knopf" id="knopf-lernstand-sichern">Als Datei sichern</button>
+                <label class="lk-knopf" for="lernstand-datei">Datei laden …</label>
+                <input type="file" id="lernstand-datei" accept=".json,application/json" hidden>
+              </div>
+              <p class="leer" id="lernstand-meldung" aria-live="polite"></p>
+              <div class="lk-frage" id="lernstand-frage" hidden>
+                <span id="lernstand-frage-text"></span>
+                <button class="lk-knopf gefahr voll" id="knopf-lernstand-ja">Ja, ersetzen</button>
+                <button class="lk-knopf" id="knopf-lernstand-nein">Abbrechen</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="lk-gruppe">
+          <h4>Datenschutz</h4>
+          <div class="lk-karte">
+            <ul class="lk-datenschutz">
+              <li>Fotos werden nur im Browser ausgewertet und nirgendwohin geschickt.</li>
+              <li>Name, Einstellungen, Stufen, Album, Protokoll und Auswertung liegen nur auf diesem Gerät.</li>
+              <li>Die App lädt nichts von fremden Servern: keine Schriften, keine Statistik, keine Werbung.</li>
+              <li>Die Thorsten-Ansagen gehören zur App. Sonst liest die Stimme des Geräts.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="lk-gruppe gefahr">
+          <h4>Löschen</h4>
+          <div class="lk-karte">
+            <div class="lk-zeile zwei">
+              <span class="lk-text"><strong>Protokoll und Auswertung</strong><small>Stufen, Album und Einstellungen bleiben erhalten.</small></span>
+              <button class="lk-knopf gefahr" id="knopf-protokoll-loeschen">Löschen …</button>
+              <div class="lk-frage" id="loeschen-frage" hidden>Wirklich löschen?
+                <button class="lk-knopf gefahr voll" id="knopf-loeschen-ja">Ja, löschen</button>
+                <button class="lk-knopf" id="knopf-loeschen-nein">Nein</button>
+              </div>
+            </div>
+            <div class="lk-zeile zwei">
+              <span class="lk-text"><strong>Alle Daten auf diesem Gerät</strong><small>Name, Einstellungen, Stufen, Album, Protokoll und Auswertung.</small></span>
+              <button class="lk-knopf gefahr" id="knopf-alles-loeschen">Alles löschen …</button>
+              <div class="lk-frage" id="alles-frage" hidden>Wirklich alles löschen?
+                <button class="lk-knopf gefahr voll" id="knopf-alles-ja">Ja, alles löschen</button>
+                <button class="lk-knopf" id="knopf-alles-nein">Nein</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="fuss lk-fuss" id="version"></p>
+      </section>
     </div>
+  </div>
+  <div class="lk-runde" id="lk-runde" hidden>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v5h-5"/></svg>
+    <span>Laden, Stufe oder Aufgabe geändert: Mit „Fertig“ beginnt eine neue Runde.</span>
   </div>
 </dialog>
 
@@ -1144,8 +1383,8 @@ dialog::backdrop { background: rgba(29, 58, 92, .45); }
 <script src="aufkleber.js"></script>
 <script>
 'use strict';
-const VERSION = '4.2.0';
-const STAND = '25.10.2026';
+const VERSION = '4.3.0';
+const STAND = '26.10.2026';
 
 // ---------------------------------------------------------------------------
 // Läden. Beträge in der Einheit des Ladens: Kirmes und Spielwaren in ganzen Euro,
@@ -2274,7 +2513,7 @@ function jubel(gross) {
 // Bedienung mit einem Taster: Markierung wandert von Knopf zu Knopf
 // ---------------------------------------------------------------------------
 let scanIndex = -1, scanTimer = null, scanZiel = null;
-function lehrkraftOffen() { return $('dlg-lehrkraft').open || $('dlg-code').open || $('dlg-schwierigkeit').open || $('dlg-info').open || vorhangLaeuft; }
+function lehrkraftOffen() { return $('dlg-lehrkraft').open || $('dlg-code').open || $('dlg-info').open || vorhangLaeuft; }
 function scanZiele() {
   if (lehrkraftOffen()) return [];
   if (!$('kamera-ansicht').hidden) return [...document.querySelectorAll('[data-scan-kamera]')];
@@ -2380,15 +2619,16 @@ function fehlerTabelle(liste) {
   const gesamt = [...zaehl.values()].reduce((s, n) => s + n, 0);
   if (!gesamt) return { html: '', haeufig: null };
   const zeilen = [...zaehl].sort((a, b) => b[1] - a[1]);
-  const html = `<div class="tabelle-huelle"><table class="tabelle"><thead><tr><th>Fehlerart</th><th>Anzahl</th><th>Anteil</th><th>Tipp</th></tr></thead><tbody>` +
-    zeilen.map(([f, n]) => `<tr><td>${FEHLERART[f] ? FEHLERART[f][0] : f}</td><td>${n}</td><td><span class="balken" style="width:${Math.round(60 * n / gesamt)}px;background:var(--hm)"></span>${Math.round(100 * n / gesamt)} %</td><td style="white-space:normal">${FEHLERART[f] ? FEHLERART[f][1] : ''}</td></tr>`).join('') +
+  const html = `<div class="tabelle-huelle"><table class="tabelle"><thead><tr><th>Fehlerart</th><th>Anzahl</th><th>Anteil</th></tr></thead><tbody>` +
+    zeilen.map(([f, n]) => `<tr><td>${FEHLERART[f] ? FEHLERART[f][0] : f}</td><td>${n}</td><td><span class="balken" style="width:${Math.round(60 * n / gesamt)}px;background:var(--hm)"></span>${Math.round(100 * n / gesamt)} %</td></tr>`).join('') +
     '</tbody></table></div>';
   return { html, haeufig: zeilen[0][0] !== 'anders' ? zeilen[0] : (zeilen[1] || null) };
 }
-function bereich(b) { return L.bereiche.find(([g]) => b <= g)[1]; }
-function aufgabenImZeitraum() {
-  const tage = +$('a-zeitraum').value, ab = tage ? Date.now() - tage * 864e5 : 0;
-  return speicher.lesen('aufgaben', []).filter(a => a.zeit >= ab && (a.laden || 'kirmes') === E.laden);
+function bereich(b, LL = L) { return LL.bereiche.find(([g]) => b <= g)[1]; }
+// Aufgaben eines Ladens im Zeitraum, der in der Auswertung gewählt ist
+function aufgabenImZeitraum(id = LK.aLaden) {
+  const tage = LK.aZeitraum, ab = tage ? Date.now() - tage * 864e5 : 0;
+  return speicher.lesen('aufgaben', []).filter(a => a.zeit >= ab && (a.laden || 'kirmes') === id);
 }
 function gruppiere(liste, schluessel) {
   const m = new Map();
@@ -2406,40 +2646,44 @@ function tabelle(titel, zeilen) {
     zeilen.map(z => `<tr><td>${z.name}</td><td>${z.n}</td><td><span class="balken" style="width:${pz(z.leicht, z.n) * 0.6}px"></span>${pz(z.leicht, z.n)} %</td><td>${pz(z.ersterVersuch, z.n)} %</td><td>${z.schnitt.toLocaleString('de-DE', { maximumFractionDigits: 1 })}</td><td>${z.hilfe}</td></tr>`).join('') +
     '</tbody></table></div>';
 }
+const ORT = { kirmes: 'Am Kirmes-Kiosk', baeckerei: 'In der Bäckerei', spielwaren: 'Im Spielwarenladen' };
 function zeigeBericht() {
-  const liste = aufgabenImZeitraum(), box = $('bericht');
-  if (!liste.length) { box.innerHTML = '<p class="leer">Im gewählten Zeitraum wurden noch keine Aufgaben gelöst.</p>'; return; }
+  const id = LK.aLaden, LL = LAEDEN[id], liste = aufgabenImZeitraum(id), box = $('bericht');
+  LK.anzahl = liste.length;
+  if (!liste.length) { box.innerHTML = `<p class="leer">${ORT[id]} wurden im gewählten Zeitraum noch keine Aufgaben gelöst.</p>`; return; }
   const ohne = liste.filter(a => a.leicht).length, pz = Math.round(100 * ohne / liste.length);
-  const reihe = L.bereiche.map(([, n]) => n);
-  const nachBereich = gruppiere(liste, a => bereich(a.betrag)).sort((a, b) => reihe.indexOf(a.name) - reihe.indexOf(b.name));
+  const reihe = LL.bereiche.map(([, n]) => n);
+  const nachBereich = gruppiere(liste, a => bereich(a.betrag, LL)).sort((a, b) => reihe.indexOf(a.name) - reihe.indexOf(b.name));
   const sicher = nachBereich.filter(z => z.n >= 3 && z.leicht / z.n >= 0.8).map(z => z.name);
   const schwer = nachBereich.filter(z => z.n >= 3 && z.leicht / z.n < 0.6).map(z => z.name);
   const tage = new Set(liste.map(a => new Date(a.zeit).toDateString())).size;
-  const stufen = liste.filter(a => a.stufe).map(a => a.stufe);
-  let text = `${L.name}: ${liste.length} Aufgaben an ${tage} ${tage === 1 ? 'Tag' : 'Tagen'}, davon ${pz} % ohne Hilfe gelöst (höchstens 2 Fotos).`;
-  if (stufen.length && STUFEN[stufen[stufen.length - 1] - 1]) text += ` Stufe zuletzt: ${stufen[stufen.length - 1]} („${STUFEN[stufen[stufen.length - 1] - 1].titel}“).`;
+  const stufen = liste.filter(a => a.stufe).map(a => a.stufe), titel = nr => LL.stufen[nr - 1] ? LL.stufen[nr - 1].titel : '';
+  let text = `<strong>${LL.name}:</strong> ${liste.length} Aufgaben an ${tage} ${tage === 1 ? 'Tag' : 'Tagen'}, davon ${pz} % ohne Hilfe gelöst (höchstens 2 Fotos).`;
+  const zuletzt = stufen[stufen.length - 1];
+  if (zuletzt && titel(zuletzt)) text += ` Stufe zuletzt: ${zuletzt} („${titel(zuletzt)}“).`;
   if (sicher.length) text += ` Sicher: ${sicher.join(', ')}.`;
   if (schwer.length) text += ` Noch schwierig: ${schwer.join(', ')}.`;
-  const fehler = fehlerTabelle(liste);
-  if (fehler.haeufig) text += ` Häufigster Fehler: ${FEHLERART[fehler.haeufig[0]][0]} (${fehler.haeufig[1]}×). Tipp: ${FEHLERART[fehler.haeufig[0]][1]}`;
+  const fehler = fehlerTabelle(liste), h = fehler.haeufig;
   box.innerHTML = `<p class="zusammenfassung">${text}</p>` +
+    (h ? `<div class="lk-tipp"><strong>Häufigster Fehler: ${FEHLERART[h[0]][0]} (${h[1]}×)</strong>${FEHLERART[h[0]][1] ? `<span>Tipp: ${FEHLERART[h[0]][1]}</span>` : ''}</div>` : '') +
     fehler.html +
-    tabelle('Aufgabe / Stufe', gruppiere(liste, a => a.stufe && STUFEN[a.stufe - 1] ? `Stufe ${a.stufe}: ${STUFEN[a.stufe - 1].titel}` : artName(a)).sort((a, b) => a.name.localeCompare(b.name, 'de', { numeric: true }))) +
+    `<details class="lk-mehr"><summary>Weitere Tabellen: nach Stufe, Betrag und Anzahl</summary>` +
+    tabelle('Aufgabe / Stufe', gruppiere(liste, a => a.stufe && titel(a.stufe) ? `Stufe ${a.stufe}: ${titel(a.stufe)}` : artName(a)).sort((a, b) => a.name.localeCompare(b.name, 'de', { numeric: true }))) +
     tabelle('Betrag', nachBereich) +
     tabelle('Anzahl Sachen', gruppiere(liste, a => `${a.anzahl} ${a.anzahl === 1 ? 'Sache' : 'Sachen'}`).sort((a, b) => a.name.localeCompare(b.name, 'de', { numeric: true }))) +
-    `<p class="fuss">Stand ${new Date().toLocaleDateString('de-DE')} · Kirmes-Kiosk ${VERSION}. „Ohne Hilfe gelöst“: mit höchstens 2 Fotos bzw. Antworten und ohne die Hilfe-Knöpfe.</p>`;
+    `</details><p class="fuss">Stand ${new Date().toLocaleDateString('de-DE')} · Kirmes-Kiosk ${VERSION}. „Ohne Hilfe gelöst“: mit höchstens 2 Fotos bzw. Antworten und ohne die Hilfe-Knöpfe.</p>`;
 }
-$('a-zeitraum').addEventListener('change', zeigeBericht);
-$('knopf-drucken').addEventListener('click', () => { zeigeBericht(); window.print(); });
+// Drucken: alle Tabellen aufgeklappt
+$('knopf-drucken').addEventListener('click', () => { zeigeBericht(); $('bericht').querySelectorAll('details').forEach(d => { d.open = true; }); window.print(); });
 $('knopf-csv').addEventListener('click', () => {
-  const liste = aufgabenImZeitraum();
+  const id = LK.aLaden, liste = aufgabenImZeitraum(id);
   const kopf = ['Datum', 'Uhrzeit', 'Laden', 'Aufgabe', 'Stufe', 'Betrag', 'Sachen', 'Versuche', 'Hilfe', 'ohne Hilfe gelöst', 'Fehlerarten'];
   const zeilen = liste.map(a => { const d = new Date(a.zeit); return [d.toLocaleDateString('de-DE'), d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }),
-    L.name, artName(a), a.stufe || '', fmt(a.betrag), a.anzahl, a.versuche, ['nein', 'Preise', 'Schritt für Schritt'][a.hilfe] || a.hilfe, a.leicht ? 'ja' : 'nein',
+    LAEDEN[id].name, artName(a), a.stufe || '', betragVon(id, a.betrag), a.anzahl, a.versuche, ['nein', 'Preise', 'Schritt für Schritt'][a.hilfe] || a.hilfe, a.leicht ? 'ja' : 'nein',
     (a.fehler || []).map(f => FEHLERART[f] ? FEHLERART[f][0] : f).join(', ')]; });
   const csv = '﻿' + [kopf, ...zeilen].map(z => z.map(v => `"${String(v).replace(/"/g, '""')}"`).join(';')).join('\r\n');
   const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
-  const a = document.createElement('a'); a.href = url; a.download = `${E.laden}-auswertung-${new Date().toISOString().slice(0, 10)}.csv`;
+  const a = document.createElement('a'); a.href = url; a.download = `${id}-auswertung-${new Date().toISOString().slice(0, 10)}.csv`;
   document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000);
 });
 // Lernstand: Übersicht (CSV) und Sicherung (JSON) für alle Läden – ohne den Namen des Kindes
@@ -2467,6 +2711,15 @@ $('knopf-lernstand-csv').addEventListener('click', () => {
   const csv = '﻿' + [[`Lernstand vom ${new Date().toLocaleDateString('de-DE')}`], kopf, ...zeilen].map(z => z.map(v => `"${String(v).replace(/"/g, '""')}"`).join(';')).join('\r\n');
   speichereDatei(csv, 'text/csv;charset=utf-8', `lernstand-${heute()}.csv`);
 });
+function zeigeLernstand() {
+  const alle = speicher.lesen('aufgaben', []);
+  $('lk-lernstand').innerHTML = LADEN_FOLGE.map(id => {
+    const LL = LAEDEN[id], nr = stufeVon(id), eigene = alle.filter(a => (a.laden || 'kirmes') === id), ok = eigene.filter(a => a.leicht).length;
+    const zuletzt = eigene.length ? new Date(Math.max(...eigene.map(a => a.zeit))).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' }) : '';
+    return `<div class="lk-zeile"><div class="lk-ls" style="--c:${farbeVon(id)}"><i></i><span><b>${LL.name}</b> · Stufe ${nr} von ${LL.stufen.length}: ${LL.stufen[nr - 1].titel}
+      <small>${eigene.length ? `${eigene.length} Aufgaben · ${Math.round(100 * ok / eigene.length)} % ohne Hilfe · zuletzt ${zuletzt}` : 'noch nicht geübt'}</small></span></div></div>`;
+  }).join('');
+}
 const LERNSTAND_KEYS = ['einstellungen', 'stufe', 'stufe-spielwaren', 'stufe-baeckerei', 'aufgaben', 'protokoll', 'album'];
 $('knopf-lernstand-sichern').addEventListener('click', () => {
   const daten = {};
@@ -2502,6 +2755,7 @@ $('knopf-lernstand-ja').addEventListener('click', () => {
   speicher.schreiben('einstellungen', E);
   ladenSetzen(E.laden); zeigeLaden();
   lernstandNeu = null; $('lernstand-frage').hidden = true;
+  LK.geaendert = LK.neueRunde = false;
   $('dlg-lehrkraft').close();
   zeigeStart();
 });
@@ -2511,8 +2765,9 @@ function zeigeProtokoll() {
   const liste = speicher.lesen('protokoll', []);
   const richtig = liste.filter(e => e.richtig).length;
   $('statistik').innerHTML = liste.length
-    ? `<span>Einträge: <strong>${liste.length}</strong></span><span>richtig: <strong>${richtig}</strong></span><span>noch nicht: <strong>${liste.length - richtig}</strong></span><span>korrigiert: <strong>${liste.filter(e => e.korrigiert).length}</strong></span>`
-    : '';
+    ? `<strong>${liste.length} ${liste.length === 1 ? 'Eintrag' : 'Einträge'}</strong><small>${richtig} richtig · ${liste.length - richtig} noch nicht richtig · ${liste.filter(e => e.korrigiert).length} von Hand korrigiert</small>`
+    : '<strong>Noch keine Einträge</strong><small>Hier erscheinen die Aufgaben, die mit Foto gelöst wurden.</small>';
+  $('protokoll-mehr').hidden = !liste.length;
   $('protokoll').innerHTML = liste.length ? liste.map(e => {
     const d = new Date(e.zeit);
     const wann = d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' }) + ', ' + d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
@@ -2523,19 +2778,23 @@ function zeigeProtokoll() {
       <div>${e.waren.join(', ')}</div><div>${zeile3}</div></div></div>`;
   }).join('') : '<p class="leer">Noch keine Einträge.</p>';
 }
-$('knopf-protokoll-loeschen').addEventListener('click', () => { $('loeschen-frage').hidden = false; });
-$('knopf-loeschen-nein').addEventListener('click', () => { $('loeschen-frage').hidden = true; });
+// Löschen: Der Knopf wird zur Rückfrage
+function frageZeigen(knopf, frage, an) { $(knopf).hidden = an; $(frage).hidden = !an; }
+$('knopf-protokoll-loeschen').addEventListener('click', () => frageZeigen('knopf-protokoll-loeschen', 'loeschen-frage', true));
+$('knopf-loeschen-nein').addEventListener('click', () => frageZeigen('knopf-protokoll-loeschen', 'loeschen-frage', false));
 $('knopf-loeschen-ja').addEventListener('click', () => {
   speicher.schreiben('protokoll', []); speicher.schreiben('aufgaben', []);
-  $('loeschen-frage').hidden = true; zeigeProtokoll(); zeigeBericht();
+  frageZeigen('knopf-protokoll-loeschen', 'loeschen-frage', false);
+  zeigeAuswertung(); zeichneLk();
 });
-$('knopf-alles-loeschen').addEventListener('click', () => { $('alles-frage').hidden = false; });
-$('knopf-alles-nein').addEventListener('click', () => { $('alles-frage').hidden = true; });
+$('knopf-alles-loeschen').addEventListener('click', () => frageZeigen('knopf-alles-loeschen', 'alles-frage', true));
+$('knopf-alles-nein').addEventListener('click', () => frageZeigen('knopf-alles-loeschen', 'alles-frage', false));
 $('knopf-alles-ja').addEventListener('click', () => {
   try { Object.keys(localStorage).filter(k => k.startsWith('kirmes-')).forEach(k => localStorage.removeItem(k)); } catch (e) { /* kein Speicher */ }
   E = Object.assign({}, STANDARD, ausLink());
   ladenSetzen(E.laden); zeigeLaden();
-  $('alles-frage').hidden = true;
+  frageZeigen('knopf-alles-loeschen', 'alles-frage', false);
+  LK.geaendert = LK.neueRunde = false;
   $('dlg-lehrkraft').close();
   starteRunde();
 });
@@ -2545,7 +2804,6 @@ $('knopf-alles-ja').addEventListener('click', () => {
 // ---------------------------------------------------------------------------
 document.querySelectorAll('[data-schliessen]').forEach(b => b.addEventListener('click', () => { b.closest('dialog').close(); scanNeu(); }));
 document.querySelectorAll('dialog').forEach(d => d.addEventListener('click', ev => { if (ev.target === d && d.id !== 'dlg-stufe') { d.close(); scanNeu(); } }));
-$('dlg-lehrkraft').addEventListener('close', scanNeu);
 
 // Laden auf der Seite zeigen: Titel, Markisenfarbe, Preisliste, Geld-Vorrat, Stufenliste
 function zeigeLaden() {
@@ -2556,7 +2814,6 @@ function zeigeLaden() {
   document.documentElement.dataset.laden = E.laden;
   $('zum-laden-pikto').innerHTML = PIKTO_LADEN[E.laden];
   baueVorrat();
-  $('e-start').innerHTML = STUFEN.map((st, i) => `<option value="${i + 1}">Stufe ${i + 1}: ${st.titel}</option>`).join('');
 }
 
 // ---------------------------------------------------------------------------
@@ -2741,16 +2998,13 @@ $('knopf-album-zurueck').addEventListener('click', schliesseAlbum);
 // ---------------------------------------------------------------------------
 const DRUCK = { kirmes: { schritt: 1, max: 30 }, baeckerei: { schritt: 10, max: 1000 }, spielwaren: { schritt: 1, max: 200 } };
 function druckBereich() {
-  const id = $('d-laden').value, d = DRUCK[id], werte = [];
+  const id = LK.dLaden, d = DRUCK[id], werte = [];
   for (let v = d.schritt; v <= d.max; v += d.schritt) werte.push(v);
   $('d-von').innerHTML = $('d-bis').innerHTML = werte.map(v => `<option value="${v}">${betragVon(id, v)}</option>`).join('');
   $('d-von').value = String(werte[0]); $('d-bis').value = String(id === 'spielwaren' ? 50 : werte[werte.length - 1]);
 }
-function druckArt() { $('d-bereich').style.display = $('d-art').value === 'betraege' ? 'inline-flex' : 'none'; }
-$('d-laden').addEventListener('change', druckBereich);
-$('d-art').addEventListener('change', druckArt);
 $('knopf-druckvorlage').addEventListener('click', async () => {
-  const id = $('d-laden').value, LL = LAEDEN[id], art = $('d-art').value;
+  const id = LK.dLaden, LL = LAEDEN[id], art = LK.dArt;
   let karten, proBlatt;
   if (art === 'waren') {
     karten = LL.produkte.slice().sort((a, b) => a.preis - b.preis).map(p =>
@@ -2814,82 +3068,185 @@ $('dlg-code').addEventListener('keydown', ev => {
 });
 $('knopf-code-zu').addEventListener('click', () => $('dlg-code').close());
 $('dlg-code').addEventListener('close', () => { code = ''; eingabe = ''; scanNeu(); });
-function oeffneLehrkraft() {
+// Lehrkraft-Bereich: Seitenleiste mit acht Abschnitten. Jede Änderung gilt sofort und wird gespeichert.
+// Wurden Laden, Stufe oder Aufgabe geändert, beginnt nach „Fertig“ eine neue Runde.
+// Auswahl-Knöpfe: .lk-chips[data-key], Schalter: .lk-schiebe[data-key]; data-wenn blendet Zeilen ein („fest&art!=kaufen“).
+const LK = { seite: 1, aLaden: 'kirmes', aZeitraum: 7, dLaden: 'kirmes', dArt: 'waren', info: new Set(), neueRunde: false, geaendert: false, anzahl: 0 };
+const LK_NEUE_RUNDE = new Set(['laden', 'fest', 'art', 'anzahl', 'betrag', 'max', 'bezahlt', 'einer', 'geld', 'runde']);
+const LADEN_KURZ = { kirmes: 'Kirmes', baeckerei: 'Bäckerei', spielwaren: 'Spielwaren' };
+const alsText = v => typeof v === 'boolean' ? (v ? '1' : '0') : String(v);
+function lkWert(k) {
+  if (k === 'fest') return E.modus === 'fest';
+  if (k === 'cent') return LAEDEN[E.laden].cent;
+  return k in LK ? LK[k] : E[k];
+}
+function lkPruefe(bed) {
+  return bed.split('&').every(t => {
+    const nicht = t[0] === '!'; if (nicht) t = t.slice(1);
+    const m = t.match(/^(\w+)(!=|=)(.+)$/);
+    const ok = m ? (alsText(lkWert(m[1])) === m[3]) === (m[2] === '=') : !!lkWert(t);
+    return nicht ? !ok : ok;
+  });
+}
+function lkSetze(k, roh) {
+  const alt = lkWert(k);
+  const wert = typeof alt === 'boolean' ? (roh === true || roh === '1') : typeof alt === 'number' ? Number(roh) : roh;
+  if (wert === alt) return;
+  if (k in LK) {
+    LK[k] = wert;
+    if (k === 'aLaden' || k === 'aZeitraum') zeigeBericht();
+    if (k === 'dLaden') druckBereich();
+  } else {
+    if (k === 'fest') E.modus = wert ? 'fest' : 'stufen';
+    else if (k === 'laden') { ladenSetzen(wert); zeigeLaden(); speicher.schreiben(stufenSchluessel(), S); }
+    else E[k] = wert;
+    if (k === 'kamera' && wert) { kameraGeht = true; speicher.schreiben('kamera-geht', true); }
+    speicher.schreiben('einstellungen', E);
+    LK.geaendert = true;
+    if (LK_NEUE_RUNDE.has(k)) LK.neueRunde = true;
+  }
+  zeichneLk();
+}
+// Kurzer Stand unter jedem Abschnitt in der Seitenleiste
+function lkStand(n) {
+  switch (n) {
+    case 1: return (E.wahl ? 'Kind wählt' : 'Immer ' + LADEN_KURZ[E.laden]) + ' · ' + (E.modus === 'fest' ? 'eigene Aufgabe' : E.steigern ? `steigt nach ${E.aufstieg}` : 'Stufe bleibt');
+    case 2: return [`${E.runde} pro Runde`, E.wunsch && 'Wunschzettel', E.schild && 'Betrag wählen'].filter(Boolean).join(' · ');
+    case 3: return `${[E.preise, E.hilfe, E.betragzeigen && !E.schild, E.markieren !== 'nie'].filter(Boolean).length} von 4 Hilfen an`;
+    case 4: return E.geld === 'foto' ? 'Spielgeld fotografieren' : 'Geld ziehen';
+    case 5: return (E.ton ? (E.stimme === 'thorsten' ? 'Thorsten' : 'Gerätestimme') : 'ohne Ton') + ' · ' + (E.taster === 'aus' ? 'Taster aus' : 'Taster an');
+    case 6: return `${LADEN_KURZ[LK.aLaden]}: ${LK.anzahl ? LK.anzahl + ' Aufgaben' : 'noch nichts'}`;
+    case 7: return 'Druckvorlagen · Link';
+    default: return 'Sichern · Löschen';
+  }
+}
+function zeichneStufen() {
+  $('lk-stufen').innerHTML = LADEN_FOLGE.map(id => {
+    const LL = LAEDEN[id], info = LADEN_INFO[id], nr = stufeVon(id), band = bandVon(id, nr), offen = LK.info.has(id);
+    return `<div class="lk-sk" style="--c:${farbeVon(id)};--rand:${LL.farbeRand}">
+      <div class="lk-sk-kopf">
+        <span class="lk-sk-bilder">${info.bilder.map(b => `<img src="${LL.ordner}${b}.svg" alt="">`).join('')}</span>
+        <span class="lk-sk-titel"><span class="lk-sk-name">${LL.name}</span><span class="lk-sk-jetzt">Jetzt: Stufe ${nr} · ${LL.stufen[nr - 1].titel}</span></span>
+        <button class="lk-i" data-info="${id}" aria-expanded="${offen}" aria-controls="lk-info-${id}" aria-label="Was wird hier geübt?">i</button>
+      </div>
+      <p class="lk-info" id="lk-info-${id}"${offen ? '' : ' hidden'}>${info.anspruch}</p>
+      <div class="lk-baender">${info.baender.map(([st, name, txt], i) =>
+        `<button class="lk-band" data-laden="${id}" data-stufe="${st}" aria-pressed="${i === band}"><strong>${name}</strong><span>${txt}</span></button>`).join('')}</div>
+      <label class="lk-sk-genau">Genaue Stufe
+        <select class="lk-feld" data-laden="${id}">${LL.stufen.map((x, i) => `<option value="${i + 1}"${i + 1 === nr ? ' selected' : ''}>Stufe ${i + 1}: ${x.titel}</option>`).join('')}</select>
+      </label>
+    </div>`;
+  }).join('');
+}
+function zeichneLk() {
+  const dlg = $('dlg-lehrkraft'), LL = LAEDEN[E.laden];
+  // Höchstbetrag und „Bezahlen mit“ passend zum Laden (eigene Aufgabe)
+  if (!LL.maxWahl.includes(E.max) || !LL.bezahltWahl.includes(E.bezahlt)) {
+    if (!LL.maxWahl.includes(E.max)) E.max = LL.maxWahl[Math.floor(LL.maxWahl.length / 2)];
+    if (!LL.bezahltWahl.includes(E.bezahlt)) E.bezahlt = LL.bezahltWahl[0];
+    speicher.schreiben('einstellungen', E);
+  }
+  $('lk-max').innerHTML = LL.maxWahl.map(v => `<button data-wert="${v}">${v} €</button>`).join('');
+  $('lk-bezahlt').innerHTML = LL.bezahltWahl.map(v => `<button data-wert="${v}">${v} €</button>`).join('');
+  dlg.querySelectorAll('.lk-chips[data-key]').forEach(r => {
+    const w = alsText(lkWert(r.dataset.key));
+    r.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.wert === w)));
+  });
+  dlg.querySelectorAll('.lk-schiebe[data-key]').forEach(el => { el.checked = !!lkWert(el.dataset.key); });
+  dlg.querySelector('.lk-schiebe[data-key="betragzeigen"]').disabled = E.schild;
+  $('lk-betrag-text').textContent = E.schild ? 'Nicht möglich, solange „Gesamtbetrag aus 4 wählen“ an ist.' : 'Die App zeigt, wie viel Geld erkannt wurde.';
+  $('lk-fest-text').textContent = `Gilt im Laden, in dem gerade geübt wird (jetzt: ${LL.name}).`;
+  $('lk-ton-stand').textContent = !tonStand ? 'Natürliche Stimme; die Ansagen gehören zur App.'
+    : tonStand.fertig >= tonStand.gesamt ? 'Alle Ansagen sind offline auf diesem Gerät gespeichert.' : `Ansagen werden gespeichert: ${tonStand.fertig} von ${tonStand.gesamt}.`;
+  dlg.querySelectorAll('[data-wenn]').forEach(el => { el.hidden = !lkPruefe(el.dataset.wenn); });
+  $('lk-gruppe-stufen').classList.toggle('lk-ruht', E.modus === 'fest');
+  zeichneStufen();
+  $('lk-druck-text').textContent = LK.dArt === 'waren' ? 'Alle Waren des Ladens mit Bild, Name und Preis – 12 Schilder je Blatt.'
+    : 'Schilder mit Beträgen für „Gesamtbetrag aus 4 wählen“ am Tisch – 24 je Blatt.';
+  aktualisiereLink();
+  dlg.querySelectorAll('[data-stand]').forEach(el => { el.textContent = lkStand(+el.dataset.stand); });
+  $('lk-runde').hidden = !LK.neueRunde;
+}
+function zeigeAuswertung() { zeigeBericht(); zeigeLernstand(); zeigeProtokoll(); }
+function zeigeLkSeite(n, detail = true) {
+  LK.seite = n;
+  const dlg = $('dlg-lehrkraft');
+  dlg.querySelectorAll('.lk-seite').forEach(el => { el.hidden = +el.dataset.seite !== n; });
+  dlg.querySelectorAll('.lk-punkt').forEach(el => { if (+el.dataset.seite === n) el.setAttribute('aria-current', 'page'); else el.removeAttribute('aria-current'); });
+  dlg.classList.toggle('detail', detail);
+  $('lk-inhalt').scrollTop = 0;
+}
+// seite: direkt diesen Abschnitt öffnen (auf dem Handy sonst erst die Übersicht)
+function oeffneLehrkraft(seite) {
   clearInterval(scanTimer); scanMarkiere(null);
-  $('e-name').value = E.name; $('e-modus').value = E.modus; $('e-geld').value = E.geld; $('e-laden').value = E.laden;
-  ladenFelder(E.laden);
-  setzeAuswahl($('e-start'), S.nr); setzeAuswahl($('e-aufstieg'), E.aufstieg);
-  $('e-art').value = E.art; $('e-anzahl').value = E.anzahl; $('e-betrag').value = E.betrag;
-  setzeAuswahl($('e-max'), E.max); setzeAuswahl($('e-bezahlt'), E.bezahlt); setzeAuswahl($('e-runde'), E.runde); setzeAuswahl($('e-einer'), E.einer);
-  $('e-taster').value = E.taster; setzeAuswahl($('e-tempo'), E.tempo); $('e-stimme').value = E.stimme; $('e-markieren').value = E.markieren;
-  for (const k of SCHALTER) $('e-' + k).checked = !!E[k];
-  stufeInfo();
+  if (!$('lk-navi').dataset.bereit) {
+    document.querySelectorAll('.lk-laden-chips').forEach(r => {
+      r.innerHTML = LADEN_FOLGE.map(id => `<button data-wert="${id}" style="--c:${farbeVon(id)}">${LAEDEN[id].name}</button>`).join('');
+    });
+    $('lk-navi').dataset.bereit = '1';
+  }
+  LK.neueRunde = LK.geaendert = false;
+  LK.aLaden = LK.dLaden = E.laden;
+  $('e-name').value = E.name;
+  $('lk-fest').open = E.modus === 'fest';
   $('version').textContent = `Kirmes-Kiosk ${VERSION} · Stand ${STAND}${navigator.serviceWorker && navigator.serviceWorker.controller ? ' · offline verfügbar' : ''}` +
     (tonStand ? ` · Ansagen offline: ${tonStand.fertig === tonStand.gesamt ? 'alle' : `${tonStand.fertig} von ${tonStand.gesamt}`}` : '');
-  modusAnzeigen(); aktualisiereLink(); zeigeProtokoll(); zeigeBericht();
-  $('loeschen-frage').hidden = true; $('alles-frage').hidden = true;
-  $('d-laden').value = E.laden; druckBereich(); druckArt();
+  frageZeigen('knopf-protokoll-loeschen', 'loeschen-frage', false); frageZeigen('knopf-alles-loeschen', 'alles-frage', false);
+  lernstandNeu = null; $('lernstand-frage').hidden = true; $('lernstand-meldung').textContent = '';
+  druckBereich(); zeigeAuswertung(); zeichneLk();
+  zeigeLkSeite(seite || LK.seite, !!seite);
   $('dlg-lehrkraft').showModal();
 }
-function stufeInfo() {
-  $('stufe-info').textContent = `Aktuell (${L.name}): Stufe ${S.nr} („${STUFEN[S.nr - 1].titel}“), ` +
-    (E.steigern ? `${Math.min(S.geloest, E.aufstieg)} von ${E.aufstieg} Aufgaben bis zur nächsten Stufe.` : 'die Stufe bleibt.');
-}
-// Auswahl im Lehrkraft-Bereich passend zum gewählten Laden (Höchstbetrag, Bezahlen mit, Stufen)
-function ladenFelder(id) {
-  const LL = LAEDEN[id];
-  const mx = $('e-max'), bz = $('e-bezahlt'), alt = { max: +mx.value || E.max, bez: +bz.value || E.bezahlt };
-  mx.innerHTML = LL.maxWahl.map(v => `<option value="${v}">${v} €</option>`).join('');
-  bz.innerHTML = LL.bezahltWahl.map(v => `<option value="${v}">${v} €</option>`).join('');
-  mx.value = String(LL.maxWahl.includes(alt.max) ? alt.max : LL.maxWahl[Math.floor(LL.maxWahl.length / 2)]);
-  bz.value = String(LL.bezahltWahl.includes(alt.bez) ? alt.bez : LL.bezahltWahl[0]);
-  const st = $('e-start'), nr = id === E.laden ? S.nr : (speicher.lesen(id === 'kirmes' ? 'stufe' : 'stufe-' + id, null) || { nr: 1 }).nr;
-  st.innerHTML = LL.stufen.map((x, i) => `<option value="${i + 1}">Stufe ${i + 1}: ${x.titel}</option>`).join('');
-  st.value = String(clamp(nr, 1, LL.stufen.length));
-  $('e-geld').disabled = !LL.foto;
-  if (!LL.foto) $('e-geld').value = 'ziehen';
-  $('geld-hilfe').textContent = LL.foto ? 'Ohne Kamera: Münzen und Scheine werden auf dem Bildschirm ins Feld gezogen oder angetippt.'
-    : `Im Laden „${LL.name}“ wird das Geld immer auf dem Gerät ins Feld gezogen (Kamera nur im Kirmes-Kiosk).`;
-  $('e-betrag').closest('.feld').hidden = LL.cent || $('e-modus').value === 'stufen';
-}
-$('e-laden').addEventListener('change', () => { ladenFelder($('e-laden').value); aktualisiereLink(); });
-function modusAnzeigen() {
-  const stufen = $('e-modus').value === 'stufen';
-  document.querySelectorAll('.nur-stufen').forEach(el => { el.hidden = !stufen; });
-  document.querySelectorAll('.nur-fest').forEach(el => { el.hidden = stufen; });
-  if (LAEDEN[$('e-laden').value].cent) $('e-betrag').closest('.feld').hidden = true;
-}
-$('e-modus').addEventListener('change', modusAnzeigen);
-function setzeAuswahl(sel, wert) {
-  if (![...sel.options].some(o => +o.value === +wert)) sel.add(new Option(String(wert), String(wert)));
-  sel.value = String(wert);
-}
-function leseFormular() {
-  const f = {
-    name: $('e-name').value.trim().slice(0, 30), laden: $('e-laden').value, geld: LAEDEN[$('e-laden').value].foto ? $('e-geld').value : (E.geld || 'foto'), modus: $('e-modus').value, start: +$('e-start').value, aufstieg: +$('e-aufstieg').value,
-    art: $('e-art').value, anzahl: +$('e-anzahl').value, betrag: $('e-betrag').value, max: +$('e-max').value, bezahlt: +$('e-bezahlt').value,
-    runde: +$('e-runde').value, einer: +$('e-einer').value, taster: $('e-taster').value, tempo: +$('e-tempo').value, stimme: $('e-stimme').value, markieren: $('e-markieren').value,
-  };
-  for (const k of SCHALTER) f[k] = $('e-' + k).checked;
-  return f;
-}
+$('dlg-lehrkraft').addEventListener('click', ev => {
+  const chip = ev.target.closest('.lk-chips[data-key] button');
+  if (chip) { lkSetze(chip.parentElement.dataset.key, chip.dataset.wert); return; }
+  const band = ev.target.closest('.lk-band');
+  if (band) { setzeStufe(band.dataset.laden, +band.dataset.stufe); return; }
+  const punkt = ev.target.closest('.lk-punkt');
+  if (punkt) { zeigeLkSeite(+punkt.dataset.seite); return; }
+  const i = ev.target.closest('.lk-i');
+  if (i) { const id = i.dataset.info; if (LK.info.has(id)) LK.info.delete(id); else LK.info.add(id); zeichneStufen(); }
+});
+$('dlg-lehrkraft').addEventListener('change', ev => {
+  const el = ev.target;
+  if (el.matches('.lk-schiebe[data-key]')) lkSetze(el.dataset.key, el.checked);
+  else if (el.matches('select[data-laden]')) setzeStufe(el.dataset.laden, +el.value);
+});
+$('e-name').addEventListener('input', () => {
+  E.name = $('e-name').value.trim().slice(0, 30);
+  speicher.schreiben('einstellungen', E); LK.geaendert = true;
+});
+$('knopf-lk-zurueck').addEventListener('click', () => $('dlg-lehrkraft').classList.remove('detail'));
+$('knopf-lk-fertig').addEventListener('click', () => $('dlg-lehrkraft').close());
+// Schließen („Fertig“, Escape, daneben tippen): Startseite auffrischen oder neue Runde
+$('dlg-lehrkraft').addEventListener('close', () => {
+  if (LK.geaendert) {
+    if (!$('start').hidden) zeigeStart();
+    else if (LK.neueRunde) starteRunde();
+    else {   // Aufgabe läuft weiter, nur die Anzeige (z. B. Preise) auffrischen
+      $('knopf-anderer-laden').hidden = !E.wahl;
+      if (!$('spiel').hidden && aufgabe && !wunschOffen()) zeigeWare();
+    }
+    if (E.ton && E.stimme === 'thorsten') ansagenSpeichern();
+  }
+  LK.geaendert = LK.neueRunde = false;
+  scanNeu();
+});
 function aktualisiereLink() {
-  const f = leseFormular(), q = new URLSearchParams();
-  if (f.laden !== 'kirmes') q.set('laden', f.laden);
-  q.set('modus', f.modus);
-  if (f.geld !== 'foto' && LAEDEN[f.laden].foto) q.set('geld', f.geld);
-  if (f.modus === 'stufen') { q.set('stufe', f.start); q.set('aufstieg', f.aufstieg); }
-  else { q.set('art', f.art); q.set('anzahl', f.anzahl); q.set('betrag', f.betrag); q.set('max', f.max); if (f.art !== 'kaufen') q.set('bezahlt', f.bezahlt); if (f.einer) q.set('einer', f.einer); }
-  q.set('runde', f.runde);
-  if (f.taster !== 'aus') { q.set('taster', f.taster); q.set('tempo', f.tempo); }
-  if (f.stimme !== STANDARD.stimme) q.set('stimme', f.stimme);
-  if (f.markieren !== STANDARD.markieren) q.set('markieren', f.markieren);
-  for (const k of SCHALTER) if (f[k] !== STANDARD[k]) q.set(k, f[k] ? '1' : '0');
+  const q = new URLSearchParams();
+  if (E.laden !== 'kirmes') q.set('laden', E.laden);
+  q.set('modus', E.modus);
+  if (E.geld !== 'foto' && LAEDEN[E.laden].foto) q.set('geld', E.geld);
+  if (E.modus === 'stufen') { q.set('stufe', stufeVon(E.laden)); q.set('aufstieg', E.aufstieg); }
+  else { q.set('art', E.art); q.set('anzahl', E.anzahl); q.set('betrag', E.betrag); q.set('max', E.max); if (E.art !== 'kaufen') q.set('bezahlt', E.bezahlt); if (E.einer) q.set('einer', E.einer); }
+  q.set('runde', E.runde);
+  if (E.taster !== 'aus') { q.set('taster', E.taster); q.set('tempo', E.tempo); }
+  if (E.stimme !== STANDARD.stimme) q.set('stimme', E.stimme);
+  if (E.markieren !== STANDARD.markieren) q.set('markieren', E.markieren);
+  for (const k of SCHALTER) if (!!E[k] !== STANDARD[k]) q.set(k, E[k] ? '1' : '0');
   const basis = location.protocol.startsWith('http') ? location.origin + location.pathname : 'https://walteroelf.github.io/kirmes-kiosk/';
   $('link-text').textContent = basis + '?' + q.toString();
 }
-$('dlg-lehrkraft').addEventListener('input', aktualisiereLink);
-$('dlg-lehrkraft').addEventListener('change', aktualisiereLink);
 $('knopf-link').addEventListener('click', async () => {
   const t = $('link-text').textContent;
   try { await navigator.clipboard.writeText(t); $('knopf-link').textContent = 'Kopiert'; }
@@ -2898,17 +3255,6 @@ $('knopf-link').addEventListener('click', async () => {
     const s = getSelection(); s.removeAllRanges(); s.addRange(r); $('knopf-link').textContent = 'Markiert';
   }
   setTimeout(() => { $('knopf-link').textContent = 'Kopieren'; }, 1800);
-});
-$('knopf-uebernehmen').addEventListener('click', () => {
-  const f = leseFormular();
-  if (f.kamera && !E.kamera) { kameraGeht = true; speicher.schreiben('kamera-geht', true); }
-  const ladenNeu = f.laden !== E.laden, modusNeu = f.modus !== E.modus;
-  E = f;
-  if (ladenNeu) { ladenSetzen(E.laden); zeigeLaden(); }
-  if (f.start !== S.nr || (!ladenNeu && modusNeu)) S = { nr: clamp(E.start, 1, STUFEN.length), geloest: 0, schwerInFolge: 0 };
-  speicher.schreiben('einstellungen', E); speicher.schreiben(stufenSchluessel(), S);
-  $('dlg-lehrkraft').close();
-  starteRunde();
 });
 
 // ---------------------------------------------------------------------------
@@ -3006,55 +3352,17 @@ $('laden-karten').addEventListener('click', ev => { const k = ev.target.closest(
 $('knopf-zuletzt').addEventListener('click', () => ladenWaehlen(E.laden));
 $('knopf-anderer-laden').addEventListener('click', zeigeStart);
 
-// Schwierigkeit je Laden (nur mit Code oder aus dem Lehrkraft-Bereich). Änderungen gelten sofort.
-let swGeaendert = false;
-function oeffneSchwierigkeit() { swGeaendert = false; zeigeSchwierigkeit(); $('dlg-schwierigkeit').showModal(); }
-function zeigeSchwierigkeit() {
-  const offen = new Set([...$('sw-laeden').querySelectorAll('details[open]')].map(d => d.dataset.laden));
-  $('sw-laeden').innerHTML = LADEN_FOLGE.map(id => {
-    const LL = LAEDEN[id], info = LADEN_INFO[id], nr = stufeVon(id), band = bandVon(id, nr);
-    return `<div class="sw-laden" style="--karte:${farbeVon(id)}">
-      <h3>${LL.name}</h3>
-      <p>${info.anspruch}</p>
-      <div class="sw-baender">${info.baender.map(([st, name, txt], i) =>
-        `<button class="sw-band" data-laden="${id}" data-stufe="${st}" aria-pressed="${i === band}"><strong>${name}</strong><span>${txt}</span></button>`).join('')}</div>
-      <details data-laden="${id}"${offen.has(id) ? ' open' : ''}><summary>Genaue Stufe wählen</summary>
-        <select data-laden="${id}" aria-label="Genaue Stufe ${LL.name}">${LL.stufen.map((x, i) =>
-          `<option value="${i + 1}"${i + 1 === nr ? ' selected' : ''}>Stufe ${i + 1}: ${x.titel}</option>`).join('')}</select></details>
-      <span class="sw-aktuell">Aktuell: Stufe ${nr} – ${LL.stufen[nr - 1].titel}</span>
-    </div>`;
-  }).join('');
-  $('sw-modus').querySelectorAll('[data-steigern]').forEach(b => b.setAttribute('aria-pressed', String((b.dataset.steigern === '1') === E.steigern)));
-}
+// Schwierigkeit je Laden: im Lehrkraft-Bereich unter „Laden & Schwierigkeit“. Änderungen gelten sofort.
 function setzeStufe(id, nr) {
-  const neu = { nr: clamp(nr, 1, LAEDEN[id].stufen.length), geloest: 0, schwerInFolge: 0 };
+  nr = clamp(nr, 1, LAEDEN[id].stufen.length);
+  if (nr === stufeVon(id)) return;
+  const neu = { nr, geloest: 0, schwerInFolge: 0 };
   speicher.schreiben(stufenKey(id), neu);
-  if (id === E.laden) S = neu;
-  E.modus = 'stufen';
-  speicher.schreiben('einstellungen', E);
-  swGeaendert = true;
-  zeigeSchwierigkeit();
+  if (id === E.laden) { S = neu; LK.neueRunde = true; }
+  LK.geaendert = true;
+  zeichneLk();
 }
-$('sw-laeden').addEventListener('click', ev => { const b = ev.target.closest('.sw-band'); if (b) setzeStufe(b.dataset.laden, +b.dataset.stufe); });
-$('sw-laeden').addEventListener('change', ev => { const sel = ev.target.closest('select'); if (sel) setzeStufe(sel.dataset.laden, +sel.value); });
-$('sw-modus').addEventListener('click', ev => {
-  const b = ev.target.closest('[data-steigern]'); if (!b) return;
-  E.steigern = b.dataset.steigern === '1';
-  speicher.schreiben('einstellungen', E);
-  swGeaendert = true; zeigeSchwierigkeit();
-});
-$('knopf-sw-fertig').addEventListener('click', () => $('dlg-schwierigkeit').close());
-$('knopf-start-schwierigkeit').addEventListener('click', () => frageCode(oeffneSchwierigkeit));
-$('knopf-lk-schwierigkeit').addEventListener('click', oeffneSchwierigkeit);
-$('dlg-schwierigkeit').addEventListener('close', () => {
-  if ($('dlg-lehrkraft').open) {
-    // Lehrkraft-Bereich auf den neuen Stand bringen
-    $('e-modus').value = E.modus; $('e-steigern').checked = E.steigern;
-    ladenFelder($('e-laden').value); stufeInfo(); modusAnzeigen(); aktualisiereLink();
-  } else if (swGeaendert && !$('start').hidden) zeigeStart();
-  else if (swGeaendert && !$('spiel').hidden) starteRunde();
-  scanNeu();
-});
+$('knopf-start-schwierigkeit').addEventListener('click', () => frageCode(() => oeffneLehrkraft(1)));
 
 // Start: jedes Mal mit dem Startbildschirm (außer mit ?start=0)
 zeigeLaden();
