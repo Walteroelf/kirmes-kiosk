@@ -133,7 +133,7 @@ def sammle(lob_stimme):
 
     # Feste Sätze
     satz('Wie viel kostet das?', 'Wie viel kostet das zusammen?', 'Wie viel Geld bekomme ich zurück?',
-         'Zieh das Geld in das Feld und tippe dann auf Fertig.', 'Zieh das Rückgeld in das Feld und tippe dann auf Fertig.',
+         'Zieh das Geld auf den Teller und tippe dann auf Fertig.', 'Zieh das Rückgeld auf den Teller und tippe dann auf Fertig.',
          'Leg das Geld hin und mach ein Foto.', 'Leg das Rückgeld hin und mach ein Foto.', 'Reicht mein Geld?',
          'Wo möchtest du einkaufen?', 'Im Kirmes-Kiosk, in der Bäckerei oder im Spielwarenladen?', "Tippe auf Los geht's.",
          'Heute kaufst du am Kirmes-Kiosk ein.', 'Heute kaufst du in der Bäckerei ein.', 'Heute kaufst du im Spielwarenladen ein.',
@@ -144,8 +144,8 @@ def sammle(lob_stimme):
          'Aber du hast zu viele Ein-Euro-Münzen.', 'Tausche zwei Ein-Euro-Münzen gegen ein Zwei-Euro-Stück.',
          'Ich bin mir nicht sicher.', 'Leg die Münzen mit etwas Abstand, ohne Schatten und ohne Spiegelung.',
          'Mach bitte noch ein Foto.', 'Dein Rückgeld passt genau.', 'Dein Geld passt genau.', 'Das passt noch nicht.',
-         'Rechne noch einmal und zähle dein Geld.', 'Zieh zuerst Geld in das Feld.', 'Welches Schild passt zum Rückgeld?',
-         'Welches Preis-Schild passt?', 'Schau noch mal.', 'Zähle dein Geld im Feld.', 'Zähle dein Geld auf dem Foto.',
+         'Rechne noch einmal und zähle dein Geld.', 'Zieh zuerst Geld auf den Teller.', 'Welches Schild passt zum Rückgeld?',
+         'Welches Preis-Schild passt?', 'Schau noch mal.', 'Zähle dein Geld auf dem Teller.', 'Zähle dein Geld auf dem Foto.',
          'Das Geld reicht.', 'Das Geld reicht nicht.', 'Schau noch einmal.', 'Rechne die Preise zusammen und vergleiche mit deinem Geld.',
          'Du hast alle Aufgaben geschafft.', 'Wir üben das noch ein bisschen.', 'Du bist bereit für eine Neuerung:',
          'Tippe auf eine Sache, dann hörst du den Preis.', 'Du hast alles gefunden.',

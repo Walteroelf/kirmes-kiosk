@@ -19,7 +19,7 @@
 @font-face { font-family: "Andika"; font-weight: 700; font-display: swap; src: url("schriften/andika-700.woff2") format("woff2"); }
 @font-face { font-family: "Grandstander"; font-weight: 700 900; font-display: swap; src: url("schriften/grandstander.woff2") format("woff2"); }
 /* Design nach München 1972 (Otl Aicher): helle, heitere Farben, flach, ruhig, ohne Rot und Schwarz.
-   Jeder Laden hat eine Leitfarbe (--laden), die sich durch Kopf, Preisschilder und Bezahl-Feld zieht. */
+   Jeder Laden hat eine Leitfarbe (--laden), die sich durch Kopf, Preisschilder und Zahlteller zieht. */
 :root {
   --blau: #3d9ad6; --hellblau: #9fd3f0; --gruen: #2f9e55; --hellgruen: #8cc63f; --gelb: #ffd200; --orange: #f39325; --silber: #c5ccd3;
   --himmel: #f5f7f9;        /* Seitenhintergrund */
@@ -794,6 +794,132 @@ label.lk-zeile { cursor: pointer; }
   .lk-seite-titel { font-size: 23px; }
 }
 @media (max-width: 480px) { .lk-zeile.zwei { grid-template-columns: minmax(0, 1fr); } }
+/* ===== Aufgabe: Fortschritt in der Kopfzeile ===== */
+.nur-spiel { display: none; }
+body.im-spiel .nur-spiel { display: flex; }
+.kopf .gruss { margin: 0; font-size: 20px; color: var(--holz-hell); white-space: nowrap; }
+.kopf-fortschritt { align-items: center; gap: 10px; font-size: 16px; color: var(--holz-hell); white-space: nowrap; }
+.kopf-fortschritt .punkte { display: flex; gap: 5px; flex-wrap: nowrap; }
+.kopf-fortschritt .punkt { width: 13px; height: 13px; }
+@media (max-width: 760px) { body.im-spiel .kopf .gruss, .kopf-fortschritt .punkte { display: none; } }
+
+/* ===== Zahlteller und Geldschublade (alle Größen) ===== */
+.kasse { display: flex; flex-direction: column; gap: 10px; }
+.ablage-feld { min-height: 240px; border: 3px solid var(--laden); border-radius: 22px; align-content: center; justify-content: center; gap: 10px; padding: 16px;
+  background: var(--flaeche);
+  background: radial-gradient(ellipse at center, #fff 0 55%, transparent 56%), color-mix(in srgb, var(--laden) 14%, #fff); }
+.ablage-feld.drueber { border-color: var(--gut); box-shadow: inset 0 0 0 4px var(--gut);
+  background: radial-gradient(ellipse at center, #fff 0 55%, transparent 56%), var(--gut-hell); }
+.ablage-leer { font-family: var(--anzeige); color: #8a97a6; }
+.geldbild svg { display: block; }
+.geldvorrat { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; padding: 8px; background: var(--flaeche); border: none; border-radius: 12px; }
+.geldvorrat .vorrat-titel { display: none; }
+.vorrat { height: 94px; min-width: 94px; padding: 4px 8px; border-radius: 10px; background: var(--tresen); box-shadow: inset 0 -3px 0 var(--linie); }
+.vorrat.schein-zeile { min-width: 152px; grid-column: auto; }
+.vorrat.schein-zeile .geldbild svg, .stueck .geldbild svg { width: auto; }
+#zieh-teil .knopfreihe { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; }
+#zieh-teil .knopfreihe .grossknopf { min-height: 66px; font-size: 26px; padding: 8px 16px; }
+#zieh-teil .knopfreihe .grossknopf.leise { font-size: 19px; }
+.zieh-tipp { display: none; }
+#zieh-teil.geloest .geldvorrat, #zieh-teil.geloest .knopfreihe { display: none; }
+/* Rückmeldung auf dem Teller */
+.teller-meldung { position: absolute; inset: 0; z-index: 3; display: grid; place-content: center; justify-items: center; gap: 14px; padding: 16px;
+  background: rgba(255, 255, 255, .93); border-radius: 19px; text-align: center; }
+.teller-meldung .meldung { flex-direction: column; align-items: center; text-align: center; gap: 8px; padding: 0; color: #1d3a5c;
+  background: none !important; border: none !important; font-size: 19px; }
+.teller-meldung .meldung strong { font-size: 30px; }
+.teller-meldung .meldung .symbol { width: 72px; height: 72px; }
+.teller-meldung .grossknopf { min-height: 60px; font-size: 22px; padding: 8px 30px; }
+
+/* ===== Kopfzeile im Spiel: eine Zeile ===== */
+body.im-spiel .kopf { flex-wrap: nowrap; }
+body.im-spiel .schild-titel { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 900px) { body.im-spiel .kopf .gruss, .kopf-fortschritt .punkte { display: none; } }
+@media (max-width: 480px) { body.im-spiel .kopf-fortschritt { display: none; } }   /* Handy: Platz für den Ladennamen */
+
+/* ===== Tablet (quer und hoch): Aufgabe ohne Scrollen ===== */
+@media (min-width: 900px) and (orientation: landscape), (min-width: 700px) and (min-height: 900px) and (orientation: portrait) {
+  body.im-spiel { padding-bottom: 0; }
+  body.im-spiel .kopf { padding-top: 8px; padding-bottom: 8px; }
+  body.im-spiel .schild-titel { font-size: 30px; }
+  #spiel { max-width: 1240px; margin: 16px auto 0; height: calc(100vh - var(--kopf, 80px) - 30px); height: calc(100dvh - var(--kopf, 80px) - 30px); gap: 14px; }
+  #spiel.wunsch .spiel-rechts { display: none; }
+  #spiel > .tresen { padding: 14px; gap: 10px; min-height: 0; overflow: hidden; }
+  #ware .produkt .menge { top: 4px; left: 4px; min-width: 40px; padding: 0 8px; font-size: 20px; }
+  #hilfe-reihe .grossknopf { min-height: 56px; font-size: 20px; }
+  .spiel-rechts { display: flex; flex-direction: column; gap: 10px; min-height: 0; overflow-y: auto; }
+  .spiel-rechts > .schritt { padding: 14px; gap: 10px; }
+  .spiel-rechts > .schritt h3 { font-size: 20px; }
+  .spiel-rechts .nr { width: 34px; height: 34px; font-size: 19px; }
+  #schritt-foto:not([hidden]) { flex: 1 0 auto; display: flex; flex-direction: column; }
+  #zieh-teil:not([hidden]) { flex: 1 1 auto; display: flex; flex-direction: column; gap: 10px; min-height: 0; }
+  #zieh-teil .kasse { flex: 1 1 auto; min-height: 0; }
+  #zieh-teil .ablage-feld { flex: 1 1 auto; min-height: 220px; }
+  /* gelöst (z. B. danach Preis-Schild): Teller flacher, Rückmeldung kompakter */
+  #zieh-teil.geloest .ablage-feld { min-height: 140px; }
+  #zieh-teil.geloest .teller-meldung { gap: 6px; padding: 8px; }
+  #zieh-teil.geloest .teller-meldung .meldung .symbol { width: 52px; height: 52px; }
+  #zieh-teil.geloest .teller-meldung .meldung strong { font-size: 26px; }
+  .spiel-rechts #schild-meldung .meldung, .spiel-rechts #budget-meldung .meldung { padding: 8px 14px; font-size: 18px; }
+  .spiel-rechts #schild-meldung .meldung strong, .spiel-rechts #budget-meldung .meldung strong { font-size: 24px; }
+  .spiel-rechts #schild-meldung .meldung .symbol, .spiel-rechts #budget-meldung .meldung .symbol { width: 46px; height: 46px; }
+  .spiel-rechts .preisschild { min-height: 0; padding-block: 6px; }
+  /* Foto-Modus: großes Feld mit dem Foto-Knopf statt der Kasse */
+  #foto-teil:not([hidden]) { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 16px; padding: 20px;
+    border-radius: 22px; background: var(--flaeche); background: color-mix(in srgb, var(--hellblau) 30%, var(--tresen)); }
+  #foto-teil .grossknopf { min-height: 90px; padding: 12px 40px; font-size: 28px; }
+  #foto-teil .tipp { text-align: center; font-size: 15px; }
+  #schritt-foto:has(#ergebnis:not([hidden])) #foto-teil { flex: none; padding: 10px; }
+  #weiter-reihe .grossknopf { min-height: 66px; }
+  .schilder { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+  .preisschild span { font-size: 36px; }
+}
+
+/* iPad quer: zwei Spalten – links „Das möchte ich kaufen“, rechts die Kasse */
+@media (min-width: 900px) and (orientation: landscape) {
+  #spiel { grid-template-columns: minmax(0, 38fr) minmax(0, 62fr); align-items: stretch; }
+  #spiel.wunsch { grid-template-columns: minmax(0, 1fr); }
+  #spiel > .tresen { display: flex; flex-direction: column; }
+  #spiel .tresen-kopf { display: contents; }
+  #spiel .tresen-kopf h2 { order: 0; flex: none; font-size: 22px; }
+  #bezahlen { order: 1; font-size: 19px; }
+  #ware { order: 2; flex: 1 1 auto; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+  #hilfe-reihe { order: 3; }
+  #knopf-zum-laden { order: 4; flex: none; width: 100%; justify-content: center; min-height: 66px; }
+  #ware .produkt { flex: none; display: grid; grid-template-columns: 96px minmax(0, 1fr); grid-template-rows: none; justify-items: stretch; align-items: center;
+    gap: 12px; padding: 6px 12px 6px 6px; border-style: solid; }
+  #ware .produkt img { width: 96px; height: 96px; max-height: none; }
+  #ware .produkt > div { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  #ware .produkt .name { font-size: 20px; text-align: left; }
+  #ware .produkt .preis { margin: 0; }
+  #ware.viele .produkt { grid-template-columns: 66px minmax(0, 1fr); padding: 3px 10px 3px 4px; }
+  #ware.viele .produkt img { width: 66px; height: 66px; }
+  #ware.viele .produkt .name { font-size: 18px; }
+}
+
+/* iPad hoch: oben die Sachen als kleine Kacheln, darunter die Kasse */
+@media (min-width: 700px) and (min-height: 900px) and (orientation: portrait) {
+  #spiel { grid-template-rows: auto minmax(0, 1fr); }
+  #spiel.wunsch { grid-template-rows: auto; }
+  #spiel .tresen-kopf h2 { font-size: 22px; }
+  #knopf-zum-laden { min-height: 56px; }
+  #ware { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; }
+  #ware .produkt { grid-template-rows: 80px auto; padding: 6px; border-style: solid; }
+  #ware .produkt img { max-height: 74px; }
+  #ware .produkt .name { font-size: 17px; }
+  #ware .produkt .preis { font-size: 20px; }
+  #zieh-teil .ablage-feld { min-height: 180px; }
+}
+
+/* ===== Laden: schmaler Kopf, Zettel und Zurück in einer Leiste, größere Preisschilder ===== */
+.laden-kopf { padding-top: calc(6px + env(safe-area-inset-top, 0px)); padding-bottom: 6px; }
+.laden-titel { font-size: clamp(22px, 3.2vw, 28px); }
+.laden-svg .preis { font-size: 24px; }
+.laden-leiste { display: flex; align-items: center; gap: 10px; background: var(--tresen); border-top: 4px solid var(--laden);
+  padding: 8px max(12px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px)); }
+.laden-leiste .zettel { flex: 1 1 auto; min-width: 0; padding: 0; border-top: none; background: none; flex-wrap: wrap; }
+.laden-leiste .posten, .laden-leiste .zettel-titel, .laden-leiste .korb-titel, .laden-leiste .alles, .laden-leiste .fertig-ausgesucht { flex: none; white-space: nowrap; }
+.laden-leiste .laden-zurueck { flex: none; border-radius: var(--r); min-height: 62px; padding: 8px 22px; }
 </style>
 </head>
 <body>
@@ -801,7 +927,9 @@ label.lk-zeile { cursor: pointer; }
 <header class="markise">
   <div class="kopf">
     <h1 class="schild-titel" id="laden-titel">Kirmes-Kiosk</h1>
+    <p class="gruss nur-spiel" id="gruss">Hallo!</p>
     <span class="platz"></span>
+    <span class="kopf-fortschritt nur-spiel"><span id="aufgabe-text">Aufgabe 1 von 10</span><span class="punkte" id="punkte" aria-hidden="true"></span></span>
     <button class="rundknopf" id="knopf-vorlesen" data-scan aria-label="Aufgabe vorlesen" title="Vorlesen">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" fill-opacity=".15"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>
     </button>
@@ -832,13 +960,6 @@ label.lk-zeile { cursor: pointer; }
 </main>
 
 <main id="spiel" hidden>
-  <div class="fortschritt">
-    <p class="gruss" id="gruss">Hallo!</p>
-    <span class="platz" style="flex:1"></span>
-    <span id="aufgabe-text">Aufgabe 1 von 10</span>
-    <div class="punkte" id="punkte" aria-hidden="true"></div>
-  </div>
-
   <section class="tresen" aria-labelledby="ware-titel">
     <div class="tresen-kopf">
       <h2 id="ware-titel">Das möchte ich kaufen:</h2>
@@ -849,6 +970,8 @@ label.lk-zeile { cursor: pointer; }
     <div class="hilfe-reihe" id="hilfe-reihe" hidden></div>
   </section>
 
+  <!-- Rechte Spalte: Kasse bzw. Foto, „Reicht das Geld?“, Preis-Schild, Weiter -->
+  <div class="spiel-rechts" id="spiel-rechts">
   <!-- Kaufen / Rückgeld: Geld legen und fotografieren -->
   <section class="schritt" id="schritt-foto">
     <h3><span class="nr">1</span><span id="foto-auftrag">Rechne aus. Lege das Geld. Mach ein Foto.</span></h3>
@@ -864,16 +987,17 @@ label.lk-zeile { cursor: pointer; }
     <!-- Geld auf dem Gerät ziehen (statt Spielgeld fotografieren) -->
     <div id="zieh-teil" hidden>
       <div class="kasse">
-        <div class="geldvorrat" id="geldvorrat"><!-- wird je Laden aufgebaut --></div>
-        <div class="ablage-feld" id="ablage-feld" aria-label="Bezahl-Feld">
-          <span class="ablage-leer" id="ablage-leer">Zieh das Geld hierher</span>
+        <div class="ablage-feld" id="ablage-feld" aria-label="Zahlteller">
+          <span class="ablage-leer" id="ablage-leer">Hier bezahlen</span>
+          <div class="teller-meldung" id="teller-meldung" hidden></div>
         </div>
+        <div class="geldvorrat" id="geldvorrat"><!-- Geldschublade, wird je Laden aufgebaut --></div>
       </div>
       <div class="knopfreihe">
         <button class="grossknopf weiter" id="knopf-fertig" data-scan>Fertig</button>
         <button class="grossknopf leise" id="knopf-leeren">Alles zurück</button>
       </div>
-      <p class="tipp">Geld ins Feld ziehen oder antippen · Geld im Feld antippen legt es zurück</p>
+      <p class="tipp zieh-tipp">Geld auf den Teller ziehen oder antippen · Geld auf dem Teller antippen legt es zurück</p>
     </div>
 
     <div class="ergebnis" id="ergebnis" hidden>
@@ -914,6 +1038,7 @@ label.lk-zeile { cursor: pointer; }
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
     </button>
   </div>
+  </div>
 </main>
 
 <main id="ende" hidden>
@@ -940,8 +1065,7 @@ label.lk-zeile { cursor: pointer; }
     <button class="rundknopf stumm-knopf" aria-pressed="false" aria-label="Ansagen ausschalten" title="Ansagen aus/an"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" fill-opacity=".15"/><path d="M16.5 9.5l5 5M21.5 9.5l-5 5"/></svg></button>
   </div>
   <div class="laden-bild" id="laden-bild"></div>
-  <div class="zettel" id="zettel"></div>
-  <button class="laden-zurueck" id="knopf-laden-zurueck">← Zurück zum Einkaufen</button>
+  <div class="laden-leiste"><div class="zettel" id="zettel"></div><button class="laden-zurueck" id="knopf-laden-zurueck">← Zurück</button></div>
 </div>
 
 <!-- Sammelalbum -->
@@ -1409,7 +1533,7 @@ label.lk-zeile { cursor: pointer; }
 <script src="aufkleber.js"></script>
 <script>
 'use strict';
-const VERSION = '4.4.0';
+const VERSION = '4.5.0';
 const STAND = '26.10.2026';
 
 // ---------------------------------------------------------------------------
@@ -1572,15 +1696,15 @@ const ZAHL_SPRECH = ['', 'eins', 'zwei', 'drei', 'vier', 'fünf', 'sechs'];
 
 const LAEDEN = {
   kirmes: { name: 'Kirmes-Kiosk', faktor: 1, cent: false, foto: true, ordner: 'bilder/', farbe: '#f39325', farbeRand: '#c76f0a',
-            produkte: PRODUKTE_KIRMES, stufen: STUFEN_KIRMES, geld: [1, 2, 5, 10, 20],
+            produkte: PRODUKTE_KIRMES, stufen: STUFEN_KIRMES, geld: [1, 2, 5, 10, 20], ausschnitt: '86 0 1028 700',
             maxWahl: [5, 10, 12, 15, 20, 30], bezahltWahl: [10, 15, 20], spanne: 6, schritte: [1, 2, 10, 3],
             bereiche: [[5, 'bis 5 €'], [10, '6–10 €'], [15, '11–15 €'], [20, '16–20 €'], [Infinity, 'über 20 €']] },
   spielwaren: { name: 'Spielwarenladen', faktor: 1, cent: false, foto: false, ordner: 'bilder/spielwaren/', farbe: '#9fd3f0', farbeRand: '#3d9ad6',
-            produkte: PRODUKTE_SPIELWAREN, stufen: STUFEN_SPIELWAREN, geld: [1, 2, 5, 10, 20, 50, 100],
+            produkte: PRODUKTE_SPIELWAREN, stufen: STUFEN_SPIELWAREN, geld: [1, 2, 5, 10, 20, 50, 100], ausschnitt: '0 20 1090 760',
             maxWahl: [30, 50, 100, 150, 200], bezahltWahl: [20, 50, 100, 200], spanne: 40, schritte: [1, 10, 5, 20],
             bereiche: [[20, 'bis 20 €'], [50, '21–50 €'], [100, '51–100 €'], [150, '101–150 €'], [Infinity, 'über 150 €']] },
   baeckerei: { name: 'Bäckerei', faktor: 100, cent: true, foto: false, ordner: 'bilder/baeckerei/', farbe: '#ffd200', farbeRand: '#c9a400',
-            produkte: PRODUKTE_BAECKEREI, stufen: STUFEN_BAECKEREI, geld: [10, 20, 50, 100, 200, 500],
+            produkte: PRODUKTE_BAECKEREI, stufen: STUFEN_BAECKEREI, geld: [10, 20, 50, 100, 200, 500], ausschnitt: '20 60 1150 700',
             maxWahl: [2, 3, 5, 8, 10], bezahltWahl: [5, 10, 20], spanne: 250, schritte: [10, 50, 100, 20],
             bereiche: [[100, 'bis 1 €'], [200, '1,10–2 €'], [500, '2,10–5 €'], [1000, '5,10–10 €'], [Infinity, 'über 10 €']] },
 };
@@ -1758,8 +1882,12 @@ const STERN = f => `<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 
 const meldung = (gut, titel, text, huepfen) => `<div class="meldung ${gut ? 'gut' : 'hm'}${huepfen ? ' huepfen' : ''}">${gut ? SYMBOL_GUT : SYMBOL_HM}<div><strong>${titel}</strong>${text}</div></div>`;
 const scheinChip = w => `<span class="geldchip" title="${geldName(w)}">${KirmesGeld.bild(inCent(w), 1.8)}</span>`;
 
+// Höhe der Kopfzeile für die Aufgabe ohne Scrollen (zwei Spalten)
+function kopfHoehe() { document.documentElement.style.setProperty('--kopf', document.querySelector('.markise').offsetHeight + 'px'); }
+addEventListener('resize', kopfHoehe);
 function zeigeRunde() {
   $('spiel').hidden = false; $('ende').hidden = true;
+  document.body.classList.add('im-spiel'); kopfHoehe();
   $('gruss').textContent = E.name ? `Hallo ${E.name}!` : 'Hallo!';
   $('aufgabe-text').textContent = `Aufgabe ${runde.nr + 1} von ${E.runde}`;
   const punkte = $('punkte'); punkte.innerHTML = '';
@@ -1782,6 +1910,7 @@ function zeigeWare() {
       (preiseSichtbar() ? `<div style="text-align:center"><span class="preis">${n > 1 ? 'je ' : ''}${fmt(p.preis)}</span></div>` : '') + '</div>';
     ware.appendChild(k);
   }
+  ware.classList.toggle('viele', liste.length >= 4);
 }
 function zeigeAufgabe() {
   zeigeRunde();
@@ -1789,6 +1918,8 @@ function zeigeAufgabe() {
   gefunden = new Map(); if (ladenOffen) schliesseLaden();
   zeigeWare();
   const art = aufgabe.art, n = aufgabe.waren.length;
+  $('spiel').classList.toggle('wunsch', wunschOffen());   // Wunschzettel: nur die linke Karte
+  $('teller-meldung').hidden = true;
   if (wunschOffen()) {
     // Wunschzettel: erst im Laden aussuchen, dann rechnen
     const k = aufgabe.regeln.anzahl;
@@ -1807,7 +1938,7 @@ function zeigeAufgabe() {
   $('hilfe-reihe').hidden = true; $('hilfe-reihe').innerHTML = '';
   const ziehen = E.geld === 'ziehen' || !L.foto;   // Spielwaren/Bäckerei: nur ziehen
   $('foto-auftrag').textContent = ziehen
-    ? (art === 'rueckgeld' ? 'Rechne aus, wie viel du zurückbekommst. Zieh das Rückgeld in das Feld. Dann tippe auf Fertig.' : 'Rechne aus. Zieh das Geld in das Feld. Dann tippe auf Fertig.')
+    ? (art === 'rueckgeld' ? 'Rechne aus, wie viel du zurückbekommst. Zieh das Rückgeld auf den Teller.' : 'Rechne aus. Zieh das Geld auf den Teller. Dann tippe auf Fertig.')
     : (art === 'rueckgeld' ? 'Rechne aus, wie viel du zurückbekommst. Lege das Rückgeld. Mach ein Foto.' : 'Rechne aus. Lege das Geld. Mach ein Foto.');
   $('foto-teil').hidden = ziehen; $('zieh-teil').hidden = !ziehen;
   kasseLeeren(); kasseSperren(false);
@@ -2082,6 +2213,7 @@ function pruefeGeld(neu) {
   $('erkannt').innerHTML = objekte.length
     ? `<span>${analyse.virtuell ? 'Dein Geld:' : 'Erkannt:'}</span>${geldHtml(objekte)}${!verdeckt && (gut || (betragZeigen && !unsicher)) ? `<strong style="margin-left:6px">= ${fmt(summe)}</strong>` : ''}`
     : '';
+  if (analyse.virtuell) zeigeTellerMeldung(html, gut);
   $('knopf-foto').querySelector('span').textContent = gut ? 'Neues Foto' : 'Noch ein Foto';
   if (neu && !gut && zaehlt) fehlversuche++;
   if (!neu && !gut) { /* Korrektur von Hand: Fehlversuche nicht erneut zählen */ }
@@ -2113,7 +2245,7 @@ function zeigeKasse() {
   for (const [i, w] of abgelegt.entries()) {
     const b = document.createElement('button');
     b.className = 'stueck'; b.dataset.index = i; b.setAttribute('aria-label', `${sprichBetrag(w)} zurücklegen`);
-    b.innerHTML = geldStueck(w);
+    b.innerHTML = geldStueck(w, tellerGroesse(w));
     feld.appendChild(b);
   }
   $('ablage-leer').hidden = abgelegt.length > 0;
@@ -2126,26 +2258,38 @@ function zeigeKasse() {
 }
 // Fotorealistisches Spielgeld (geld.js). w in der Einheit des Ladens -> Cent
 const inCent = w => Math.round(w * 100 / L.faktor);
-function geldStueck(w) { return `<span class="geldbild" title="${geldName(w)}">${KirmesGeld.bild(inCent(w), 3)}</span>`; }
+function geldStueck(w, g = 3) { return `<span class="geldbild" title="${geldName(w)}">${KirmesGeld.bild(inCent(w), g)}</span>`; }
+const tellerGroesse = w => istSchein(w) ? 2.6 : 3.1;   // Geld in Schublade und auf dem Teller
 // Vorrat passend zum Laden aufbauen (Münzen oben, Scheine darunter)
 function baueVorrat() {
   $('geldvorrat').innerHTML = '<p class="vorrat-titel">Dein Geld:</p>' + L.geld.map(w =>
-    `<button class="vorrat${istSchein(w) ? ' schein-zeile' : ''}" data-wert="${w}" data-scan aria-label="${sprichBetrag(w)} nehmen">${geldStueck(w)}${w === EINS() ? '<span class="rest" hidden></span>' : ''}</button>`).join('');
+    `<button class="vorrat${istSchein(w) ? ' schein-zeile' : ''}" data-wert="${w}" data-scan aria-label="${sprichBetrag(w)} nehmen">${geldStueck(w, tellerGroesse(w))}${w === EINS() ? '<span class="rest" hidden></span>' : ''}</button>`).join('');
 }
 let gesperrt = false;
 function kasseSperren(an) {
   gesperrt = an;
+  $('zieh-teil').classList.toggle('geloest', an);   // gelöst: Schublade und Knöpfe weg, Teller bleibt
   $('geldvorrat').querySelectorAll('.vorrat').forEach(b => { b.disabled = an; });
   $('knopf-fertig').disabled = an; $('knopf-leeren').disabled = an;
   zeigeKasse();
 }
-function kasseLeeren() { abgelegt = []; if (aufgabe) zeigeKasse(); }
+function kasseLeeren() { abgelegt = []; tellerMeldungZu(); if (aufgabe) zeigeKasse(); }
+// Zieh-Modus: Rückmeldung liegt auf dem Teller, nichts verschiebt sich. „Noch einmal“ oder neues Geld schließt sie.
+function zeigeTellerMeldung(html, gut) {
+  const m = $('teller-meldung');
+  m.className = 'teller-meldung ' + (gut ? 'gut' : 'hm');
+  m.innerHTML = html + (gut ? '' : '<button class="grossknopf leise" id="knopf-nochmal" data-scan>Noch einmal</button>');
+  m.hidden = false;
+}
+function tellerMeldungZu() { if (!geloest) $('teller-meldung').hidden = true; }
+$('teller-meldung').addEventListener('click', ev => { if (ev.target.closest('#knopf-nochmal')) { tellerMeldungZu(); scanNeu(); } });
 function legeHin(w) {
   if (gesperrt) return;
+  tellerMeldungZu();
   if (w === EINS() && abgelegt.filter(x => x === EINS()).length >= einerErlaubt()) return;
   abgelegt.push(w); zeigeKasse();
 }
-function nimmZurueck(i) { if (gesperrt) return; abgelegt.splice(i, 1); zeigeKasse(); scanNeu(); }
+function nimmZurueck(i) { if (gesperrt) return; tellerMeldungZu(); abgelegt.splice(i, 1); zeigeKasse(); scanNeu(); }
 $('geldvorrat').addEventListener('click', ev => {
   const b = ev.target.closest('.vorrat'); if (!b || b.disabled) return;
   if (klickSperre === b) { klickSperre = null; return; }
@@ -2170,7 +2314,7 @@ document.addEventListener('pointermove', ev => {
   if (!ziehen.aktiv) {
     if (Math.hypot(ev.clientX - ziehen.x0, ev.clientY - ziehen.y0) < 10) return;
     ziehen.aktiv = true;
-    const g = document.createElement('div'); g.className = 'zieh-geist'; g.innerHTML = geldStueck(ziehen.wert);
+    const g = document.createElement('div'); g.className = 'zieh-geist'; g.innerHTML = geldStueck(ziehen.wert, tellerGroesse(ziehen.wert));
     document.body.appendChild(g); ziehen.geist = g;
     if (ziehen.ausFeld) ziehen.quelle.style.opacity = '.3';
   }
@@ -2196,17 +2340,16 @@ document.addEventListener('pointercancel', zieheEnde);
 $('knopf-leeren').addEventListener('click', () => { kasseLeeren(); scanNeu(); });
 $('knopf-fertig').addEventListener('click', () => {
   if (gesperrt) return;
-  $('ergebnis').hidden = false; $('foto-rahmen').hidden = true; $('knopf-korrektur').hidden = true; $('lade').hidden = true;
+  $('ergebnis').hidden = true;   // im Zieh-Modus steht die Rückmeldung auf dem Teller
   if (!abgelegt.length) {
-    $('meldung').innerHTML = meldung(false, 'Das Feld ist noch leer.', 'Zieh zuerst Geld in das Feld.');
-    $('erkannt').innerHTML = ''; sage('Zieh zuerst Geld in das Feld.');
+    zeigeTellerMeldung(meldung(false, 'Der Teller ist noch leer.', 'Zieh zuerst Geld auf den Teller.'), false);
+    sage('Zieh zuerst Geld auf den Teller.'); scanNeu();
     return;
   }
   analyse = { basis: null, virtuell: true, korrigiert: true, qualitaet: { ok: true },
               objekte: abgelegt.map(w => ({ art: istSchein(w) ? 'schein' : 'muenze', wert: w, sicher: true })) };
   versuche++;
   pruefeGeld(true);
-  $('ergebnis').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 });
 
 // Korrektur durch die Lehrkraft: Markierungen antippen
@@ -2279,7 +2422,7 @@ $('schilder').addEventListener('click', ev => {
     $('weiter-reihe').scrollIntoView({ behavior: 'smooth', block: 'end' });
   } else {
     k.classList.add('falsch'); k.disabled = true;
-    const wo = analyse && analyse.virtuell ? 'im Feld' : 'auf dem Foto';
+    const wo = analyse && analyse.virtuell ? 'auf dem Teller' : 'auf dem Foto';
     $('schild-meldung').innerHTML = meldung(false, 'Schau noch mal.', `Zähle dein Geld ${wo}.`);
     sage(`Schau noch mal. Zähle dein Geld ${wo}.`);
   }
@@ -2346,7 +2489,7 @@ function zeigeStufenKarte(zurueck) {
 }
 $('knopf-stufe-ok').addEventListener('click', () => { $('dlg-stufe').close(); setTimeout(vorlesenAufgabe, 300); scanNeu(); });
 function zeigeEnde() {
-  $('spiel').hidden = true; $('ende').hidden = false;
+  $('spiel').hidden = true; $('ende').hidden = false; document.body.classList.remove('im-spiel');
   const leicht = runde.ergebnisse.filter(e => e.leicht).length;
   $('ende-text').textContent = `${E.name ? E.name + ', du' : 'Du'} hast ${E.runde} Aufgaben geschafft. ${leicht} davon ganz ohne Hilfe!`;
   $('sterne').innerHTML = runde.ergebnisse.map(e => STERN(e.leicht)).join('');
@@ -2512,8 +2655,8 @@ function vorlesenAufgabe() {
   if (wunschOffen()) return ladenOffen ? sage(wunschSatz()) : oeffneLaden();   // Wunschzettel: gleich in den Laden
   const zieh = E.geld === 'ziehen' || !L.foto, rueck = aufgabe.art === 'rueckgeld';
   const kauf = `Ich möchte ${warenSatz(aufgabe.waren)} kaufen.`;
-  // Im Zieh-Modus gibt es kein Foto: dann "zieh das Geld in das Feld".
-  const legen = zieh ? `Zieh das ${rueck ? 'Rückgeld' : 'Geld'} in das Feld und tippe dann auf Fertig.`
+  // Im Zieh-Modus gibt es kein Foto: dann "zieh das Geld auf den Teller".
+  const legen = zieh ? `Zieh das ${rueck ? 'Rückgeld' : 'Geld'} auf den Teller und tippe dann auf Fertig.`
     : `Leg das ${rueck ? 'Rückgeld' : 'Geld'} hin und mach ein Foto.`;
   if (rueck) sage(`${kauf} Ich bezahle mit ${sprichBezahlt(aufgabe.bezahlt)}. Wie viel Geld bekomme ich zurück? ${legen}`);
   else if (aufgabe.art === 'budget') sage(`${kauf} Ich habe ${sprichBetrag(aufgabe.bezahlt)} dabei. Reicht mein Geld?`);
@@ -2908,6 +3051,8 @@ async function oeffneLaden() {
     if (box.dataset.laden !== E.laden) {
       box.innerHTML = await holeLadenSvg(E.laden);
       box.dataset.laden = E.laden;
+      const svg = box.querySelector('svg');   // Ausschnitt: nur der Laden, weniger Himmel und Boden
+      if (svg && L.ausschnitt) svg.setAttribute('viewBox', L.ausschnitt);
       box.querySelectorAll('.artikel').forEach(a => {
         const p = PRODUKTE.find(x => x.id === a.dataset.id);
         a.setAttribute('role', 'button'); a.setAttribute('aria-label', p ? `${p.name}, ${fmt(p.preis)}` : '');
@@ -2937,7 +3082,7 @@ function schliesseLaden() {
 // Wunschzettel: Korb unten statt Einkaufszettel; Sachen über dem Höchstbetrag sind blass
 function zeigeKorb() {
   const n = aufgabe.regeln.anzahl, voll = korb.length >= n;
-  $('zettel').classList.remove('eng');
+  $('zettel').classList.toggle('eng', korb.length >= 3);
   $('zettel').innerHTML = `<span class="korb-titel">${KORB_SVG}<span>Dein Korb (${korb.length} von ${n}):<small class="korb-grenze">höchstens ${fmt(wunschGrenze())}</small></span></span>` +
     (korb.length ? korb.map((p, i) => `<button class="posten gefunden" data-korb="${i}"><img src="${bild(p)}" alt=""><span class="was">${p.name}<small>${fmt(p.preis)}</small></span></button>`).join('')
       : '<span class="korb-leer">Tippe auf eine Sache.</span>') +
@@ -3347,7 +3492,7 @@ function startSatz() {
   return E.wahl ? 'Wo möchtest du einkaufen? Im Kirmes-Kiosk, in der Bäckerei oder im Spielwarenladen?' : `Tippe auf Los geht's. Heute kaufst du ${{ kirmes: 'am Kirmes-Kiosk', baeckerei: 'in der Bäckerei', spielwaren: 'im Spielwarenladen' }[E.laden]} ein.`;
 }
 function zeigeStart() {
-  $('spiel').hidden = true; $('ende').hidden = true; $('start').hidden = false;
+  $('spiel').hidden = true; $('ende').hidden = true; $('start').hidden = false; document.body.classList.remove('im-spiel');
   document.body.classList.add('auf-start');
   $('laden-titel').textContent = 'Einkaufen'; document.title = 'Kirmes-Kiosk';
   const frei = E.wahl, schonMal = speicher.lesen('einstellungen', null) !== null;

@@ -34,6 +34,7 @@ class Szene:
     def __init__(self, laden, ordner, praefix):
         self.laden, self.ordner, self.k = laden, ordner, praefix
         self.teile, self.ids, self.schilder = [], [], []
+        self.schild_breite = 72   # je Laden passend zu den Preisen (kurz im Kiosk, lang in der Bäckerei)
 
     def __iadd__(self, svg):
         self.teile.append(svg); return self
@@ -48,10 +49,11 @@ class Szene:
         return (f'<image href="{self.ordner}{i}.svg" x="{cx - h / 2:.1f}" y="{boden - 0.85 * h:.1f}" width="{h:.1f}" height="{h:.1f}" '
                 f'preserveAspectRatio="xMidYMax meet"{t} {extra}/>')
 
-    def schild(self, i, cx, y, w=72, hh=25, haken=True):
+    def schild(self, i, cx, y, w=None, hh=36, haken=True):
+        w = w or self.schild_breite
         oben = f'<rect x="{cx - 4}" y="{y - 6}" width="8" height="9" rx="1.5" fill="#9aa5b1"/>' if haken else ''
-        return (f'<g class="schild" data-id="{i}">{oben}<rect x="{cx - w / 2}" y="{y}" width="{w}" height="{hh}" rx="3" fill="#fff" stroke="{T}" stroke-width="2.2"/>'
-                f'<text x="{cx}" y="{y + hh - 7}" text-anchor="middle" class="preis"></text></g>')
+        return (f'<g class="schild" data-id="{i}">{oben}<rect x="{cx - w / 2}" y="{y}" width="{w}" height="{hh}" rx="3" fill="#fff" stroke="{T}" stroke-width="2.6"/>'
+                f'<text x="{cx}" y="{y + hh - 10}" text-anchor="middle" class="preis"></text></g>')
 
     def artikel(self, i, inhalt, box, schild_xy, schild_haken=True):
         x, y, w, h = box
@@ -236,6 +238,7 @@ def aehre(cx, cy, farbe='#c99a00'):
 # ======================================================================================== Bäckerei
 def baeckerei():
     sz = Szene('baeckerei', 'bilder/baeckerei/', 'b-')
+    sz.schild_breite = 100
     defs = gemeinsame_defs(sz.k)
     raum(sz)
     # Fliesenspiegel unten an der Rückwand
@@ -354,6 +357,7 @@ def baeckerei():
 # ======================================================================================== Kirmes-Kiosk (Bude von außen)
 def kirmes():
     sz = Szene('kirmes', 'bilder/', 'k-')
+    sz.schild_breite = 66
     defs = gemeinsame_defs(sz.k, wand=('#fff3df', '#f7e2bd'), front=('#f7a84a', '#e98a1f')) + f'''
 <linearGradient id="k-abend" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9fd3f0"/><stop offset="1" stop-color="#e8f5fc"/></linearGradient>
 <linearGradient id="k-bretter" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#b8752e"/><stop offset=".5" stop-color="#d4954b"/><stop offset="1" stop-color="#b06d28"/></linearGradient>
@@ -470,6 +474,7 @@ def kirmes():
 # ======================================================================================== Spielwarenladen
 def spielwaren():
     sz = Szene('spielwaren', 'bilder/spielwaren/', 's-')
+    sz.schild_breite = 88
     defs = gemeinsame_defs(sz.k, wand=('#f4f9fd', '#e3f0f9'), wandL=('#cfe3f1', '#e4f0f8'), wandR=('#cbe0ef', '#e1eef7'), front=('#b6dcf3', '#8ec7ea'))
     raum(sz, boden='parkett', boden_farben=('#e6c99a', '#dcbb86'), lampen=(330, 600, 870))
     fenster_links(sz)
@@ -504,7 +509,7 @@ def spielwaren():
     sz += sz.artikel('skateboard', sk, (790, 196, 104, 210), (836, 420))
     # Drachen hängt von der Decke
     dr = '<line x1="560" y1="0" x2="560" y2="48" stroke="#4a5a6a" stroke-width="2"/>' + sz.bild('drachen', 560, 190, 170, drehen=-12)
-    sz += sz.artikel('drachen', dr, (494, 34, 132, 160), (600, 188), schild_haken=False)
+    sz += sz.artikel('drachen', dr, (494, 34, 132, 160), (600, 174), schild_haken=False)
     # Kassentheke rechts mit Verkäuferin (Strickjacke)
     sz += sz.person(1020, 300, 520, hemd='#fff', schuerze=None, kappe=None, haare='#3a2a20', jacke='#3d9ad6')
     theke(sz, 900, 1204, 530, felder=2)
