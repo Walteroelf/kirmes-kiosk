@@ -35,6 +35,8 @@ AUSSPRACHE = [
     (r'\bCroissants\b', '[[ kroasˈaŋs ]]'),
     (r'\b[Ee]in Erdbeertörtchen\b', '[[ aɪn ˈeːɾtbeːɾtˌœɾtçən ]]'),
     (r'\bErdbeertörtchen\b', '[[ ˈeːɾtbeːɾtˌœɾtçən ]]'),
+    (r'\b[Ee]in Rosinenbrötchen\b', '[[ aɪn roːzˈiːnənbrˌøːtçən ]]'),   # espeak: „ROsi-NEN-brötchen“
+    (r'\bRosinenbrötchen\b', '[[ roːzˈiːnənbrˌøːtçən ]]'),
     (r'\bBurger\b', 'Börger'),
     (r'\bMuffins\b', 'Maffins'), (r'\bMuffin\b', 'Maffin'),
     (r'\bDonuts\b', 'Dohnatts'), (r'\bDonut\b', 'Dohnatt'),
