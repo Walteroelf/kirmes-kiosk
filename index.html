@@ -538,7 +538,6 @@ body.laden-offen { overflow: hidden; }
 .laden-svg .schild { cursor: pointer; }
 .laden-svg .schild.leuchtet rect:last-of-type { animation: blinken 1s ease-in-out 2; }
 @keyframes blinken { 50% { fill: #ffd200; } }
-.laden-svg .anzahl { font: 700 16px var(--anzeige); fill: #fff; }
 @media (prefers-reduced-motion: reduce) { .laden-svg .artikel.leuchtet image, .laden-svg .schild.leuchtet rect { animation: none; } }
 .zettel { display: flex; align-items: center; gap: 12px; padding: 10px max(16px, env(safe-area-inset-left, 0px)); background: var(--tresen); border-top: 4px solid var(--laden); flex-wrap: wrap; }
 .zettel-titel { font: 700 19px var(--anzeige); display: flex; align-items: center; gap: 8px; }
@@ -552,6 +551,15 @@ body.laden-offen { overflow: hidden; }
 .posten.gefunden .haken { background: var(--gut); border-color: var(--gut); }
 .posten.gefunden .haken::after { content: ""; width: 7px; height: 13px; border: solid #fff; border-width: 0 4px 4px 0; transform: rotate(45deg) translate(-1px, -2px); }
 .alles { font: 700 19px var(--anzeige); color: var(--gut); margin-left: auto; }
+/* Viele Posten (ab 4): schmaler, damit der Zettel in einer Zeile bleibt */
+.zettel.eng { gap: 8px; }
+.zettel.eng .zettel-titel > span { display: none; }
+.zettel.eng .posten { gap: 6px; padding: 3px 8px 3px 4px; }
+.zettel.eng .posten img { width: 40px; height: 40px; }
+.zettel.eng .posten .was { font-size: 16px; }
+.zettel.eng .posten .was small { font-size: 14px; }
+.zettel.eng .posten .haken { width: 24px; height: 24px; }
+.zettel.eng .alles { font-size: 16px; }
 .laden-zurueck { border: none; background: var(--hellblau); color: #1d3a5c; font: 700 22px var(--anzeige); min-height: 64px;
   padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)); cursor: pointer; }
 .tresen-kopf h2 { flex: 1 1 260px; }
@@ -1383,7 +1391,7 @@ label.lk-zeile { cursor: pointer; }
 <script src="aufkleber.js"></script>
 <script>
 'use strict';
-const VERSION = '4.3.2';
+const VERSION = '4.3.3';
 const STAND = '26.10.2026';
 
 // ---------------------------------------------------------------------------
@@ -1755,7 +1763,7 @@ function zeigeWare() {
 function zeigeAufgabe() {
   zeigeRunde();
   versuche = 0; fehlversuche = 0; hilfeStufe = 0; fehlerArten = []; geloest = false; analyse = null; korrigieren = false;
-  gefunden = new Set(); if (ladenOffen) schliesseLaden();
+  gefunden = new Map(); if (ladenOffen) schliesseLaden();
   zeigeWare();
   const art = aufgabe.art, n = aufgabe.waren.length;
   if (wunschOffen()) {
@@ -2819,8 +2827,9 @@ function zeigeLaden() {
 // ---------------------------------------------------------------------------
 // Laden-Ansicht: ein gezeichneter Laden (laeden/*.svg, erzeugt mit werkzeuge/laeden.py) mit allen
 // Waren und Preisschildern. Antippen: Ware leuchtet, Thorsten sagt den Preis. Einkaufszettel unten:
-// gesuchte Sachen werden abgehakt, sobald das Kind sie im Laden antippt. Markierung (Korb, „2×“)
-// je nach Einstellung immer, als Hilfe nach einem Fehlversuch oder nie.
+// jede gesuchte Sache steht einzeln darauf (zwei Donuts = zwei Posten) und wird abgehakt, sobald das
+// Kind sie im Laden antippt. Markierung (grüner Rahmen mit Korb) je nach Einstellung immer, als Hilfe
+// nach einem Fehlversuch oder nie.
 // ---------------------------------------------------------------------------
 const PIKTO_LADEN = {
   kirmes: '<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round"><path d="M6 22l6-12h40l6 12z"/><path d="M19 10l-3 12M32 10v12M45 10l3 12"/><path d="M10 22v32M54 22v32M6 54h52"/><path d="M10 40h44"/></svg>',
@@ -2829,7 +2838,7 @@ const PIKTO_LADEN = {
 };
 const ZETTEL_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 11h7M9 15h7"/></svg>';
 const ladenSvgText = {};
-let ladenOffen = false, gefunden = new Set(), korb = [];
+let ladenOffen = false, gefunden = new Map(), korb = [];   // gefunden: Ware → wie oft im Laden angetippt
 const KORB_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10h18l-2 10H5z"/><path d="M8 10l4-6 4 6M9 14v3M12 14v3M15 14v3"/></svg>';
 function holeLadenSvg(id) {
   if (!ladenSvgText[id]) ladenSvgText[id] = fetch('laeden/' + id + '.svg', { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(r.status); return r.text(); })
@@ -2846,12 +2855,12 @@ function einkaufsliste() {
   for (const p of aufgabe.waren) n.set(p.id, (n.get(p.id) || 0) + 1);
   return [...n];
 }
+const alleGefunden = () => einkaufsliste().every(([id, n]) => (gefunden.get(id) || 0) >= n);
 const markierungZeigen = () => E.markieren === 'immer' || (E.markieren === 'hilfe' && (fehlversuche > 0 || hilfeStufe > 0));
-function markierungSvg(box, n) {
+function markierungSvg(box) {
   const [x, y, w, h] = box.split(' ').map(Number);
   return `<g class="markierung" pointer-events="none"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="10" fill="none" stroke="#2f9e55" stroke-width="5"/>
-    <circle cx="${x + w}" cy="${y}" r="17" fill="#2f9e55"/><path d="M${x + w - 10} ${y - 3}h20l-3 12h-14zM${x + w - 6} ${y - 3}l6-8 6 8" fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
-    ${n > 1 ? `<rect x="${x - 6}" y="${y - 14}" width="40" height="26" rx="13" fill="#2f9e55"/><text x="${x + 14}" y="${y + 5}" text-anchor="middle" class="anzahl">${n}×</text>` : ''}</g>`;
+    <circle cx="${x + w}" cy="${y}" r="17" fill="#2f9e55"/><path d="M${x + w - 10} ${y - 3}h20l-3 12h-14zM${x + w - 6} ${y - 3}l6-8 6 8" fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/></g>`;
 }
 async function oeffneLaden() {
   const box = $('laden-bild');
@@ -2871,9 +2880,9 @@ async function oeffneLaden() {
     }
   } catch (e) { box.innerHTML = '<p style="padding:20px;font-size:20px">Der Laden kann gerade nicht geladen werden. Bitte einmal mit Internet öffnen.</p>'; box.dataset.laden = ''; }
   box.querySelectorAll('.markierung').forEach(m => m.remove());
-  if (!wunschOffen() && markierungZeigen()) for (const [id, n] of einkaufsliste()) {
+  if (!wunschOffen() && markierungZeigen()) for (const [id] of einkaufsliste()) {
     const a = box.querySelector(`.artikel[data-id="${id}"]`);
-    if (a) a.insertAdjacentHTML('beforeend', markierungSvg(a.dataset.box, n));
+    if (a) a.insertAdjacentHTML('beforeend', markierungSvg(a.dataset.box));
   }
   $('laden-ansicht-titel').textContent = L.name;
   zeigeZettel();
@@ -2888,6 +2897,7 @@ function schliesseLaden() {
 // Wunschzettel: Korb unten statt Einkaufszettel; Sachen über dem Höchstbetrag sind blass
 function zeigeKorb() {
   const n = aufgabe.regeln.anzahl, voll = korb.length >= n;
+  $('zettel').classList.remove('eng');
   $('zettel').innerHTML = `<span class="korb-titel">${KORB_SVG}Dein Korb (${korb.length} von ${n}):</span>` +
     (korb.length ? korb.map((p, i) => `<button class="posten gefunden" data-korb="${i}"><img src="${bild(p)}" alt=""><span class="was">${p.name}<small>${fmt(p.preis)}</small></span></button>`).join('')
       : '<span class="korb-leer">Tippe auf eine Sache.</span>') +
@@ -2904,12 +2914,14 @@ function zeigeKorb() {
 function zeigeZettel() {
   if (wunschOffen()) return zeigeKorb();
   $('laden-bild').querySelectorAll('.zu-teuer').forEach(x => x.classList.remove('zu-teuer'));
-  const liste = einkaufsliste(), alle = liste.every(([id]) => gefunden.has(id));
-  $('zettel').innerHTML = `<span class="zettel-titel">${ZETTEL_SVG}Einkaufszettel:</span>` + liste.map(([id, n]) => {
-    const p = PRODUKTE.find(x => x.id === id), ok = gefunden.has(id);
+  // Jede Sache einzeln (zwei Donuts = zwei Posten nebeneinander); jedes Antippen im Laden hakt einen ab
+  const posten = einkaufsliste().flatMap(([id, n]) => Array.from({ length: n }, (_, i) => [id, i < (gefunden.get(id) || 0)]));
+  $('zettel').classList.toggle('eng', posten.length >= 4);
+  $('zettel').innerHTML = `<span class="zettel-titel">${ZETTEL_SVG}<span>Einkaufszettel:</span></span>` + posten.map(([id, ok]) => {
+    const p = PRODUKTE.find(x => x.id === id);
     return `<button class="posten${ok ? ' gefunden' : ''}" data-id="${id}"><img src="${bild(p)}" alt="">
-      <span class="was">${n > 1 ? n + '× ' : ''}${p.name}<small>${ok ? (n > 1 ? 'je ' : '') + fmt(p.preis) : 'Preis?'}</small></span><span class="haken"></span></button>`;
-  }).join('') + (alle ? '<span class="alles">Alles gefunden!</span>' : '');
+      <span class="was">${p.name}<small>${ok ? fmt(p.preis) : 'Preis?'}</small></span><span class="haken"></span></button>`;
+  }).join('') + (alleGefunden() ? '<span class="alles">Alles gefunden!</span>' : '');
 }
 function leuchte(a) {
   const box = $('laden-bild'), schild = box.querySelector(`.schild[data-id="${a.dataset.id}"]`);
@@ -2928,9 +2940,10 @@ function tippeArtikel(a) {
     scanNeu(); return;
   }
   leuchte(a); sage(satzPreis(p));
-  if (einkaufsliste().some(([id]) => id === p.id) && !gefunden.has(p.id)) {
-    gefunden.add(p.id); zeigeZettel();
-    if (einkaufsliste().every(([id]) => gefunden.has(id))) sageDanach('Super! Du hast alles gefunden.');
+  const soll = einkaufsliste().find(([id]) => id === p.id);
+  if (soll && (gefunden.get(p.id) || 0) < soll[1]) {
+    gefunden.set(p.id, (gefunden.get(p.id) || 0) + 1); zeigeZettel();
+    if (alleGefunden()) sageDanach('Super! Du hast alles gefunden.');
   }
   scanNeu();
 }
