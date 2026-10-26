@@ -37,6 +37,14 @@ AUSSPRACHE = [
     (r'\bErdbeertörtchen\b', '[[ ˈeːɾtbeːɾtˌœɾtçən ]]'),
     (r'\b[Ee]in Rosinenbrötchen\b', '[[ aɪn roːzˈiːnənbrˌøːtçən ]]'),   # espeak: „ROsi-NEN-brötchen“
     (r'\bRosinenbrötchen\b', '[[ roːzˈiːnənbrˌøːtçən ]]'),
+    (r'\b[Ee]inen Kakao\b', '[[ aɪnən kakˈaʊ ]]'), (r'\b[Ee]in Kakao\b', '[[ aɪn kakˈaʊ ]]'), (r'\bKakao\b', '[[ kakˈaʊ ]]'),
+    (r'\b[Ee]ine Laugenstange\b', '[[ aɪnə lˈaʊɡənʃtˌaŋə ]]'), (r'\bLaugenstangen\b', '[[ lˈaʊɡənʃtˌaŋən ]]'), (r'\bLaugenstange\b', '[[ lˈaʊɡənʃtˌaŋə ]]'),
+    (r'\b[Ee]in ferngesteuertes Auto\b', '[[ aɪn fˈɛɾnɡəʃtˌɔøɐtəs ˈaʊtoː ]]'), (r'\b[Ff]erngesteuerte Autos\b', '[[ fˈɛɾnɡəʃtˌɔøɐtə ˈaʊtoːs ]]'),
+    (r'\b[Ff]erngesteuertes Auto\b', '[[ fˈɛɾnɡəʃtˌɔøɐtəs ˈaʊtoː ]]'),
+    (r'\b[Ee]inen Hotdog\b', '[[ aɪnən hˈɔtdɔk ]]'), (r'\b[Ee]in Hotdog\b', '[[ aɪn hˈɔtdɔk ]]'), (r'\bHotdogs\b', '[[ hˈɔtdɔks ]]'),
+    (r'\bHot ?[Dd]og\b', '[[ hˈɔtdɔk ]]'),
+    (r'\b[Ee]in Vollkornbrot\b', '[[ aɪn fˈɔlkɔɾnbroːt ]]'), (r'\bVollkornbrote\b', '[[ fˈɔlkɔɾnbroːtə ]]'), (r'\bVollkornbrot\b', '[[ fˈɔlkɔɾnbroːt ]]'),
+    (r'\b[Ee]in Kuscheltier\b', '[[ aɪn kˈʊʃəltiːɾ ]]'), (r'\bKuscheltiere\b', '[[ kˈʊʃəltiːɾə ]]'), (r'\bKuscheltier\b', '[[ kˈʊʃəltiːɾ ]]'),
     (r'\bBurger\b', 'Börger'),
     (r'\bMuffins\b', 'Maffins'), (r'\bMuffin\b', 'Maffin'),
     (r'\bDonuts\b', 'Dohnatts'), (r'\bDonut\b', 'Dohnatt'),
@@ -46,7 +54,8 @@ AUSSPRACHE = [
 def aussprache(text):
     for muster, ersatz in AUSSPRACHE:
         text = re.sub(muster, ersatz, text)
-    return text
+    # espeak (und damit die Thorsten-Stimme) kennt das ich-ch als „c“ + Häkchen (U+0327), nicht als ein Zeichen „ç“
+    return re.sub(r'\[\[.*?\]\]', lambda m: m.group(0).replace('\u00e7', 'c\u0327'), text)
 
 
 def schluessel(text):
@@ -152,6 +161,12 @@ def sammle(lob_stimme):
          'Was möchtest du kaufen?', 'Das ist zu teuer.', 'Dein Korb ist voll. Tippe auf Fertig.', 'Ein neuer Aufkleber für dein Album.',
          'Such dir eine Sache im Laden aus.', 'Such dir zwei Sachen im Laden aus.', 'Such dir drei Sachen im Laden aus.',
          'Such dir vier Sachen im Laden aus.', 'Such dir fünf Sachen im Laden aus.')
+    # Wanduhr im Laden: „Es ist 10 Uhr 25.“ (12-Stunden-Zählung wie auf der Uhr, wie zeitSatz() in index.html)
+    for h in range(1, 13):
+        hs = 'ein Uhr' if h == 1 else f'{h} Uhr'
+        teil(f'Es ist {h} Uhr.', f'Es ist {hs}.')
+        for m in range(1, 60):
+            teil(f'Es ist {h} Uhr {m}.', f'Es ist {hs} {m}.')
     # Wunschzettel: Höchstbetrag (aus Stufen und eigener Aufgabe; Rückgeld: 1 € bzw. 10 ct weniger als der Schein)
     for a, s in [euro_text(n) for n in list(range(1, 31)) + [49, 50, 60, 99, 100, 150, 199, 200]] + \
                 [cent_text(v) for v in list(range(100, 1001, 100)) + [490, 990, 1990]]:

@@ -12,7 +12,7 @@ Markierung („im Korb“, „2×“) über data-box. Preise ändern = nur index
 
 Aufruf:  python3 werkzeuge/laeden.py
 """
-import os, re
+import math, os, re
 
 HIER = os.path.dirname(os.path.abspath(__file__))
 APP = os.path.dirname(HIER)
@@ -33,7 +33,7 @@ def ids_aus_index():
 class Szene:
     def __init__(self, laden, ordner, praefix):
         self.laden, self.ordner, self.k = laden, ordner, praefix
-        self.teile, self.ids, self.schilder = [], [], []
+        self.teile, self.ids, self.schilder, self.lichter = [], [], [], []
         self.schild_breite = 72   # je Laden passend zu den Preisen (kurz im Kiosk, lang in der Bäckerei)
 
     def __iadd__(self, svg):
@@ -54,6 +54,29 @@ class Szene:
         oben = f'<rect x="{cx - 4}" y="{y - 6}" width="8" height="9" rx="1.5" fill="#9aa5b1"/>' if haken else ''
         return (f'<g class="schild" data-id="{i}">{oben}<rect x="{cx - w / 2}" y="{y}" width="{w}" height="{hh}" rx="3" fill="#fff" stroke="{T}" stroke-width="2.6"/>'
                 f'<text x="{cx}" y="{y + hh - 10}" text-anchor="middle" class="preis"></text></g>')
+
+    def uhr(self, cx, cy, r):
+        """Wanduhr: Die App stellt die Zeiger auf die aktuelle Zeit; Antippen sagt die Uhrzeit an."""
+        striche = ''
+        for k in range(12):
+            a, innen = k * math.pi / 6, r - (13 if k % 3 == 0 else 9)
+            striche += (f'<line x1="{cx + (r - 5) * math.sin(a):.1f}" y1="{cy - (r - 5) * math.cos(a):.1f}" x2="{cx + innen * math.sin(a):.1f}" '
+                        f'y2="{cy - innen * math.cos(a):.1f}" stroke="{T}" stroke-width="{3.2 if k % 3 == 0 else 1.8}" stroke-linecap="round"/>')
+        return (f'<g class="uhr" data-cx="{cx}" data-cy="{cy}" role="button" aria-label="Uhr"><circle cx="{cx}" cy="{cy}" r="{r + 5}" fill="{T}"/>'
+                f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="#fff"/>{striche}'
+                f'<line class="zeiger-std" x1="{cx}" y1="{cy}" x2="{cx}" y2="{cy - r * .5:.1f}" stroke="{T}" stroke-width="5" stroke-linecap="round"/>'
+                f'<line class="zeiger-min" x1="{cx}" y1="{cy}" x2="{cx}" y2="{cy - r * .8:.1f}" stroke="{T}" stroke-width="3.4" stroke-linecap="round"/>'
+                f'<circle cx="{cx}" cy="{cy}" r="4" fill="#f39325"/></g>')
+
+    def lampe(self, n, leuchte, licht):
+        """Lampe zum Antippen. leuchte: die Lampe (Teile mit class="birne" werden hell), licht: Lichtschein in eigener Ebene über allem (nur wenn an)."""
+        self.lichter.append(f'<g class="licht" data-lampe="{n}" pointer-events="none">{licht}</g>')
+        return f'<g class="lampe" data-lampe="{n}" role="button" aria-label="Lampe">{leuchte}</g>'
+
+    def lichtkegel(self, x, y0, oben, unten, y1):
+        """Lichtschein unter einer Lampe: Kegel von (x±oben, y0) bis (x±unten, y1) und heller Fleck an der Lampe."""
+        return (f'<polygon points="{x - oben},{y0} {x + oben},{y0} {x + unten},{y1} {x - unten},{y1}" fill="{self.u("kegel")}"/>'
+                f'<ellipse cx="{x}" cy="{y0 + 6}" rx="{oben * 1.6:.0f}" ry="{oben * .7:.0f}" fill="{self.u("schein")}"/>')
 
     def artikel(self, i, inhalt, box, schild_xy, schild_haken=True):
         x, y, w, h = box
@@ -112,7 +135,8 @@ class Szene:
 
     def svg(self, defs):
         return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" class="laden-svg" data-laden="{self.laden}">'
-                f'<defs>{defs}</defs>' + '\n'.join(self.teile) + '<g class="schilder">' + ''.join(self.schilder) + '</g></svg>')
+                f'<defs>{defs}</defs>' + '\n'.join(self.teile) + '<g class="lichter">' + ''.join(self.lichter) + '</g>'
+                + '<g class="schilder">' + ''.join(self.schilder) + '</g></svg>')
 
 
 def bratwurst(cx, cy, l=56, d=13, bogen=-5):
@@ -152,7 +176,9 @@ def gemeinsame_defs(k, wand=('#fdf6e1', '#f6e7c1'), wandL=('#e9d39c', '#f3e3b8')
 <linearGradient id="{k}kuehl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eaf6fd"/><stop offset="1" stop-color="#d4ebf7"/></linearGradient>
 <linearGradient id="{k}himmel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe3f7"/><stop offset="1" stop-color="#e6f4fb"/></linearGradient>
 <linearGradient id="{k}haut" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6cfae"/><stop offset="1" stop-color="#eab991"/></linearGradient>
-<filter id="{k}weich" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>'''
+<filter id="{k}weich" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>
+<linearGradient id="{k}kegel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff3c2" stop-opacity=".6"/><stop offset=".55" stop-color="#fff3c2" stop-opacity=".22"/><stop offset="1" stop-color="#fff3c2" stop-opacity="0"/></linearGradient>
+<radialGradient id="{k}schein" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fffbe6" stop-opacity=".95"/><stop offset="1" stop-color="#fffbe6" stop-opacity="0"/></radialGradient>'''
 
 
 # ======================================================================================== Raum (für Innenräume)
@@ -206,7 +232,7 @@ def fenster_links(sz, draussen=True):
 
 
 def uhr_rechts(sz):
-    sz += f'<ellipse cx="1126" cy="172" rx="29" ry="34" fill="#fff" stroke="{T}" stroke-width="5"/><path d="M1126 172v-19M1126 172l12 8" stroke="{T}" stroke-width="4" stroke-linecap="round"/>'
+    sz += sz.uhr(1122, 172, 28)
 
 
 def kasse_bildschirm(x, y):
@@ -267,12 +293,12 @@ def baeckerei():
 
     def stapel_brot(i, cx, boden, h):
         inhalt = sz.bild(i, cx - 38, boden, h) + sz.bild(i, cx + 38, boden, h) + sz.bild(i, cx, boden - h * .32, h)
-        return sz.artikel(i, inhalt, (cx - 95, boden - h * .95, 190, h * .95), (cx, boden + 2))
+        return sz.artikel(i, inhalt, (cx - 95, boden - h * .95, 190, h * .95), (cx, boden - 30), schild_haken=False)
 
     def korb_mit(i, cx, boden, h, n=5):
         lagen = [(-50, -22), (0, -26), (50, -22), (-25, -36), (25, -36)][:n]
         inhalt = sz.korb(cx, boden) + ''.join(sz.bild(i, cx + dx, boden + dy, h) for dx, dy in sorted(lagen, key=lambda d: d[1])) + sz.korb_vorn(cx, boden)
-        return sz.artikel(i, inhalt, (cx - 88, boden - 30 - h * .8, 176, h * .8 + 30), (cx, boden + 2))
+        return sz.artikel(i, inhalt, (cx - 88, boden - 30 - h * .8, 176, h * .8 + 30), (cx, boden - 28), schild_haken=False)
 
     sz += stapel_brot('brot', L1, 196, 76)
     sz += stapel_brot('vollkornbrot', L2, 196, 76)
@@ -327,9 +353,9 @@ def baeckerei():
         return ''.join(sz.bild(i, cx + dx, boden + dy, h) for dx, dy in ox)
 
     for i, cx, h in [('croissant', 118, 82), ('schokocroissant', 262, 82), ('zimtschnecke', 410, 76), ('berliner', 556, 76), ('amerikaner', 700, 78)]:
-        sz += sz.artikel(i, reihe(i, cx, 549, h), (cx - 66, 549 - h * .72, 132, h * .72), (cx, 556))
+        sz += sz.artikel(i, reihe(i, cx, 549, h), (cx - 66, 549 - h * .72, 132, h * .72), (cx, 549 - 22), schild_haken=False)
     for i, cx, h in [('kaesekuchen', 122, 92), ('apfelkuchen', 268, 92), ('erdbeertoertchen', 414, 84), ('keks', 556, 78), ('belegtes-broetchen', 700, 86)]:
-        sz += sz.artikel(i, reihe(i, cx, 628, h, n=2, abst=48), (cx - 66, 628 - h * .72, 132, h * .72), (cx, 636))
+        sz += sz.artikel(i, reihe(i, cx, 628, h, n=2, abst=48), (cx - 66, 628 - h * .72, 132, h * .72), (cx, 628 - 22), schild_haken=False)
     sz += (f'<g pointer-events="none"><path d="M{V0 + 6} 640 V{VT + 54} Q{V0 + 6} {VT} {V0 + 60} {VT} H{V1 - 6} V640 Z" fill="{sz.u("glas")}"/>'
            f'<path d="M{V0 + 6} 640 V{VT + 54} Q{V0 + 6} {VT} {V0 + 60} {VT} H{V1 - 6}" fill="none" stroke="{sz.u("metall")}" stroke-width="7"/>'
            f'<rect x="{V1 - 12}" y="{VT}" width="9" height="{640 - VT}" fill="{sz.u("metallS")}"/>'
@@ -347,10 +373,11 @@ def baeckerei():
                 + ''.join(sz.bild('brezel', bz, y + 52, 70) for y in (482, 542, 602)))
     sz += sz.artikel('brezel', staender, (bz - 40, 460, 80, 200), (bz, 680))
     # Hängelampen vorn
-    for x in (365, 600):
-        sz += (f'<g pointer-events="none"><line x1="{x}" y1="0" x2="{x}" y2="34" stroke="#4a5a6a" stroke-width="3"/>'
-               f'<path d="M{x - 54} 80 Q{x - 48} 34 {x} 34 Q{x + 48} 34 {x + 54} 80 Z" fill="#ffd200"/>'
-               f'<ellipse cx="{x}" cy="80" rx="54" ry="8" fill="#fff4b3"/><ellipse cx="{x}" cy="86" rx="38" ry="9" fill="#fff8d0" filter="url(#{sz.k}weich)" opacity=".9"/></g>')
+    for n, x in enumerate((365, 600)):
+        sz += sz.lampe(n, f'<line x1="{x}" y1="0" x2="{x}" y2="34" stroke="#4a5a6a" stroke-width="3"/>'
+                          f'<path d="M{x - 54} 80 Q{x - 48} 34 {x} 34 Q{x + 48} 34 {x + 54} 80 Z" fill="#ffd200"/>'
+                          f'<ellipse class="birne" cx="{x}" cy="80" rx="54" ry="8" fill="#efe2a0"/>',
+                       sz.lichtkegel(x, 82, 50, 220, 640))
     return sz, defs
 
 
@@ -462,8 +489,13 @@ def kirmes():
     sz += f'<g clip-path="url(#k-dachClip)">{streifen}<rect x="0" y="60" width="1200" height="100" fill="url(#{sz.k}schatten)" opacity=".5" transform="rotate(180 600 110)"/></g>'
     sz += ''.join(f'<path d="M{x} 150 a30 22 0 0 0 60 0z" fill="{"#f39325" if ((x - 40) // 60) % 2 == 0 else "#fff"}"/>' for x in range(40, 1160, 60))
     sz += '<path d="M44 150 H1156" stroke="#d97a12" stroke-width="3"/>'
-    birnen = ''.join(f'<circle cx="{x}" cy="{186 + 10 * math.sin((x - 120) / 70)}" r="12" fill="url(#k-birne)"/><circle cx="{x}" cy="{186 + 10 * math.sin((x - 120) / 70)}" r="4.5" fill="#fff8c4"/>' for x in range(470, 730, 40))
-    sz += f'<path d="M460 180 Q600 206 740 180" stroke="#4a5a6a" stroke-width="2" fill="none"/>{birnen}'
+    ys = {x: 186 + 10 * math.sin((x - 120) / 70) for x in range(470, 730, 40)}
+    birnen = ''.join(f'<circle cx="{x}" cy="{y:.1f}" r="12" fill="url(#k-birne)" opacity=".75"/><circle class="birne" cx="{x}" cy="{y:.1f}" r="5" fill="#e9d98a"/>' for x, y in ys.items())
+    schein = ''.join(f'<circle cx="{x}" cy="{y:.1f}" r="30" fill="url(#k-schein)"/>' for x, y in ys.items())
+    sz += sz.lampe(0, f'<path d="M460 180 Q600 206 740 180" stroke="#4a5a6a" stroke-width="2" fill="none"/>{birnen}'
+                      '<rect x="452" y="166" width="296" height="44" fill="transparent"/>',
+                   schein + f'<polygon points="460,200 740,200 820,560 380,560" fill="url(#k-kegel)"/>')
+    sz += sz.uhr(852, 214, 26)
     schild = (f'<rect x="420" y="8" width="360" height="54" rx="6" fill="#fff" stroke="{T}" stroke-width="3"/>'
               + ''.join(f'<circle cx="{x}" cy="{y}" r="4" fill="#ffd200" stroke="#e8b800"/>' for x in range(432, 780, 20) for y in (16, 54))
               + f'<text x="600" y="47" text-anchor="middle" class="ladenschild gross">kirmes-kiosk</text>')
@@ -478,6 +510,13 @@ def spielwaren():
     defs = gemeinsame_defs(sz.k, wand=('#f4f9fd', '#e3f0f9'), wandL=('#cfe3f1', '#e4f0f8'), wandR=('#cbe0ef', '#e1eef7'), front=('#b6dcf3', '#8ec7ea'))
     raum(sz, boden='parkett', boden_farben=('#e6c99a', '#dcbb86'), lampen=(330, 600, 870))
     fenster_links(sz)
+    # Hängelampen (antippen: an/aus) und Wanduhr neben dem Schild
+    for n, x in enumerate((330, 870)):
+        sz += sz.lampe(n, f'<line x1="{x}" y1="0" x2="{x}" y2="30" stroke="#4a5a6a" stroke-width="3"/>'
+                          f'<path d="M{x - 40} 62 Q{x - 36} 30 {x} 30 Q{x + 36} 30 {x + 40} 62 Z" fill="#9fd3f0"/>'
+                          f'<ellipse class="birne" cx="{x}" cy="62" rx="40" ry="7" fill="#e3edf2"/>',
+                       sz.lichtkegel(x, 64, 38, 200, 640))
+    sz += sz.uhr(826, 138, 28)
     # Poster/Schild an der rechten Rückwand
     sz += (f'<rect x="870" y="128" width="160" height="46" rx="4" fill="#fff" stroke="{T}" stroke-width="3"/><rect x="870" y="128" width="160" height="9" fill="#9fd3f0"/>'
            f'<text x="950" y="166" text-anchor="middle" class="ladenschild klein">spielwaren</text>')

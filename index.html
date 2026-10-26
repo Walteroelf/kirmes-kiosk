@@ -546,6 +546,12 @@ body.laden-offen { overflow: hidden; }
 @keyframes blinken { 50% { fill: #ffd200; } }
 @media (prefers-reduced-motion: reduce) { .laden-svg .artikel.leuchtet image, .laden-svg .schild.leuchtet rect { animation: none; } }
 .laden-svg .anzahl { font: 700 16px var(--anzeige); fill: #fff; }
+.laden-svg .uhr, .laden-svg .lampe { cursor: pointer; }
+.laden-svg .uhr.leuchtet > circle:first-child { fill: #ffd200; }
+.laden-svg .licht { opacity: 0; transition: opacity .4s; mix-blend-mode: screen; }
+.laden-svg .licht.an { opacity: 1; }
+.laden-svg .lampe .birne { transition: fill .3s; }
+.laden-svg .lampe.an .birne { fill: #fffbe6; }
 .zettel { display: flex; align-items: center; gap: 12px; padding: 10px max(16px, env(safe-area-inset-left, 0px)); background: var(--tresen); border-top: 4px solid var(--laden); flex-wrap: wrap; }
 .zettel-titel { font: 700 19px var(--anzeige); display: flex; align-items: center; gap: 8px; }
 .zettel-titel svg { width: 30px; height: 30px; }
@@ -723,6 +729,13 @@ label.lk-zeile { cursor: pointer; }
 .lk-band strong { font-family: var(--anzeige); font-size: 18px; }
 .lk-band span { font-size: 14px; color: var(--holz-hell); line-height: 1.3; }
 .lk-band[aria-pressed="true"] { border-color: var(--rand); box-shadow: inset 0 0 0 2px var(--rand); background: var(--himmel); background: color-mix(in srgb, var(--c) 16%, var(--tresen)); }
+.lk-sk-hinweis { margin: 2px 0 0; font-size: 14px; font-weight: 700; color: var(--holz-hell); }
+.lk-sk-stufen { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.lk-stufe { display: flex; align-items: center; gap: 8px; text-align: left; border: 2px solid var(--linie); border-radius: var(--r); background: var(--tresen); color: var(--holz);
+  padding: 4px 8px 4px 5px; font-size: 15px; line-height: 1.2; min-height: 42px; }
+.lk-stufe b { flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--flaeche); font-family: var(--anzeige); }
+.lk-stufe[aria-pressed="true"] { border-color: var(--rand); box-shadow: inset 0 0 0 2px var(--rand); }
+.lk-stufe[aria-pressed="true"] b { background: var(--c); color: #1d3a5c; }
 .lk-sk-genau { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px; font-size: 15px; font-weight: 700; }
 .lk-feld { font: inherit; font-size: 16px; padding: 8px 10px; border-radius: var(--r); border: 2px solid var(--linie); background: var(--himmel); color: var(--holz); min-height: 44px; width: 100%; }
 .lk-von-bis { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
@@ -772,6 +785,7 @@ label.lk-zeile { cursor: pointer; }
   .lk-inhalt { padding: 16px 16px 28px; }
   .lk-baender { grid-template-columns: minmax(0, 1fr); }
   .lk-sk-bilder { display: none; }
+  .lk-sk-stufen { grid-template-columns: minmax(0, 1fr); }
 }
 /* Handy: erst die Liste, dann der Abschnitt */
 @media (max-width: 660px) {
@@ -787,6 +801,8 @@ label.lk-zeile { cursor: pointer; }
   .lk-punkt-stand { font-size: 14px; }
   #dlg-lehrkraft.detail .lk-zurueck { display: inline-flex; align-items: center; }
   #dlg-lehrkraft.detail .lk-kopf h2 { visibility: hidden; }
+  .lk-lang { display: none; }
+  #knopf-lk-abbrechen { padding-inline: 10px; }
   .lk-kopf { padding: 10px 12px; }
   .lk-kopf h2 { font-size: 20px; }
   .lk-fertig { padding: 10px 18px; }
@@ -1137,6 +1153,7 @@ body.im-spiel .schild-titel { min-width: 0; overflow: hidden; text-overflow: ell
   <div class="lk-kopf">
     <button class="lk-zurueck" id="knopf-lk-zurueck">‹ Übersicht</button>
     <h2 id="lk-titel">Lehrkraft-Bereich</h2>
+    <button class="lk-knopf" id="knopf-lk-abbrechen"><span class="lk-lang">Zur&nbsp;</span>Ladenauswahl</button>
     <button class="lk-fertig" id="knopf-lk-fertig">Fertig</button>
   </div>
   <div class="lk-koerper">
@@ -1533,7 +1550,7 @@ body.im-spiel .schild-titel { min-width: 0; overflow: hidden; text-overflow: ell
 <script src="aufkleber.js"></script>
 <script>
 'use strict';
-const VERSION = '4.5.0';
+const VERSION = '4.6.0';
 const STAND = '26.10.2026';
 
 // ---------------------------------------------------------------------------
@@ -1704,7 +1721,7 @@ const LAEDEN = {
             maxWahl: [30, 50, 100, 150, 200], bezahltWahl: [20, 50, 100, 200], spanne: 40, schritte: [1, 10, 5, 20],
             bereiche: [[20, 'bis 20 €'], [50, '21–50 €'], [100, '51–100 €'], [150, '101–150 €'], [Infinity, 'über 150 €']] },
   baeckerei: { name: 'Bäckerei', faktor: 100, cent: true, foto: false, ordner: 'bilder/baeckerei/', farbe: '#ffd200', farbeRand: '#c9a400',
-            produkte: PRODUKTE_BAECKEREI, stufen: STUFEN_BAECKEREI, geld: [10, 20, 50, 100, 200, 500], ausschnitt: '20 60 1150 700',
+            produkte: PRODUKTE_BAECKEREI, stufen: STUFEN_BAECKEREI, geld: [10, 20, 50, 100, 200, 500], ausschnitt: '20 16 1150 720',
             maxWahl: [2, 3, 5, 8, 10], bezahltWahl: [5, 10, 20], spanne: 250, schritte: [10, 50, 100, 20],
             bereiche: [[100, 'bis 1 €'], [200, '1,10–2 €'], [500, '2,10–5 €'], [1000, '5,10–10 €'], [Infinity, 'über 10 €']] },
 };
@@ -3070,12 +3087,25 @@ async function oeffneLaden() {
     if (a) a.insertAdjacentHTML('beforeend', markierungSvg(a.dataset.box, mengenZusammen() ? n : 1));
   }
   $('laden-ansicht-titel').textContent = L.name;
+  stelleUhr(); clearInterval(uhrTakt); uhrTakt = setInterval(stelleUhr, 20000);
   zeigeZettel();
   $('laden-ansicht').hidden = false; ladenOffen = true; document.body.classList.add('laden-offen');
   sage(wunschOffen() ? wunschSatz() : 'Tippe auf eine Sache, dann hörst du den Preis.');
   scanNeu();
 }
+// Wanduhr im Laden: Zeiger auf die aktuelle Zeit, Antippen sagt die Uhrzeit (12-Stunden-Zählung wie auf der Uhr)
+let uhrTakt = null;
+function stelleUhr() {
+  const d = new Date(), m = d.getMinutes() + d.getSeconds() / 60, h = d.getHours() % 12 + m / 60;
+  $('laden-bild').querySelectorAll('.uhr').forEach(u => {
+    const c = `${u.dataset.cx} ${u.dataset.cy}`;
+    u.querySelector('.zeiger-std').setAttribute('transform', `rotate(${(h * 30).toFixed(1)} ${c})`);
+    u.querySelector('.zeiger-min').setAttribute('transform', `rotate(${(m * 6).toFixed(1)} ${c})`);
+  });
+}
+function zeitSatz() { const d = new Date(), h = d.getHours() % 12 || 12, m = d.getMinutes(); return `Es ist ${h} Uhr${m ? ' ' + m : ''}.`; }
 function schliesseLaden() {
+  clearInterval(uhrTakt);
   $('laden-ansicht').hidden = true; ladenOffen = false; document.body.classList.remove('laden-offen');
   stoppeTon(); scanNeu();
 }
@@ -3137,6 +3167,10 @@ function tippeArtikel(a) {
 }
 $('laden-bild').addEventListener('click', ev => {
   if (!ev.target.closest) return;
+  const uhr = ev.target.closest('.uhr');
+  if (uhr) { stelleUhr(); uhr.classList.add('leuchtet'); setTimeout(() => uhr.classList.remove('leuchtet'), 1200); aufWunsch(() => sage(zeitSatz())); return; }
+  const lampe = ev.target.closest('.lampe');   // Lampe an/aus: Lampe und ihr Lichtschein
+  if (lampe) { const an = !lampe.classList.contains('an'); $('laden-bild').querySelectorAll(`[data-lampe="${lampe.dataset.lampe}"]`).forEach(x => x.classList.toggle('an', an)); return; }
   const schild = ev.target.closest('.schild[data-id]');   // Antippen des Preisschilds zählt wie Antippen der Ware
   const a = schild ? $('laden-bild').querySelector(`.artikel[data-id="${schild.dataset.id}"]`) : ev.target.closest('.artikel');
   if (a) tippeArtikel(a);
@@ -3333,9 +3367,9 @@ function zeichneStufen() {
       <p class="lk-info" id="lk-info-${id}"${offen ? '' : ' hidden'}>${info.anspruch}</p>
       <div class="lk-baender">${info.baender.map(([st, name, txt], i) =>
         `<button class="lk-band" data-laden="${id}" data-stufe="${st}" aria-pressed="${i === band}"><strong>${name}</strong><span>${txt}</span></button>`).join('')}</div>
-      <label class="lk-sk-genau">Genaue Stufe
-        <select class="lk-feld" data-laden="${id}">${LL.stufen.map((x, i) => `<option value="${i + 1}"${i + 1 === nr ? ' selected' : ''}>Stufe ${i + 1}: ${x.titel}</option>`).join('')}</select>
-      </label>
+      <p class="lk-sk-hinweis">Oder genau eine Stufe wählen:</p>
+      <div class="lk-sk-stufen" role="group" aria-label="Genaue Stufe">${LL.stufen.map((x, i) =>
+        `<button class="lk-stufe" data-laden="${id}" data-stufe="${i + 1}" aria-pressed="${i + 1 === nr}"><b>${i + 1}</b><span>${x.titel}</span></button>`).join('')}</div>
     </div>`;
   }).join('');
 }
@@ -3389,6 +3423,7 @@ function oeffneLehrkraft(seite) {
   LK.neueRunde = LK.geaendert = false;
   LK.aLaden = LK.dLaden = E.laden;
   $('e-name').value = E.name;
+  $('knopf-lk-abbrechen').hidden = !$('start').hidden;   // nur während einer Übung
   $('lk-fest').open = E.modus === 'fest';
   $('version').textContent = `Kirmes-Kiosk ${VERSION} · Stand ${STAND}${navigator.serviceWorker && navigator.serviceWorker.controller ? ' · offline verfügbar' : ''}` +
     (tonStand ? ` · Ansagen offline: ${tonStand.fertig === tonStand.gesamt ? 'alle' : `${tonStand.fertig} von ${tonStand.gesamt}`}` : '');
@@ -3401,7 +3436,7 @@ function oeffneLehrkraft(seite) {
 $('dlg-lehrkraft').addEventListener('click', ev => {
   const chip = ev.target.closest('.lk-chips[data-key] button');
   if (chip) { lkSetze(chip.parentElement.dataset.key, chip.dataset.wert); return; }
-  const band = ev.target.closest('.lk-band');
+  const band = ev.target.closest('.lk-band, .lk-stufe');
   if (band) { setzeStufe(band.dataset.laden, +band.dataset.stufe); return; }
   const punkt = ev.target.closest('.lk-punkt');
   if (punkt) { zeigeLkSeite(+punkt.dataset.seite); return; }
@@ -3419,6 +3454,13 @@ $('e-name').addEventListener('input', () => {
 });
 $('knopf-lk-zurueck').addEventListener('click', () => $('dlg-lehrkraft').classList.remove('detail'));
 $('knopf-lk-fertig').addEventListener('click', () => $('dlg-lehrkraft').close());
+// Laufende Übung abbrechen und zurück zur Ladenauswahl
+$('knopf-lk-abbrechen').addEventListener('click', () => {
+  LK.geaendert = LK.neueRunde = false;
+  $('dlg-lehrkraft').close();
+  if (ladenOffen) schliesseLaden();
+  stoppeTon(); zeigeStart();
+});
 // Schließen („Fertig“, Escape, daneben tippen): Startseite auffrischen oder neue Runde
 $('dlg-lehrkraft').addEventListener('close', () => {
   if (LK.geaendert) {
