@@ -164,6 +164,16 @@ def sammle(lob_stimme):
          # Erklär-Karten beim Stufenwechsel
          'Toll gemacht! Jetzt kommt etwas Neues.', 'Du hast schon viel geschafft! Wir üben das noch ein bisschen.',
          'Jetzt du! Diese Aufgabe ist zum Probieren.')
+    # Neue Aufgabenformate: wie viel fehlt, Betrag anders legen, möglichst wenig Geld
+    for a, s_ in euro + cent10:
+        teil(f'Ich habe {a}.', f'Ich habe {s_}.')
+    satz('Wie viel fehlt noch?', 'Wie viel fehlt bis 1 Euro?', 'Nimm möglichst wenig Münzen und Scheine.',
+         'Der Betrag stimmt. Aber es geht mit weniger Geldstücken. Nimm größere Münzen oder Scheine.', 'Der Betrag stimmt. Aber lege ihn anders.')
+    for n in (5, 10, 20, 50, 100):   # wie andersSatz() in index.html
+        teil(f'Lege {n} Euro, aber ohne den {n}-Euro-Schein.')
+    teil('Lege 50 Cent, aber ohne die 50-Cent-Münze.')
+    teil('Lege 1 Euro, aber ohne die 1-Euro-Münze.', 'Lege einen Euro, aber ohne die 1-Euro-Münze.')
+    teil('Lege 2 Euro, aber ohne die 2-Euro-Münze.')
     # Wanduhr im Laden: „Es ist 10 Uhr 25.“ (12-Stunden-Zählung wie auf der Uhr, wie zeitSatz() in index.html)
     for h in range(1, 13):
         hs = 'ein Uhr' if h == 1 else f'{h} Uhr'

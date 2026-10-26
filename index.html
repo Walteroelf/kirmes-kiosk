@@ -971,6 +971,12 @@ body.im-spiel .schild-titel { min-width: 0; overflow: hidden; text-overflow: ell
 .stufe-knoepfe .grossknopf { min-height: 64px; font-size: 22px; padding: 8px 28px; }
 .grossknopf.zeig { background: var(--hellblau); color: #1d3a5c; }
 @media (prefers-reduced-motion: reduce) { .zeig-geld { transition: none; } }
+
+/* ===== Neue Aufgabenformate ===== */
+.produkt.ziel-geld { grid-template-rows: auto auto; gap: 10px; padding: 16px; }
+.produkt.ziel-geld .name { font-size: 20px; }
+#bezahlen .geldchip svg { width: auto; height: 46px; }
+#ware .produkt .preis { white-space: nowrap; }
 </style>
 </head>
 <body>
@@ -1597,7 +1603,7 @@ body.im-spiel .schild-titel { min-width: 0; overflow: hidden; text-overflow: ell
 <script src="aufkleber.js"></script>
 <script>
 'use strict';
-const VERSION = '4.7.0';
+const VERSION = '4.8.0';
 const STAND = '26.10.2026';
 
 // ---------------------------------------------------------------------------
@@ -1657,6 +1663,20 @@ const STUFEN_KIRMES = [
     art: 'kaufen', anzahl: 5, max: 15, einer: 2 },
   { id: 'k-3-3', thema: 2, titel: 'Größere Beträge', text: 'Jetzt wird es teurer: bis zu 20 €.',
     art: 'kaufen', anzahl: 4, max: 20, einer: 2 },
+  { id: 'k-3-4', thema: 2, titel: 'Mit möglichst wenig Geld', text: 'Neu: Lege das Geld mit möglichst wenig Münzen und Scheinen.',
+    art: 'kaufen', wenig: true, anzahl: 3, max: 15, einer: 0,
+    zeig: { waren: ['burger', 'limo'], legen: [500, 200, 100], rechnung: ['5 € + 3 € = 8 €', '8 € = 5 € + 2 € + 1 €: nur 3 Stücke!'], sprich: 'Der Burger und die Limo kosten zusammen 8 Euro. Ich nehme den 5-Euro-Schein, eine 2-Euro-Münze und eine 1-Euro-Münze. Das sind nur 3 Stücke.' } },
+  { id: 'k-3-5', thema: 2, titel: 'Betrag anders legen', text: 'Neu: Lege den Betrag mit anderem Geld – der passende Schein fehlt.',
+    art: 'anders', ziele: [5, 10, 20], anzahl: 0, max: 20, einer: 0,
+    zeig: { ziel: 1000, legen: [500, 200, 200, 100], rechnung: ['10 € ohne den 10-€-Schein', '5 € + 2 € + 2 € + 1 € = 10 €'], sprich: 'Ich soll 10 Euro legen, aber ohne den 10-Euro-Schein. Ich nehme 5 Euro, 2 Euro, 2 Euro und 1 Euro. Das sind auch 10 Euro.' } },
+  { id: 'k-4-1', thema: 3, titel: 'Zweimal dasselbe', text: 'Neu: Du kaufst zwei gleiche Sachen. Dann brauchst du den Preis zweimal.',
+    art: 'mehrmals', anzahl: 2, max: 10, einer: 0,
+    zeig: { waren: ['wurst', 'wurst'], legen: [200, 100, 200, 100], rechnung: ['3 €', '3 € + 3 € = 6 €'], sprich: 'Ich kaufe zwei Würste. Eine Wurst kostet 3 Euro. Ich lege 3 Euro und noch einmal 3 Euro. Zusammen sind das 6 Euro.' } },
+  { id: 'k-4-2', thema: 3, titel: 'Dreimal dasselbe', text: 'Jetzt kaufst du drei gleiche Sachen. Du brauchst den Preis dreimal.',
+    art: 'mehrmals', anzahl: 3, max: 15, einer: 0 },
+  { id: 'k-4-3', thema: 3, titel: 'Wie viel fehlt noch?', text: 'Neu: Du hast schon etwas Geld. Lege, wie viel noch fehlt.',
+    art: 'fehlt', anzahl: 1, min: 2, max: 5, einer: 0,
+    zeig: { waren: ['burger'], habe: 300, legen: [200], rechnung: ['5 € − 3 € = 2 €'], sprich: 'Der Burger kostet 5 Euro. Ich habe 3 Euro. Von 3 Euro bis 5 Euro fehlen 2 Euro.' } },
   { id: 'k-5-1', thema: 4, titel: 'Rückgeld von 5 €', text: 'Neu: Du bezahlst mit einem Schein und bekommst Geld zurück. Lege das Rückgeld.',
     art: 'rueckgeld', anzahl: 1, max: 4, bezahlt: 5, einer: 0,
     zeig: { waren: ['pommes'], bezahlt: 500, legen: [200], rechnung: ['5 € − 3 € = 2 €'], sprich: 'Die Pommes kosten 3 Euro. Ich bezahle mit 5 Euro. Von 3 Euro bis 5 Euro fehlen 2 Euro. Das ist das Rückgeld.' } },
@@ -1669,6 +1689,9 @@ const STUFEN_KIRMES = [
     zeig: { waren: ['limo', 'burger'], bezahlt: 1000, legen: [], rechnung: ['3 € + 5 € = 8 €', '8 € ist weniger als 10 €: Das Geld reicht!'], sprich: 'Ich habe 10 Euro. Die Limo kostet 3 Euro, der Burger 5 Euro. Zusammen sind das 8 Euro. Das ist weniger als 10 Euro. Das Geld reicht.' } },
   { id: 'k-5-5', thema: 4, titel: 'Reicht das Geld? – knapp', text: 'Jetzt ist es knapp. Rechne genau, ob das Geld reicht.',
     art: 'budget', anzahl: 3, max: 15, bezahlt: 10, einer: 0, spanne: 1 },
+  { id: 'k-5-6', thema: 4, titel: 'Wunschzettel mit Budget', text: 'Neu: Du hast 15 Euro. Such dir selbst aus, was du kaufst.',
+    art: 'kaufen', budgetWunsch: true, anzahl: 3, max: 15, einer: 0,
+    zeig: { waren: ['popcorn', 'limo'], legen: [200, 100, 200], rechnung: ['Du hast 15 €', '2 € + 3 € = 5 € – das passt!'], sprich: 'Du hast 15 Euro und suchst dir selbst Sachen aus. Popcorn für 2 Euro und Limo für 3 Euro sind zusammen 5 Euro. Das passt.' } },
 ];
 const ALT_KIRMES = ['k-2-1', 'k-2-2', 'k-2-4', 'k-3-1', 'k-3-2', 'k-3-3', 'k-5-2', 'k-5-4'];   // bisherige Stufen 1–8
 
@@ -1712,6 +1735,18 @@ const STUFEN_SPIELWAREN = [
     art: 'kaufen', anzahl: 3, max: 150, einer: 0 },
   { id: 's-2-5', thema: 1, titel: '4 Spielsachen bis 200 €', text: 'Ab jetzt werden 4 Spielsachen eingekauft – bis zu 200 €!',
     art: 'kaufen', anzahl: 4, max: 200, einer: 0 },
+  { id: 's-3-1', thema: 2, titel: 'Mit möglichst wenig Scheinen', text: 'Neu: Lege das Geld mit möglichst wenig Münzen und Scheinen.',
+    art: 'kaufen', wenig: true, anzahl: 2, max: 100, einer: 0,
+    zeig: { waren: ['puzzle', 'kuscheltier'], legen: [2000, 500, 200, 200], rechnung: ['14 € + 15 € = 29 €', '29 € = 20 € + 5 € + 2 € + 2 €'], sprich: 'Das Puzzle und das Kuscheltier kosten zusammen 29 Euro. Ich nehme 20 Euro, 5 Euro, 2 Euro und 2 Euro. Das sind nur 4 Stücke.' } },
+  { id: 's-3-2', thema: 2, titel: 'Betrag anders legen', text: 'Neu: Lege den Betrag mit anderem Geld – der passende Schein fehlt.',
+    art: 'anders', ziele: [50, 100], anzahl: 0, max: 100, einer: 0,
+    zeig: { ziel: 10000, legen: [5000, 2000, 2000, 1000], rechnung: ['100 € ohne den 100-€-Schein', '50 € + 20 € + 20 € + 10 € = 100 €'], sprich: 'Ich soll 100 Euro legen, aber ohne den 100-Euro-Schein. Ich nehme 50, 20, 20 und 10 Euro. Das sind auch 100 Euro.' } },
+  { id: 's-4-1', thema: 3, titel: 'Zweimal dasselbe', text: 'Neu: Du kaufst zwei gleiche Spielsachen. Dann brauchst du den Preis zweimal.',
+    art: 'mehrmals', anzahl: 2, max: 100, einer: 0,
+    zeig: { waren: ['kuscheltier', 'kuscheltier'], legen: [1000, 500, 1000, 500], rechnung: ['15 €', '15 € + 15 € = 30 €'], sprich: 'Ich kaufe zwei Kuscheltiere. Ein Kuscheltier kostet 15 Euro. 15 Euro und noch einmal 15 Euro sind 30 Euro.' } },
+  { id: 's-4-2', thema: 3, titel: 'Wie viel fehlt noch?', text: 'Neu: Du hast schon etwas Geld. Lege, wie viel noch fehlt.',
+    art: 'fehlt', anzahl: 1, min: 20, max: 100, schritt: 10, einer: 0,
+    zeig: { waren: ['puppenhaus'], habe: 6000, legen: [2000, 500, 200, 200], rechnung: ['89 € − 60 € = 29 €'], sprich: 'Das Puppenhaus kostet 89 Euro. Ich habe 60 Euro. Von 60 Euro bis 89 Euro fehlen 29 Euro.' } },
   { id: 's-5-1', thema: 4, titel: 'Rückgeld von 50 €', text: 'Du bezahlst mit einem 50-€-Schein. Wie viel Geld bekommst du zurück? Lege das Rückgeld.',
     art: 'rueckgeld', anzahl: 1, max: 49, bezahlt: 50, einer: 0,
     zeig: { waren: ['puzzle'], bezahlt: 5000, legen: [2000, 1000, 500, 100], rechnung: ['50 € − 14 € = 36 €'], sprich: 'Das Puzzle kostet 14 Euro. Ich bezahle mit 50 Euro. Von 14 Euro bis 50 Euro fehlen 36 Euro. Das ist das Rückgeld.' } },
@@ -1722,6 +1757,9 @@ const STUFEN_SPIELWAREN = [
     zeig: { waren: ['ball', 'puppe'], bezahlt: 10000, legen: [], rechnung: ['8 € + 25 € = 33 €', '33 € ist weniger als 100 €: Das Geld reicht!'], sprich: 'Ich habe 100 Euro. Der Ball kostet 8 Euro, die Puppe 25 Euro. Zusammen sind das 33 Euro. Das ist weniger als 100 Euro. Das Geld reicht.' } },
   { id: 's-5-4', thema: 4, titel: 'Reicht das Geld? – knapp', text: 'Jetzt ist es knapp. Rechne genau, ob das Geld reicht.',
     art: 'budget', anzahl: 3, max: 200, bezahlt: 100, einer: 0, spanne: 10 },
+  { id: 's-5-5', thema: 4, titel: 'Wunschzettel mit Budget', text: 'Neu: Du hast 100 Euro. Such dir selbst aus, was du kaufst.',
+    art: 'kaufen', budgetWunsch: true, anzahl: 3, max: 100, einer: 0,
+    zeig: { waren: ['ball', 'puzzle'], legen: [2000, 200], rechnung: ['Du hast 100 €', '8 € + 14 € = 22 € – das passt!'], sprich: 'Du hast 100 Euro und suchst dir selbst Sachen aus. Ein Ball für 8 Euro und ein Puzzle für 14 Euro sind zusammen 22 Euro. Das passt.' } },
 ];
 const ALT_SPIELWAREN = ['s-2-1', 's-2-2', 's-2-3', 's-2-4', 's-2-5', 's-5-1', 's-5-2', 's-5-3'];
 
@@ -1767,6 +1805,20 @@ const STUFEN_BAECKEREI = [
     art: 'kaufen', anzahl: 4, max: 800, einer: 0 },
   { id: 'b-2-5', thema: 1, titel: '5 Sachen bis 10 €', text: 'Ab jetzt werden 5 Sachen gekauft – bis zu 10 €.',
     art: 'kaufen', anzahl: 5, max: 1000, einer: 0 },
+  { id: 'b-3-1', thema: 2, titel: 'Mit möglichst wenig Münzen', text: 'Neu: Lege das Geld mit möglichst wenig Münzen und Scheinen.',
+    art: 'kaufen', wenig: true, anzahl: 2, max: 300, einer: 0,
+    zeig: { waren: ['broetchen', 'keks'], legen: [100], rechnung: ['40 ct + 60 ct = 1 €', 'Eine 1-€-Münze genügt!'], sprich: 'Das Brötchen und der Keks kosten zusammen 1 Euro. Statt vieler Cent-Münzen nehme ich eine 1-Euro-Münze.' } },
+  { id: 'b-3-2', thema: 2, titel: 'Betrag anders legen', text: 'Neu: Lege den Betrag mit anderen Münzen – die passende Münze fehlt.',
+    art: 'anders', ziele: [50, 100, 200], anzahl: 0, max: 200, einer: 0,
+    zeig: { ziel: 100, legen: [50, 20, 20, 10], rechnung: ['1 € ohne die 1-€-Münze', '50 ct + 20 ct + 20 ct + 10 ct = 1 €'], sprich: 'Ich soll 1 Euro legen, aber ohne die 1-Euro-Münze. Ich nehme 50 Cent, 20 Cent, 20 Cent und 10 Cent. Das ist auch 1 Euro.' } },
+  { id: 'b-4-1', thema: 3, titel: 'Zweimal dasselbe', text: 'Neu: Du kaufst zwei gleiche Sachen. Dann brauchst du den Preis zweimal.',
+    art: 'mehrmals', anzahl: 2, max: 300, einer: 0,
+    zeig: { waren: ['broetchen', 'broetchen'], legen: [20, 20, 20, 20], rechnung: ['40 ct', '40 ct + 40 ct = 80 ct'], sprich: 'Ich kaufe zwei Brötchen. Ein Brötchen kostet 40 Cent. 40 Cent und noch einmal 40 Cent sind 80 Cent.' } },
+  { id: 'b-4-2', thema: 3, titel: 'Bis zum vollen Euro', text: 'Neu: Du hast schon einige Cent. Lege, wie viel bis 1 Euro fehlt.',
+    art: 'fehlt', ziel: 100, anzahl: 0, max: 100, einer: 0, geld: [10, 20, 50],
+    zeig: { habe: 70, ziel: 100, legen: [20, 10], rechnung: ['1 € − 70 ct = 30 ct'], sprich: 'Ich habe 70 Cent. Bis 1 Euro fehlen 30 Cent.' } },
+  { id: 'b-4-3', thema: 3, titel: 'Wie viel fehlt noch?', text: 'Jetzt kostet eine Sache mehr. Lege, wie viel noch fehlt.',
+    art: 'fehlt', anzahl: 1, min: 110, max: 420, schritt: 10, einer: 0 },
   { id: 'b-5-1', thema: 4, titel: 'Rückgeld von 1 €', text: 'Neu: Du bezahlst mit 1 Euro und bekommst Geld zurück. Lege das Rückgeld.',
     art: 'rueckgeld', anzahl: 1, max: 60, bezahlt: 100, einer: 0, geld: [10, 20, 50],
     zeig: { waren: ['broetchen'], bezahlt: 100, legen: [50, 10], rechnung: ['1 € − 40 ct = 60 ct'], sprich: 'Das Brötchen kostet 40 Cent. Ich bezahle mit 1 Euro. Von 40 Cent bis 1 Euro fehlen 60 Cent. Das ist das Rückgeld.' } },
@@ -1779,6 +1831,9 @@ const STUFEN_BAECKEREI = [
     zeig: { waren: ['croissant', 'kakao'], bezahlt: 500, legen: [], rechnung: ['1,30 € + 1,90 € = 3,20 €', '3,20 € ist weniger als 5 €: Das Geld reicht!'], sprich: 'Ich habe 5 Euro. Das Croissant kostet 1 Euro 30, der Kakao 1 Euro 90. Zusammen sind das 3 Euro 20. Das ist weniger als 5 Euro. Das Geld reicht.' } },
   { id: 'b-5-5', thema: 4, titel: 'Reicht das Geld? – knapp', text: 'Jetzt ist es knapp. Rechne genau, ob das Geld reicht.',
     art: 'budget', anzahl: 3, max: 1000, bezahlt: 500, einer: 0, spanne: 50 },
+  { id: 'b-5-6', thema: 4, titel: 'Wunschzettel mit Budget', text: 'Neu: Du hast 5 Euro. Such dir selbst aus, was du kaufst.',
+    art: 'kaufen', budgetWunsch: true, anzahl: 3, max: 500, einer: 0,
+    zeig: { waren: ['croissant', 'kakao'], legen: [200, 100, 20], rechnung: ['Du hast 5 €', '1,30 € + 1,90 € = 3,20 € – das passt!'], sprich: 'Du hast 5 Euro und suchst dir selbst Sachen aus. Ein Croissant für 1 Euro 30 und ein Kakao für 1 Euro 90 sind zusammen 3 Euro 20. Das passt.' } },
 ];
 const ALT_BAECKEREI = ['b-1-3', 'b-2-2', 'b-2-3', 'b-2-4', 'b-2-5', 'b-5-2', 'b-5-3', 'b-5-4'];
 
@@ -1941,7 +1996,8 @@ function regeln() {
   if (E.modus === 'stufen') {
     const st = STUFEN[clamp(S.nr, 1, STUFEN.length) - 1];
     return { art: st.art, anzahl: st.anzahl, max: st.max, min: st.min || 0, betrag: 'alle', einer: st.einer, schild: E.schild ? '4' : 'aus', bezahlt: st.bezahlt || 10 * L.faktor,
-             spanne: st.spanne || L.spanne, geld: st.geld || null, stufe: S.nr, stufeId: st.id };
+             spanne: st.spanne || L.spanne, geld: st.geld || null, stufe: S.nr, stufeId: st.id,
+             wenig: !!st.wenig, budgetWunsch: !!st.budgetWunsch, ziele: st.ziele || null, ziel: st.ziel || 0, schritt: st.schritt || 0 };
   }
   return { art: E.art, anzahl: E.anzahl, max: E.max * L.faktor, min: 0, betrag: L.cent ? 'alle' : E.betrag, einer: E.einer, schild: E.schild ? '4' : 'aus', bezahlt: E.bezahlt * L.faktor,
            spanne: L.spanne, geld: null, stufe: null, stufeId: null };
@@ -1969,8 +2025,33 @@ function zieheWaren(n, doppelt) {
   return waren;
 }
 function paritaetOk(v, betrag) { return betrag === 'alle' || (betrag === 'gerade' ? v % 2 === 0 : v % 2 === 1); }
+// Geld zerlegen (größte Stücke zuerst) – für „Ich habe …“ und „möglichst wenig Geld“
+function zerlege(v, geld = L.geld) { const o = []; for (const g of geld.slice().sort((a, b) => b - a)) while (v >= g) { o.push(g); v -= g; } return o; }
+const zufallAus = a => a[Math.floor(Math.random() * a.length)];
+// Neue Formate: Betrag anders legen, mehrmals dasselbe, wie viel fehlt (noch)
+function neueAufgabeFormat(R) {
+  const unit = L.cent ? 10 : 1;
+  if (R.art === 'anders') {
+    const auswahl = R.ziele.filter(z => !aufgabe || z !== aufgabe.ohne), ziel = zufallAus(auswahl.length ? auswahl : R.ziele);
+    return { art: 'anders', waren: [], summe: ziel, bezahlt: ziel, loesung: ziel, ohne: ziel, regeln: R, schluessel: 'anders' + ziel };
+  }
+  if (R.art === 'mehrmals') {
+    const pool = PRODUKTE.filter(p => p.preis * R.anzahl <= R.max && (!aufgabe || aufgabe.waren[0] !== p));
+    const p = zufallAus(pool.length ? pool : PRODUKTE), waren = Array(R.anzahl).fill(p);
+    return { art: 'mehrmals', waren, summe: p.preis * R.anzahl, bezahlt: 0, loesung: p.preis * R.anzahl, regeln: R, schluessel: 'mal' + p.id };
+  }
+  // fehlt: mit Ware (Preis) oder bis zum vollen Euro (R.ziel)
+  const schritt = R.schritt || unit;
+  let waren = [], ziel = R.ziel;
+  if (!ziel) { const pool = PRODUKTE.filter(p => p.preis >= R.min && p.preis <= R.max); const p = zufallAus(pool.length ? pool : PRODUKTE); waren = [p]; ziel = p.preis; }
+  const unten = Math.max(schritt, Math.ceil(ziel * .3 / schritt) * schritt), oben = Math.floor((ziel - unit) / schritt) * schritt;
+  const werte = []; for (let v = unten; v <= oben; v += schritt) werte.push(v);
+  const habe = werte.length ? zufallAus(werte) : unit;
+  return { art: 'fehlt', waren, summe: ziel, ziel, habe, bezahlt: habe, loesung: ziel - habe, regeln: R, schluessel: 'fehlt' + ziel + '-' + habe };
+}
 function neueAufgabe() {
   const R = regeln();
+  if (['anders', 'mehrmals', 'fehlt'].includes(R.art)) return neueAufgabeFormat(R);
   let beste = null;
   const budgetReicht = Math.random() < 0.5;
   for (let t = 0; t < 3000; t++) {
@@ -1988,7 +2069,7 @@ function neueAufgabe() {
   }
   beste.waren.sort((a, b) => a.name.localeCompare(b.name, 'de'));
   // Wunschzettel: jede 3. Aufgabe einer Runde sucht das Kind die Sachen selbst im Laden aus
-  if (E.wunsch && beste.art !== 'budget' && runde && runde.nr % 3 === 2) {
+  if (R.budgetWunsch || (E.wunsch && beste.art !== 'budget' && runde && runde.nr % 3 === 2)) {   // Wunschzettel mit Budget: jede Aufgabe
     Object.assign(beste, { wunsch: true, waren: [], summe: 0, loesung: null, schluessel: 'wunsch' });
     korb = [];
   }
@@ -2038,11 +2119,17 @@ function zeigeRunde() {
     punkte.appendChild(d);
   }
 }
-function preiseSichtbar() { return E.preise || hilfeStufe >= 1; }
+function preiseSichtbar() { return E.preise || hilfeStufe >= 1 || (aufgabe && aufgabe.art === 'fehlt'); }
 // Gleiche Sachen einzeln nebeneinander oder zusammengefasst („2×“, Einstellung E.mengen – schwerer)
-const mengenZusammen = () => E.doppelt && E.mengen === 'zusammen';
+const mengenZusammen = () => (aufgabe && aufgabe.art === 'mehrmals') || (E.doppelt && E.mengen === 'zusammen');
 function zeigeWare() {
   const ware = $('ware'); ware.innerHTML = '';
+  if (aufgabe.art === 'anders' || (aufgabe.art === 'fehlt' && !aufgabe.waren.length)) {
+    const w = aufgabe.art === 'anders' ? aufgabe.ohne : aufgabe.ziel;
+    ware.innerHTML = `<div class="produkt ziel-geld">${geldStueck(w, istSchein(w) ? 2.6 : 3.6)}<div class="name">${aufgabe.art === 'anders' ? `${fmt(w)} – aber ohne dieses Stück` : `bis ${fmt(w)}`}</div></div>`;
+    ware.classList.remove('viele');
+    return;
+  }
   const liste = mengenZusammen() ? einkaufsliste().map(([id, n]) => [aufgabe.waren.find(p => p.id === id), n]) : aufgabe.waren.map(p => [p, 1]);
   for (const [p, n] of liste) {
     const k = document.createElement('div');
@@ -2071,15 +2158,21 @@ function zeigeAufgabe() {
     scanNeu();
     return;
   }
-  $('ware-titel').textContent = art === 'budget' ? `Das möchte ich kaufen (${n} Sachen):` : n === 1 ? 'Das möchte ich kaufen:' : `Das möchte ich kaufen (${n} Sachen):`;
+  $('ware-titel').textContent = art === 'anders' ? 'Lege diesen Betrag anders:' : art === 'fehlt' ? (n ? 'Das möchte ich kaufen:' : 'Wie viel fehlt bis 1 €?')
+    : art === 'budget' ? `Das möchte ich kaufen (${n} Sachen):` : n === 1 ? 'Das möchte ich kaufen:' : `Das möchte ich kaufen (${n} Sachen):`;
   const bz = $('bezahlen');
   if (art === 'rueckgeld') { bz.hidden = false; bz.innerHTML = `<span>Ich bezahle mit:</span>${scheinChip(aufgabe.bezahlt)}`; }
   else if (art === 'budget') { bz.hidden = false; bz.innerHTML = `<span>Ich habe:</span>${scheinChip(aufgabe.bezahlt)}`; }
+  else if (art === 'fehlt') { bz.hidden = false; bz.innerHTML = `<span>Ich habe schon:</span>${zerlege(aufgabe.habe).map(scheinChip).join('')}<span>= ${fmt(aufgabe.habe)}</span>`; }
   else { bz.hidden = true; bz.innerHTML = ''; }
   $('hilfe-reihe').hidden = true; $('hilfe-reihe').innerHTML = '';
   const ziehen = E.geld === 'ziehen' || !L.foto;   // Spielwaren/Bäckerei: nur ziehen
   $('foto-auftrag').textContent = ziehen
-    ? (art === 'rueckgeld' ? 'Rechne aus, wie viel du zurückbekommst. Zieh das Rückgeld auf den Teller.' : 'Rechne aus. Zieh das Geld auf den Teller. Dann tippe auf Fertig.')
+    ? (art === 'rueckgeld' ? 'Rechne aus, wie viel du zurückbekommst. Zieh das Rückgeld auf den Teller.'
+      : art === 'fehlt' ? 'Rechne aus, wie viel fehlt. Zieh das Geld auf den Teller.'
+      : art === 'anders' ? 'Lege den Betrag mit anderem Geld auf den Teller.'
+      : aufgabe.regeln.wenig ? 'Rechne aus. Lege das Geld mit möglichst wenig Stücken.'
+      : 'Rechne aus. Zieh das Geld auf den Teller. Dann tippe auf Fertig.')
     : (art === 'rueckgeld' ? 'Rechne aus, wie viel du zurückbekommst. Lege das Rückgeld. Mach ein Foto.' : 'Rechne aus. Lege das Geld. Mach ein Foto.');
   $('foto-teil').hidden = ziehen; $('zieh-teil').hidden = !ziehen;
   baueVorrat(); kasseLeeren(); kasseSperren(false);
@@ -2104,7 +2197,7 @@ function bieteHilfe() {
   if (!E.hilfe || geloest) return;
   const reihe = $('hilfe-reihe');
   const frueh = E.modus === 'stufen' && S.neuNoch > 0 ? 1 : 0;   // nach einem Wechsel: Hilfe schon nach dem 1. Fehlversuch
-  if (fehlversuche >= 2 - frueh && hilfeStufe === 0 && !E.preise) {
+  if (fehlversuche >= 2 - frueh && hilfeStufe === 0 && !E.preise && !['fehlt', 'anders'].includes(aufgabe.art)) {
     reihe.hidden = false;
     reihe.innerHTML = `<button class="grossknopf leise" id="knopf-hilfe1" data-scan>Hilfe: Preise zeigen</button>`;
     $('knopf-hilfe1').addEventListener('click', () => { hilfeStufe = 1; zeigeWare(); reihe.innerHTML = ''; reihe.hidden = true; sage('Hier stehen die Preise. Rechne noch einmal.'); bieteHilfe(); scanNeu(); });
@@ -2114,7 +2207,9 @@ function bieteHilfe() {
     $('knopf-hilfe2').addEventListener('click', () => {
       hilfeStufe = 2; zeigeWare();
       const teile = aufgabe.waren.map(p => `<span class="preis">${fmt(p.preis)}</span>`).join('<span>+</span>');
-      reihe.innerHTML = aufgabe.art === 'rueckgeld'
+      reihe.innerHTML = aufgabe.art === 'fehlt' ? `<div class="rechenweg"><span class="preis">${fmt(aufgabe.ziel)}</span><span>−</span><span class="preis">${fmt(aufgabe.habe)}</span><span>= ?</span></div>`
+        : aufgabe.art === 'anders' ? `<div class="rechenweg"><span>Andere Stücke für</span><span class="preis">${fmt(aufgabe.ohne)}</span></div>`
+        : aufgabe.art === 'rueckgeld'
         ? `<div class="rechenweg">${scheinChip(aufgabe.bezahlt)}<span>−</span><span>(</span>${teile}<span>)</span><span>= ?</span></div>`
         : `<div class="rechenweg">${teile}<span>= ?</span></div>`;
       sage(aufgabe.art === 'rueckgeld' ? `Rechne zuerst alle Preise zusammen. Dann zieh das von ${sprichBetrag(aufgabe.bezahlt)} ab.` : 'Rechne die Preise Schritt für Schritt zusammen.');
@@ -2333,6 +2428,14 @@ function pruefeGeld(neu) {
     grund = 'zu viele 1-€-Münzen';
     html = meldung(false, rueck ? 'Das Rückgeld stimmt!' : 'Der Betrag stimmt!', `Aber du hast ${einer} Ein-Euro-Münzen. Erlaubt sind höchstens ${R.einer === 1 ? 'eine' : R.einer}. Tausche zwei 1 € gegen ein 2-€-Stück.`);
     sprich = 'Der Betrag stimmt. Aber du hast zu viele Ein-Euro-Münzen. Tausche zwei Ein-Euro-Münzen gegen ein Zwei-Euro-Stück.';
+  } else if (summe === soll && R.wenig && objekte.length > zerlege(soll, R.geld || L.geld).length) {
+    grund = 'zu viele Geldstücke'; if (neu) fehlerArten.push('stueckelung');
+    html = meldung(false, rueck ? 'Das Rückgeld stimmt!' : 'Der Betrag stimmt!', `Es geht aber mit weniger Stücken. Nimm größere Münzen oder Scheine.`);
+    sprich = 'Der Betrag stimmt. Aber es geht mit weniger Geldstücken. Nimm größere Münzen oder Scheine.';
+  } else if (summe === soll && aufgabe.art === 'anders' && objekte.some(o => o.wert === aufgabe.ohne)) {
+    grund = 'nicht anders gelegt';
+    html = meldung(false, 'Der Betrag stimmt!', `Aber lege ihn ohne ${geldName(aufgabe.ohne)}.`);
+    sprich = 'Der Betrag stimmt. Aber lege ihn anders.';
   } else if (summe !== soll && unsicher) {
     grund = 'Foto unklar'; zaehlt = false;
     html = meldung(false, 'Ich bin mir nicht sicher.', 'Bei den Stellen mit ? kann ich das Geld nicht gut erkennen. Leg die Münzen mit etwas Abstand. Kein Schatten, keine Spiegelung. Mach bitte noch ein Foto.');
@@ -2404,7 +2507,7 @@ function geldStueck(w, g = 3) { return `<span class="geldbild" title="${geldName
 const tellerGroesse = w => istSchein(w) ? 2.6 : 3.1;   // Geld in Schublade und auf dem Teller
 // Vorrat passend zum Laden aufbauen (Münzen oben, Scheine darunter)
 function baueVorrat() {
-  const geld = (aufgabe && aufgabe.regeln && aufgabe.regeln.geld) || L.geld;   // Stufen wie „nur 1-€-Münzen“
+  const geld = ((aufgabe && aufgabe.regeln && aufgabe.regeln.geld) || L.geld).filter(w => !(aufgabe && aufgabe.art === 'anders' && w === aufgabe.ohne));   // „nur 1-€-Münzen“, „anders legen“
   $('geldvorrat').innerHTML = '<p class="vorrat-titel">Dein Geld:</p>' + geld.map(w =>
     `<button class="vorrat${istSchein(w) ? ' schein-zeile' : ''}" data-wert="${w}" data-scan aria-label="${sprichBetrag(w)} nehmen">${geldStueck(w, tellerGroesse(w))}${w === EINS() ? '<span class="rest" hidden></span>' : ''}</button>`).join('');
 }
@@ -2543,7 +2646,7 @@ function zeigeSchilder() {
   }
   const box = $('schilder');
   box.className = 'schilder' + (R.schild === 'alle' ? ' alle' : '');
-  const label = rueck ? 'Rückgeld:' : 'Gesamt-Preis:';
+  const label = rueck ? 'Rückgeld:' : aufgabe.art === 'fehlt' ? 'Es fehlt:' : aufgabe.art === 'anders' ? 'Betrag:' : 'Gesamt-Preis:';
   box.innerHTML = werte.map(v => `<button class="preisschild" data-scan data-wert="${v}" aria-label="${sprichBetrag(v)}"><small>${label}</small><span>${fmt(v)}</span></button>`).join('');
   $('schild-auftrag').textContent = rueck ? 'Welches Schild passt zum Rückgeld?' : 'Welches Preis-Schild passt?';
   $('schild-meldung').innerHTML = '';
@@ -2658,8 +2761,10 @@ function zeigeStufenKarte(wie) {
 function stufeVormachen() {
   const z = STUFEN[S.nr - 1].zeig;
   zeigTakt.forEach(clearTimeout); zeigTakt = [];
-  const waren = z.waren.map(id => PRODUKTE.find(p => p.id === id)).filter(Boolean);
+  const waren = (z.waren || []).map(id => PRODUKTE.find(p => p.id === id)).filter(Boolean);
   $('zeig-waren').innerHTML = waren.map(p => `<span class="zeig-ware"><img src="${bild(p)}" alt=""><span class="preis">${fmt(p.preis)}</span></span>`).join('') +
+    (z.ziel ? `<span class="zeig-bezahlt">${STUFEN[S.nr - 1].art === 'anders' ? 'Lege' : 'Bis'} ${KirmesGeld.bild(z.ziel, z.ziel >= 500 ? 1.7 : 2.6)}${STUFEN[S.nr - 1].art === 'anders' ? ' – ohne dieses Stück' : ''}</span>` : '') +
+    (z.habe ? `<span class="zeig-bezahlt">Ich habe ${zerlege(z.habe, [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000]).map(c => KirmesGeld.bild(c, c >= 500 ? 1.4 : 1.9)).join('')}</span>` : '') +
     (z.bezahlt ? `<span class="zeig-bezahlt">${STUFEN[S.nr - 1].art === 'budget' ? 'Ich habe' : 'Ich bezahle mit'} ${KirmesGeld.bild(z.bezahlt, 1.7)}</span>` : '');
   $('zeig-teller').innerHTML = z.legen.map(c => `<span class="zeig-geld">${KirmesGeld.bild(c, c >= 500 ? 1.9 : 2.4)}</span>`).join('');
   $('zeig-teller').hidden = !z.legen.length;
@@ -2869,9 +2974,17 @@ function vorlesenAufgabe() {
   // Im Zieh-Modus gibt es kein Foto: dann "zieh das Geld auf den Teller".
   const legen = zieh ? `Zieh das ${rueck ? 'Rückgeld' : 'Geld'} auf den Teller und tippe dann auf Fertig.`
     : `Leg das ${rueck ? 'Rückgeld' : 'Geld'} hin und mach ein Foto.`;
+  if (aufgabe.art === 'anders') return sage(`${andersSatz(aufgabe.ohne)} ${legen}`);
+  if (aufgabe.art === 'fehlt') return sage(`Ich habe ${sprichBetrag(aufgabe.habe)}. ${aufgabe.waren.length ? satzPreis(aufgabe.waren[0]) + ' Wie viel fehlt noch?' : 'Wie viel fehlt bis 1 Euro?'} ${legen}`);
+  if (aufgabe.regeln.wenig) return sage(`${kauf} Wie viel kostet das zusammen? Nimm möglichst wenig Münzen und Scheine. ${legen}`);
   if (rueck) sage(`${kauf} Ich bezahle mit ${sprichBezahlt(aufgabe.bezahlt)}. Wie viel Geld bekomme ich zurück? ${legen}`);
   else if (aufgabe.art === 'budget') sage(`${kauf} Ich habe ${sprichBetrag(aufgabe.bezahlt)} dabei. Reicht mein Geld?`);
   else sage(`${kauf} ${aufgabe.waren.length === 1 ? 'Wie viel kostet das?' : 'Wie viel kostet das zusammen?'} ${legen}`);
+}
+// „Lege 10 Euro, aber ohne den 10-Euro-Schein.“ (gleiche Sätze in werkzeuge/ansagen.py)
+function andersSatz(w) {
+  const stueck = istSchein(w) ? `den ${w / L.faktor}-Euro-Schein` : L.cent && w < 100 ? `die ${w}-Cent-Münze` : `die ${w / L.faktor}-Euro-Münze`;
+  return `Lege ${sprichBetrag(w)}, aber ohne ${stueck}.`;
 }
 function aufWunsch(f) { vorlesenGewollt = true; try { f(); } finally { vorlesenGewollt = false; } }
 $('knopf-vorlesen').addEventListener('click', () => aufWunsch(() => {
@@ -2998,8 +3111,9 @@ function stufeDerAufgabe(LL, a) {
   return null;
 }
 const stufenName = (LL, st) => `${LL.themen[st.thema]} · ${st.titel}`;
+const ARTNAME_NEU = { anders: 'Betrag anders legen', mehrmals: 'Mehrmals dasselbe', fehlt: 'Wie viel fehlt?' };
 const ARTNAME = { kaufen: 'Einkaufen', rueckgeld: 'Rückgeld', budget: 'Reicht das Geld?' };
-const artName = a => (ARTNAME[a.art] || a.art) + (a.wunsch ? ' (Wunschzettel)' : '');
+const artName = a => (ARTNAME[a.art] || ARTNAME_NEU[a.art] || a.art) + (a.wunsch ? ' (Wunschzettel)' : '');
 // Welcher Fehler steckt wahrscheinlich hinter einem falschen Betrag? (Name, Tipp für die Förderung)
 const FEHLERART = {
   vergessen: ['eine Sache vergessen', 'Im Laden den Einkaufszettel abhaken lassen; beim Rechnen jede Sache einzeln antippen.'],
@@ -3008,10 +3122,13 @@ const FEHLERART = {
   rueckgeld_schein: ['bezahlten Betrag gelegt', 'Klären: Rückgeld ist das, was man zurückbekommt.'],
   stellenwert: ['Zehner / Stellenwert', 'Zehner und Einer getrennt legen, mit Scheinen bündeln (Bäckerei: 100 Cent = 1 Euro).'],
   knapp: ['knapp verzählt', 'Geld noch einmal nachzählen lassen; Münzen sortiert hinlegen (große zuerst).'],
+  fehlt_preis: ['ganzen Preis statt Rest gelegt', 'Ergänzen üben: vom Geld, das schon da ist, bis zum Preis weiterzählen.'],
+  stueckelung: ['zu viele Geldstücke', 'Bündeln: gleiche Münzen zusammenfassen (zwei 1 € = ein 2 €, fünf 1 € = ein 5-€-Schein).'],
   anders: ['anderer Fehler', ''],
 };
 function fehlerArt(summe, soll) {
-  const rueck = aufgabe.art === 'rueckgeld', preise = [...new Set(aufgabe.waren.map(p => p.preis))];
+  if (aufgabe.art === 'fehlt' && summe === aufgabe.ziel) return 'fehlt_preis';
+  const rueck = aufgabe.art === 'rueckgeld', preise = ['fehlt', 'anders'].includes(aufgabe.art) ? [] : [...new Set(aufgabe.waren.map(p => p.preis))];
   if (rueck && summe === aufgabe.summe) return 'rueckgeld_preis';
   if (rueck && summe === aufgabe.bezahlt) return 'rueckgeld_schein';
   const d = summe - soll, vz = rueck ? -1 : 1, ad = Math.abs(d);
