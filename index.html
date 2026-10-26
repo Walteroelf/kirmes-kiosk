@@ -936,6 +936,41 @@ body.im-spiel .schild-titel { min-width: 0; overflow: hidden; text-overflow: ell
 .laden-leiste .zettel { flex: 1 1 auto; min-width: 0; padding: 0; border-top: none; background: none; flex-wrap: wrap; }
 .laden-leiste .posten, .laden-leiste .zettel-titel, .laden-leiste .korb-titel, .laden-leiste .alles, .laden-leiste .fertig-ausgesucht { flex: none; white-space: nowrap; }
 .laden-leiste .laden-zurueck { flex: none; border-radius: var(--r); min-height: 62px; padding: 8px 22px; }
+
+/* ===== Stufen nach Themen (Lehrkraft) ===== */
+.lk-thema { border: 2px solid var(--linie); border-radius: var(--r); background: var(--tresen); }
+.lk-thema > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 8px 10px; font-weight: 700; }
+.lk-thema > summary::-webkit-details-marker { display: none; }
+.lk-thema .lk-sk-stufen { padding: 0 10px 10px; }
+.lk-zeichen { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; flex: none; background: var(--flaeche); font-size: 14px; font-family: var(--anzeige); }
+.lk-thema.fertig .lk-zeichen { background: var(--gut); color: #fff; }
+.lk-thema.aktiv .lk-zeichen { background: var(--c); color: #1d3a5c; }
+.lk-stand { margin-left: auto; font-weight: 400; font-size: 14px; color: var(--holz-hell); white-space: nowrap; }
+.lk-thema.leer { display: flex; align-items: center; gap: 10px; padding: 8px 10px; font-weight: 700; color: var(--holz-hell); border-style: dashed; }
+.lk-stufe b { min-width: 34px; width: auto; border-radius: 13px; padding: 0 4px; font-size: 13px; }
+.lk-ok { margin-left: auto; color: var(--gut); font-weight: 700; }
+/* ===== Neu-Hinweis, Probeaufgabe ===== */
+.neu-chip { align-items: center; gap: 8px; border: none; border-radius: 20px; background: var(--laden); color: #1d3a5c; padding: 6px 14px 6px 6px; font-weight: 700; font-size: 16px; white-space: nowrap; max-width: 34vw; overflow: hidden; text-overflow: ellipsis; }
+.neu-chip i { width: 26px; height: 26px; border-radius: 50%; background: #fff; display: grid; place-items: center; font-style: normal; font-family: var(--anzeige); flex: none; }
+@media (max-width: 760px) { .neu-chip #neu-chip-text { display: none; } .neu-chip { padding-right: 6px; } }
+.probe-marke { display: inline-block; font-size: 15px; background: var(--hm-hell); border: 2px solid var(--hm); border-radius: 3px; padding: 0 8px; vertical-align: 3px; }
+/* ===== Erklär-Karte: Vormachen ===== */
+#dlg-stufe { width: min(720px, calc(100vw - 24px)); }
+.stufe-zeig { display: grid; gap: 12px; justify-items: center; width: 100%; }
+.zeig-waren { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; }
+.zeig-ware { display: grid; justify-items: center; gap: 4px; }
+.zeig-ware img { width: 86px; height: 86px; }
+.zeig-bezahlt { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 18px; }
+.zeig-rechnung { font-family: var(--anzeige); font-weight: 700; font-size: 28px; min-height: 40px; }
+.zeig-teller { width: min(440px, 100%); min-height: 130px; border-radius: 22px; border: 3px solid var(--laden); display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; padding: 10px;
+  background: var(--flaeche); background: radial-gradient(ellipse at center, #fff 0 55%, transparent 56%), color-mix(in srgb, var(--laden) 14%, #fff); }
+.zeig-geld { opacity: 0; transform: translateY(70px) scale(.6); transition: transform .6s cubic-bezier(.3, 1.4, .6, 1), opacity .3s; line-height: 0; }
+.zeig-geld.da { opacity: 1; transform: none; }
+.stufe-probe { margin: 0; background: var(--hm-hell); border-left: 6px solid var(--hm); border-radius: var(--r); padding: 8px 12px; font-size: 18px; text-align: left; }
+.stufe-knoepfe { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+.stufe-knoepfe .grossknopf { min-height: 64px; font-size: 22px; padding: 8px 28px; }
+.grossknopf.zeig { background: var(--hellblau); color: #1d3a5c; }
+@media (prefers-reduced-motion: reduce) { .zeig-geld { transition: none; } }
 </style>
 </head>
 <body>
@@ -945,6 +980,7 @@ body.im-spiel .schild-titel { min-width: 0; overflow: hidden; text-overflow: ell
     <h1 class="schild-titel" id="laden-titel">Kirmes-Kiosk</h1>
     <p class="gruss nur-spiel" id="gruss">Hallo!</p>
     <span class="platz"></span>
+    <button class="neu-chip nur-spiel" id="neu-chip" hidden data-scan><i>?</i><span id="neu-chip-text">Neu</span></button>
     <span class="kopf-fortschritt nur-spiel"><span id="aufgabe-text">Aufgabe 1 von 10</span><span class="punkte" id="punkte" aria-hidden="true"></span></span>
     <button class="rundknopf" id="knopf-vorlesen" data-scan aria-label="Aufgabe vorlesen" title="Vorlesen">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" fill-opacity=".15"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>
@@ -1115,7 +1151,18 @@ body.im-spiel .schild-titel { min-width: 0; overflow: hidden; text-overflow: ell
     <span class="neu-band">Neu ab hier</span>
     <h2 id="stufe-titel"></h2>
     <p id="stufe-text"></p>
-    <button class="grossknopf weiter" id="knopf-stufe-ok" data-scan-dialog>Los geht's</button>
+    <div class="stufe-zeig" id="stufe-zeig" hidden>
+      <div class="zeig-waren" id="zeig-waren"></div>
+      <div class="zeig-rechnung" id="zeig-rechnung"></div>
+      <div class="zeig-teller" id="zeig-teller"></div>
+    </div>
+    <p class="stufe-probe" id="stufe-probe" hidden>Diese Aufgabe zählt noch nicht. Die Preise stehen da, und die Hilfe ist an.</p>
+    <div class="stufe-knoepfe">
+      <button class="grossknopf leise" id="knopf-stufe-nochmal" data-scan-dialog hidden>Noch einmal zeigen</button>
+      <button class="grossknopf zeig" id="knopf-stufe-zeig" data-scan-dialog hidden>Zeig es mir</button>
+      <button class="grossknopf zeig" id="knopf-stufe-du" data-scan-dialog hidden>Jetzt du</button>
+      <button class="grossknopf weiter" id="knopf-stufe-ok" data-scan-dialog>Los geht's</button>
+    </div>
   </div>
 </dialog>
 
@@ -1550,7 +1597,7 @@ body.im-spiel .schild-titel { min-width: 0; overflow: hidden; text-overflow: ell
 <script src="aufkleber.js"></script>
 <script>
 'use strict';
-const VERSION = '4.6.1';
+const VERSION = '4.7.0';
 const STAND = '26.10.2026';
 
 // ---------------------------------------------------------------------------
@@ -1580,24 +1627,50 @@ const PRODUKTE_KIRMES = [
   { id: 'schoko-kuchen', name: 'Schoko-Kuchen', preis: 3 },
 ];
 
+// Stufen in Themen. id bleibt fest (Lernstand, Links), auch wenn später Stufen dazukommen.
+// thema: Index in LAEDEN[…].themen. geld: nur diese Münzen/Scheine in der Schublade. min: Mindestbetrag.
+// spanne: „Reicht das Geld?“ – so nah liegt die Summe am Geld. zeig: wird beim Wechsel vorgemacht
+// (waren, legen = Geld auf den Teller in Cent, rechnung = Schritte, sprich = Ansage); danach eine Probeaufgabe.
 const STUFEN_KIRMES = [
-  { titel: '2 Sachen einkaufen', text: 'Du kaufst 2 Sachen. Rechne die Preise zusammen und lege das Geld.',
-    art: 'kaufen', anzahl: 2, max: 10, einer: 0 },
-  { titel: '3 Sachen einkaufen', text: 'Ab jetzt werden 3 Sachen eingekauft!',
+  { id: 'k-1-1', thema: 0, titel: 'Eine Sache, nur 1-€-Münzen', text: 'Du kaufst eine Sache. Lege so viele 1-Euro-Münzen, wie sie kostet.',
+    art: 'kaufen', anzahl: 1, max: 5, einer: 0, geld: [1],
+    zeig: { waren: ['wurst'], legen: [100, 100, 100], rechnung: ['1 €', '2 €', '3 €'], sprich: 'Die Wurst kostet 3 Euro. Ich lege drei 1-Euro-Münzen: eins, zwei, drei.' } },
+  { id: 'k-1-2', thema: 0, titel: 'Eine Sache mit 1 € und 2 €', text: 'Jetzt gibt es auch 2-Euro-Münzen. Eine 2-Euro-Münze ist so viel wie zwei 1-Euro-Münzen.',
+    art: 'kaufen', anzahl: 1, max: 5, einer: 0, geld: [1, 2],
+    zeig: { waren: ['falaffel'], legen: [200, 200], rechnung: ['2 €', '2 € + 2 € = 4 €'], sprich: 'Die Falaffel kostet 4 Euro. Eine 2-Euro-Münze und noch eine 2-Euro-Münze sind 4 Euro.' } },
+  { id: 'k-1-3', thema: 0, titel: 'Eine Sache, auch mit 5 €', text: 'Jetzt gibt es auch einen 5-Euro-Schein. Er ist so viel wie fünf 1-Euro-Münzen.',
+    art: 'kaufen', anzahl: 1, max: 5, einer: 0, geld: [1, 2, 5],
+    zeig: { waren: ['burger'], legen: [500], rechnung: ['5 €'], sprich: 'Der Burger kostet 5 Euro. Ein 5-Euro-Schein ist genau 5 Euro.' } },
+  { id: 'k-2-1', thema: 1, titel: '2 Sachen bis 10 €', text: 'Du kaufst 2 Sachen. Rechne die Preise zusammen und lege das Geld.',
+    art: 'kaufen', anzahl: 2, max: 10, einer: 0, geld: [1, 2, 5, 10] },
+  { id: 'k-2-2', thema: 1, titel: '3 Sachen bis 12 €', text: 'Ab jetzt werden 3 Sachen eingekauft!',
     art: 'kaufen', anzahl: 3, max: 12, einer: 0 },
-  { titel: '4 Sachen einkaufen', text: 'Ab jetzt werden 4 Sachen eingekauft!',
+  { id: 'k-2-3', thema: 1, titel: '3 Sachen über 10 €', text: 'Jetzt kostet alles zusammen mehr als 10 Euro. Nimm auch den 10-Euro-Schein.',
+    art: 'kaufen', anzahl: 3, min: 11, max: 15, einer: 0 },
+  { id: 'k-2-4', thema: 1, titel: '4 Sachen bis 15 €', text: 'Ab jetzt werden 4 Sachen eingekauft!',
     art: 'kaufen', anzahl: 4, max: 15, einer: 0 },
-  { titel: 'Weniger 1-€-Stücke', text: 'Ab jetzt hast du nur noch zwei 1-€-Stücke. Tipp: Statt zwei 1 € kannst du ein 2-€-Stück nehmen.',
+  { id: 'k-2-5', thema: 1, titel: '5 Sachen bis 20 €', text: 'Ab jetzt werden 5 Sachen eingekauft – bis zu 20 Euro.',
+    art: 'kaufen', anzahl: 5, max: 20, einer: 0 },
+  { id: 'k-3-1', thema: 2, titel: 'Höchstens zwei 1-€-Stücke', text: 'Ab jetzt hast du nur noch zwei 1-€-Stücke. Tipp: Statt zwei 1 € kannst du ein 2-€-Stück nehmen.',
     art: 'kaufen', anzahl: 4, max: 15, einer: 2 },
-  { titel: '5 Sachen einkaufen', text: 'Ab jetzt werden 5 Sachen eingekauft!',
+  { id: 'k-3-2', thema: 2, titel: '5 Sachen, zwei 1-€-Stücke', text: 'Ab jetzt werden 5 Sachen eingekauft!',
     art: 'kaufen', anzahl: 5, max: 15, einer: 2 },
-  { titel: 'Größere Beträge', text: 'Jetzt wird es teurer: bis zu 20 €.',
+  { id: 'k-3-3', thema: 2, titel: 'Größere Beträge', text: 'Jetzt wird es teurer: bis zu 20 €.',
     art: 'kaufen', anzahl: 4, max: 20, einer: 2 },
-  { titel: 'Rückgeld', text: 'Du bezahlst mit einem 10-€-Schein. Wie viel Geld bekommst du zurück? Lege das Rückgeld.',
+  { id: 'k-5-1', thema: 4, titel: 'Rückgeld von 5 €', text: 'Neu: Du bezahlst mit einem Schein und bekommst Geld zurück. Lege das Rückgeld.',
+    art: 'rueckgeld', anzahl: 1, max: 4, bezahlt: 5, einer: 0,
+    zeig: { waren: ['pommes'], bezahlt: 500, legen: [200], rechnung: ['5 € − 3 € = 2 €'], sprich: 'Die Pommes kosten 3 Euro. Ich bezahle mit 5 Euro. Von 3 Euro bis 5 Euro fehlen 2 Euro. Das ist das Rückgeld.' } },
+  { id: 'k-5-2', thema: 4, titel: 'Rückgeld von 10 €', text: 'Du bezahlst mit einem 10-€-Schein. Wie viel Geld bekommst du zurück? Lege das Rückgeld.',
     art: 'rueckgeld', anzahl: 2, max: 9, bezahlt: 10, einer: 0 },
-  { titel: 'Reicht das Geld?', text: 'Du hast 10 € dabei. Schau, ob das Geld für alles reicht.',
-    art: 'budget', anzahl: 3, max: 15, bezahlt: 10, einer: 0 },
+  { id: 'k-5-3', thema: 4, titel: 'Rückgeld von 20 €', text: 'Jetzt bezahlst du mit einem 20-Euro-Schein. Lege das Rückgeld.',
+    art: 'rueckgeld', anzahl: 3, max: 19, bezahlt: 20, einer: 0 },
+  { id: 'k-5-4', thema: 4, titel: 'Reicht das Geld?', text: 'Du hast 10 € dabei. Schau, ob das Geld für alles reicht.',
+    art: 'budget', anzahl: 3, max: 15, bezahlt: 10, einer: 0,
+    zeig: { waren: ['limo', 'burger'], bezahlt: 1000, legen: [], rechnung: ['3 € + 5 € = 8 €', '8 € ist weniger als 10 €: Das Geld reicht!'], sprich: 'Ich habe 10 Euro. Die Limo kostet 3 Euro, der Burger 5 Euro. Zusammen sind das 8 Euro. Das ist weniger als 10 Euro. Das Geld reicht.' } },
+  { id: 'k-5-5', thema: 4, titel: 'Reicht das Geld? – knapp', text: 'Jetzt ist es knapp. Rechne genau, ob das Geld reicht.',
+    art: 'budget', anzahl: 3, max: 15, bezahlt: 10, einer: 0, spanne: 1 },
 ];
+const ALT_KIRMES = ['k-2-1', 'k-2-2', 'k-2-4', 'k-3-1', 'k-3-2', 'k-3-3', 'k-5-2', 'k-5-4'];   // bisherige Stufen 1–8
 
 const PRODUKTE_SPIELWAREN = [
   { id: 'seifenblasen', name: 'Seifenblasen', preis: 3 },
@@ -1622,23 +1695,35 @@ const PRODUKTE_SPIELWAREN = [
   { id: 'fahrrad', name: 'Fahrrad', preis: 149 },
 ];
 const STUFEN_SPIELWAREN = [
-  { titel: '2 Spielsachen bis 30 €', text: 'Du kaufst 2 Spielsachen. Rechne die Preise zusammen und lege das Geld.',
+  { id: 's-1-1', thema: 0, titel: 'Eine Spielsache bis 20 €', text: 'Du kaufst eine Spielsache. Lege das Geld mit Münzen und Scheinen.',
+    art: 'kaufen', anzahl: 1, max: 20, einer: 0, geld: [1, 2, 5, 10, 20],
+    zeig: { waren: ['kuscheltier'], legen: [1000, 500], rechnung: ['10 €', '10 € + 5 € = 15 €'], sprich: 'Das Kuscheltier kostet 15 Euro. Ein 10-Euro-Schein und ein 5-Euro-Schein sind 15 Euro.' } },
+  { id: 's-1-2', thema: 0, titel: 'Eine Spielsache bis 50 €', text: 'Jetzt gibt es auch den 50-Euro-Schein.',
+    art: 'kaufen', anzahl: 1, min: 21, max: 50, einer: 0, geld: [1, 2, 5, 10, 20, 50] },
+  { id: 's-1-3', thema: 0, titel: 'Eine Spielsache bis 100 €', text: 'Jetzt gibt es auch den 100-Euro-Schein.',
+    art: 'kaufen', anzahl: 1, min: 50, max: 100, einer: 0 },
+  { id: 's-2-1', thema: 1, titel: '2 Spielsachen bis 30 €', text: 'Du kaufst 2 Spielsachen. Rechne die Preise zusammen und lege das Geld.',
     art: 'kaufen', anzahl: 2, max: 30, einer: 0 },
-  { titel: '2 Spielsachen bis 60 €', text: 'Jetzt wird es teurer: bis zu 60 €.',
+  { id: 's-2-2', thema: 1, titel: '2 Spielsachen bis 60 €', text: 'Jetzt wird es teurer: bis zu 60 €.',
     art: 'kaufen', anzahl: 2, max: 60, einer: 0 },
-  { titel: '3 Spielsachen bis 100 €', text: 'Ab jetzt werden 3 Spielsachen eingekauft – bis zu 100 €!',
+  { id: 's-2-3', thema: 1, titel: '3 Spielsachen bis 100 €', text: 'Ab jetzt werden 3 Spielsachen eingekauft – bis zu 100 €!',
     art: 'kaufen', anzahl: 3, max: 100, einer: 0 },
-  { titel: 'Große Scheine', text: 'Jetzt brauchst du auch 50-€- und 100-€-Scheine: bis zu 150 €.',
+  { id: 's-2-4', thema: 1, titel: 'Große Scheine', text: 'Jetzt brauchst du auch 50-€- und 100-€-Scheine: bis zu 150 €.',
     art: 'kaufen', anzahl: 3, max: 150, einer: 0 },
-  { titel: '4 Spielsachen bis 200 €', text: 'Ab jetzt werden 4 Spielsachen eingekauft – bis zu 200 €!',
+  { id: 's-2-5', thema: 1, titel: '4 Spielsachen bis 200 €', text: 'Ab jetzt werden 4 Spielsachen eingekauft – bis zu 200 €!',
     art: 'kaufen', anzahl: 4, max: 200, einer: 0 },
-  { titel: 'Rückgeld von 50 €', text: 'Du bezahlst mit einem 50-€-Schein. Wie viel Geld bekommst du zurück? Lege das Rückgeld.',
-    art: 'rueckgeld', anzahl: 1, max: 49, bezahlt: 50, einer: 0 },
-  { titel: 'Rückgeld von 100 €', text: 'Du bezahlst mit einem 100-€-Schein. Wie viel Geld bekommst du zurück?',
+  { id: 's-5-1', thema: 4, titel: 'Rückgeld von 50 €', text: 'Du bezahlst mit einem 50-€-Schein. Wie viel Geld bekommst du zurück? Lege das Rückgeld.',
+    art: 'rueckgeld', anzahl: 1, max: 49, bezahlt: 50, einer: 0,
+    zeig: { waren: ['puzzle'], bezahlt: 5000, legen: [2000, 1000, 500, 100], rechnung: ['50 € − 14 € = 36 €'], sprich: 'Das Puzzle kostet 14 Euro. Ich bezahle mit 50 Euro. Von 14 Euro bis 50 Euro fehlen 36 Euro. Das ist das Rückgeld.' } },
+  { id: 's-5-2', thema: 4, titel: 'Rückgeld von 100 €', text: 'Du bezahlst mit einem 100-€-Schein. Wie viel Geld bekommst du zurück?',
     art: 'rueckgeld', anzahl: 2, max: 99, bezahlt: 100, einer: 0 },
-  { titel: 'Reicht das Geld?', text: 'Du hast 100 € dabei. Schau, ob das Geld für alles reicht.',
-    art: 'budget', anzahl: 3, max: 200, bezahlt: 100, einer: 0 },
+  { id: 's-5-3', thema: 4, titel: 'Reicht das Geld?', text: 'Du hast 100 € dabei. Schau, ob das Geld für alles reicht.',
+    art: 'budget', anzahl: 3, max: 200, bezahlt: 100, einer: 0,
+    zeig: { waren: ['ball', 'puppe'], bezahlt: 10000, legen: [], rechnung: ['8 € + 25 € = 33 €', '33 € ist weniger als 100 €: Das Geld reicht!'], sprich: 'Ich habe 100 Euro. Der Ball kostet 8 Euro, die Puppe 25 Euro. Zusammen sind das 33 Euro. Das ist weniger als 100 Euro. Das Geld reicht.' } },
+  { id: 's-5-4', thema: 4, titel: 'Reicht das Geld? – knapp', text: 'Jetzt ist es knapp. Rechne genau, ob das Geld reicht.',
+    art: 'budget', anzahl: 3, max: 200, bezahlt: 100, einer: 0, spanne: 10 },
 ];
+const ALT_SPIELWAREN = ['s-2-1', 's-2-2', 's-2-3', 's-2-4', 's-2-5', 's-5-1', 's-5-2', 's-5-3'];
 
 const PRODUKTE_BAECKEREI = [
   { id: 'broetchen', name: 'Brötchen', preis: 40 },
@@ -1663,23 +1748,39 @@ const PRODUKTE_BAECKEREI = [
   { id: 'vollkornbrot', name: 'Vollkornbrot', preis: 420 },
 ];
 const STUFEN_BAECKEREI = [
-  { titel: '1 Sache', text: 'Du kaufst 1 Sache. Lege genau so viel Geld, wie sie kostet.',
-    art: 'kaufen', anzahl: 1, max: 200, einer: 0 },
-  { titel: '2 Sachen', text: 'Ab jetzt werden 2 Sachen gekauft. Rechne Euro und Cent zusammen.',
+  { id: 'b-1-1', thema: 0, titel: 'Eine Sache unter 1 €', text: 'Du kaufst eine Sache. Lege das Geld mit 10-Cent- und 20-Cent-Münzen.',
+    art: 'kaufen', anzahl: 1, max: 90, einer: 0, geld: [10, 20],
+    zeig: { waren: ['keks'], legen: [20, 20, 20], rechnung: ['20 ct', '40 ct', '60 ct'], sprich: 'Der Keks kostet 60 Cent. Ich lege drei 20-Cent-Münzen: 20, 40, 60 Cent.' } },
+  { id: 'b-1-2', thema: 0, titel: 'Eine Sache unter 1 € mit 50 ct', text: 'Jetzt gibt es auch 50-Cent-Münzen.',
+    art: 'kaufen', anzahl: 1, max: 90, einer: 0, geld: [10, 20, 50],
+    zeig: { waren: ['rosinenbroetchen'], legen: [50, 20], rechnung: ['50 ct', '50 ct + 20 ct = 70 ct'], sprich: 'Das Rosinenbrötchen kostet 70 Cent. 50 Cent und 20 Cent sind 70 Cent.' } },
+  { id: 'b-1-3', thema: 0, titel: 'Eine Sache über 1 €', text: 'Jetzt kostet eine Sache mehr als 1 Euro. 100 Cent sind 1 Euro.',
+    art: 'kaufen', anzahl: 1, min: 110, max: 200, einer: 0, geld: [10, 20, 50, 100],
+    zeig: { waren: ['croissant'], legen: [100, 20, 10], rechnung: ['1 €', '1,20 €', '1,30 €'], sprich: 'Das Croissant kostet 1 Euro 30. 100 Cent sind 1 Euro. Ich lege 1 Euro, 20 Cent und 10 Cent.' } },
+  { id: 'b-2-1', thema: 1, titel: '2 Sachen bis 2 €', text: 'Ab jetzt werden 2 Sachen gekauft. Rechne Euro und Cent zusammen.',
+    art: 'kaufen', anzahl: 2, max: 200, einer: 0, geld: [10, 20, 50, 100] },
+  { id: 'b-2-2', thema: 1, titel: '2 Sachen bis 3 €', text: 'Jetzt wird es etwas teurer: bis zu 3 Euro.',
     art: 'kaufen', anzahl: 2, max: 300, einer: 0 },
-  { titel: '3 Sachen', text: 'Ab jetzt werden 3 Sachen gekauft – bis zu 5 €.',
+  { id: 'b-2-3', thema: 1, titel: '3 Sachen bis 5 €', text: 'Ab jetzt werden 3 Sachen gekauft – bis zu 5 €.',
     art: 'kaufen', anzahl: 3, max: 500, einer: 0 },
-  { titel: '4 Sachen', text: 'Ab jetzt werden 4 Sachen gekauft – bis zu 8 €.',
+  { id: 'b-2-4', thema: 1, titel: '4 Sachen bis 8 €', text: 'Ab jetzt werden 4 Sachen gekauft – bis zu 8 €.',
     art: 'kaufen', anzahl: 4, max: 800, einer: 0 },
-  { titel: '5 Sachen', text: 'Ab jetzt werden 5 Sachen gekauft – bis zu 10 €.',
+  { id: 'b-2-5', thema: 1, titel: '5 Sachen bis 10 €', text: 'Ab jetzt werden 5 Sachen gekauft – bis zu 10 €.',
     art: 'kaufen', anzahl: 5, max: 1000, einer: 0 },
-  { titel: 'Rückgeld von 5 €', text: 'Du bezahlst mit einem 5-€-Schein. Wie viel Geld bekommst du zurück? Lege das Rückgeld.',
+  { id: 'b-5-1', thema: 4, titel: 'Rückgeld von 1 €', text: 'Neu: Du bezahlst mit 1 Euro und bekommst Geld zurück. Lege das Rückgeld.',
+    art: 'rueckgeld', anzahl: 1, max: 60, bezahlt: 100, einer: 0, geld: [10, 20, 50],
+    zeig: { waren: ['broetchen'], bezahlt: 100, legen: [50, 10], rechnung: ['1 € − 40 ct = 60 ct'], sprich: 'Das Brötchen kostet 40 Cent. Ich bezahle mit 1 Euro. Von 40 Cent bis 1 Euro fehlen 60 Cent. Das ist das Rückgeld.' } },
+  { id: 'b-5-2', thema: 4, titel: 'Rückgeld von 5 €', text: 'Du bezahlst mit einem 5-€-Schein. Wie viel Geld bekommst du zurück? Lege das Rückgeld.',
     art: 'rueckgeld', anzahl: 2, max: 490, bezahlt: 500, einer: 0 },
-  { titel: 'Rückgeld von 10 €', text: 'Du bezahlst mit einem 10-€-Schein. Wie viel Geld bekommst du zurück?',
+  { id: 'b-5-3', thema: 4, titel: 'Rückgeld von 10 €', text: 'Du bezahlst mit einem 10-€-Schein. Wie viel Geld bekommst du zurück?',
     art: 'rueckgeld', anzahl: 3, max: 990, bezahlt: 1000, einer: 0 },
-  { titel: 'Reicht das Geld?', text: 'Du hast 5 € dabei. Schau, ob das Geld für alles reicht.',
-    art: 'budget', anzahl: 3, max: 1000, bezahlt: 500, einer: 0 },
+  { id: 'b-5-4', thema: 4, titel: 'Reicht das Geld?', text: 'Du hast 5 € dabei. Schau, ob das Geld für alles reicht.',
+    art: 'budget', anzahl: 3, max: 1000, bezahlt: 500, einer: 0,
+    zeig: { waren: ['croissant', 'kakao'], bezahlt: 500, legen: [], rechnung: ['1,30 € + 1,90 € = 3,20 €', '3,20 € ist weniger als 5 €: Das Geld reicht!'], sprich: 'Ich habe 5 Euro. Das Croissant kostet 1 Euro 30, der Kakao 1 Euro 90. Zusammen sind das 3 Euro 20. Das ist weniger als 5 Euro. Das Geld reicht.' } },
+  { id: 'b-5-5', thema: 4, titel: 'Reicht das Geld? – knapp', text: 'Jetzt ist es knapp. Rechne genau, ob das Geld reicht.',
+    art: 'budget', anzahl: 3, max: 1000, bezahlt: 500, einer: 0, spanne: 50 },
 ];
+const ALT_BAECKEREI = ['b-1-3', 'b-2-2', 'b-2-3', 'b-2-4', 'b-2-5', 'b-5-2', 'b-5-3', 'b-5-4'];
 
 // faktor: Einheiten pro Euro. geld: Münzen und Scheine im Vorrat (in Einheiten).
 // maxWahl/bezahltWahl: Auswahl im Lehrkraft-Bereich (in Euro). spanne: "Reicht das Geld?" – wie nah am Budget.
@@ -1713,15 +1814,18 @@ const ZAHL_SPRECH = ['', 'eins', 'zwei', 'drei', 'vier', 'fünf', 'sechs'];
 
 const LAEDEN = {
   kirmes: { name: 'Kirmes-Kiosk', faktor: 1, cent: false, foto: true, ordner: 'bilder/', farbe: '#f39325', farbeRand: '#c76f0a',
-            produkte: PRODUKTE_KIRMES, stufen: STUFEN_KIRMES, geld: [1, 2, 5, 10, 20], ausschnitt: '86 0 1028 700',
+            produkte: PRODUKTE_KIRMES, stufen: STUFEN_KIRMES, alt: ALT_KIRMES,
+            themen: ['Geld kennen', 'Zusammenrechnen', 'Geschickt legen', 'Mehrmals und Ergänzen', 'Rückgeld und Budget'], geld: [1, 2, 5, 10, 20], ausschnitt: '86 0 1028 700',
             maxWahl: [5, 10, 12, 15, 20, 30], bezahltWahl: [10, 15, 20], spanne: 6, schritte: [1, 2, 10, 3],
             bereiche: [[5, 'bis 5 €'], [10, '6–10 €'], [15, '11–15 €'], [20, '16–20 €'], [Infinity, 'über 20 €']] },
   spielwaren: { name: 'Spielwarenladen', faktor: 1, cent: false, foto: false, ordner: 'bilder/spielwaren/', farbe: '#9fd3f0', farbeRand: '#3d9ad6',
-            produkte: PRODUKTE_SPIELWAREN, stufen: STUFEN_SPIELWAREN, geld: [1, 2, 5, 10, 20, 50, 100], ausschnitt: '0 20 1090 760',
+            produkte: PRODUKTE_SPIELWAREN, stufen: STUFEN_SPIELWAREN, alt: ALT_SPIELWAREN,
+            themen: ['Große Scheine kennen', 'Zusammenrechnen', 'Geschickt legen', 'Mehrmals und Ergänzen', 'Rückgeld und Budget'], geld: [1, 2, 5, 10, 20, 50, 100], ausschnitt: '0 20 1090 760',
             maxWahl: [30, 50, 100, 150, 200], bezahltWahl: [20, 50, 100, 200], spanne: 40, schritte: [1, 10, 5, 20],
             bereiche: [[20, 'bis 20 €'], [50, '21–50 €'], [100, '51–100 €'], [150, '101–150 €'], [Infinity, 'über 150 €']] },
   baeckerei: { name: 'Bäckerei', faktor: 100, cent: true, foto: false, ordner: 'bilder/baeckerei/', farbe: '#ffd200', farbeRand: '#c9a400',
-            produkte: PRODUKTE_BAECKEREI, stufen: STUFEN_BAECKEREI, geld: [10, 20, 50, 100, 200, 500], ausschnitt: '20 16 1150 720',
+            produkte: PRODUKTE_BAECKEREI, stufen: STUFEN_BAECKEREI, alt: ALT_BAECKEREI,
+            themen: ['Euro und Cent kennen', 'Zusammenrechnen', 'Geschickt legen', 'Mehrmals und Ergänzen', 'Rückgeld und Budget'], geld: [10, 20, 50, 100, 200, 500], ausschnitt: '20 16 1150 720',
             maxWahl: [2, 3, 5, 8, 10], bezahltWahl: [5, 10, 20], spanne: 250, schritte: [10, 50, 100, 20],
             bereiche: [[100, 'bis 1 €'], [200, '1,10–2 €'], [500, '2,10–5 €'], [1000, '5,10–10 €'], [Infinity, 'über 10 €']] },
 };
@@ -1808,22 +1912,39 @@ if (!LAEDEN[E.laden]) E.laden = 'kirmes';
 const stufenKey = id => id === 'kirmes' ? 'stufe' : 'stufe-' + id;
 const stufenSchluessel = () => stufenKey(E.laden);
 let S;
+// Stufe aus dem Speicher: neue Form mit id; ältere Stände kennen nur nr (bisherige Stufen 1–8, siehe ALT_…)
+function stufeIndex(LL, s) {
+  if (!s) return 1;
+  if (s.id) { const i = LL.stufen.findIndex(x => x.id === s.id); if (i >= 0) return i + 1; }
+  if (s.nr && !s.id && LL.alt[s.nr - 1]) return LL.stufen.findIndex(x => x.id === LL.alt[s.nr - 1]) + 1;
+  return clamp(s.nr || 1, 1, LL.stufen.length);
+}
+// Neuer Stufen-Stand: erklaeren = beim nächsten Start die Erklär-Karte zeigen, neuNoch = so viele Aufgaben „Neu“-Hinweis
+const neuS = (nr, LL = L) => ({ nr, id: LL.stufen[nr - 1].id, geloest: 0, schwerInFolge: 0, erklaeren: true, neuNoch: 3 });
 function ladenSetzen(id) {
   E.laden = LAEDEN[id] ? id : 'kirmes';
   L = LAEDEN[E.laden]; PRODUKTE = L.produkte; STUFEN = L.stufen;
-  S = speicher.lesen(stufenSchluessel(), null) || { nr: 1, geloest: 0, schwerInFolge: 0 };
-  S.nr = clamp(S.nr, 1, STUFEN.length);
+  const roh = speicher.lesen(stufenSchluessel(), null), nr = stufeIndex(L, roh);
+  S = roh && roh.id ? Object.assign({}, roh, { nr })
+    : roh ? { nr, id: STUFEN[nr - 1].id, geloest: roh.geloest || 0, schwerInFolge: roh.schwerInFolge || 0, erklaeren: false, neuNoch: 0 }
+    : neuS(1);
 }
 ladenSetzen(E.laden);
-if (new URLSearchParams(location.search).has('stufe')) S = { nr: clamp(E.start, 1, STUFEN.length), geloest: 0, schwerInFolge: 0 };
+{ // Link: st=<Kennung> (neu) oder stufe=<1–8> (bisherige Nummerierung)
+  const q = new URLSearchParams(location.search), i = STUFEN.findIndex(x => x.id === q.get('st'));
+  if (i >= 0) S = neuS(i + 1);
+  else if (q.has('stufe')) S = neuS(stufeIndex(L, { nr: clamp(+q.get('stufe'), 1, 8) }));
+}
 
 // Die für die aktuelle Aufgabe gültigen Werte (Stufe oder feste Einstellungen)
 function regeln() {
   if (E.modus === 'stufen') {
     const st = STUFEN[clamp(S.nr, 1, STUFEN.length) - 1];
-    return { art: st.art, anzahl: st.anzahl, max: st.max, betrag: 'alle', einer: st.einer, schild: E.schild ? '4' : 'aus', bezahlt: st.bezahlt || 10 * L.faktor, stufe: S.nr };
+    return { art: st.art, anzahl: st.anzahl, max: st.max, min: st.min || 0, betrag: 'alle', einer: st.einer, schild: E.schild ? '4' : 'aus', bezahlt: st.bezahlt || 10 * L.faktor,
+             spanne: st.spanne || L.spanne, geld: st.geld || null, stufe: S.nr, stufeId: st.id };
   }
-  return { art: E.art, anzahl: E.anzahl, max: E.max * L.faktor, betrag: L.cent ? 'alle' : E.betrag, einer: E.einer, schild: E.schild ? '4' : 'aus', bezahlt: E.bezahlt * L.faktor, stufe: null };
+  return { art: E.art, anzahl: E.anzahl, max: E.max * L.faktor, min: 0, betrag: L.cent ? 'alle' : E.betrag, einer: E.einer, schild: E.schild ? '4' : 'aus', bezahlt: E.bezahlt * L.faktor,
+           spanne: L.spanne, geld: null, stufe: null, stufeId: null };
 }
 
 // ---------------------------------------------------------------------------
@@ -1858,9 +1979,9 @@ function neueAufgabe() {
     const schluessel = waren.map(p => p.id).sort().join();
     if (aufgabe && schluessel === aufgabe.schluessel) continue;
     let loesung, ok;
-    if (R.art === 'kaufen') { loesung = summe; ok = summe <= R.max && paritaetOk(summe, R.betrag); }
+    if (R.art === 'kaufen') { loesung = summe; ok = summe <= R.max && summe >= R.min && paritaetOk(summe, R.betrag); }
     else if (R.art === 'rueckgeld') { loesung = R.bezahlt - summe; ok = loesung >= 1 && loesung <= R.max && paritaetOk(loesung, R.betrag); }
-    else { loesung = summe <= R.bezahlt; ok = (budgetReicht ? summe <= R.bezahlt : summe > R.bezahlt) && summe <= R.bezahlt + L.spanne && summe >= R.bezahlt - L.spanne; }
+    else { loesung = summe <= R.bezahlt; ok = (budgetReicht ? summe <= R.bezahlt : summe > R.bezahlt) && summe <= R.bezahlt + R.spanne && summe >= R.bezahlt - R.spanne; }
     const kandidat = { art: R.art, waren, summe, bezahlt: R.bezahlt, loesung, regeln: R, schluessel };
     if (ok) { beste = kandidat; break; }
     if (!beste) beste = kandidat;
@@ -1904,6 +2025,9 @@ function kopfHoehe() { document.documentElement.style.setProperty('--kopf', docu
 addEventListener('resize', kopfHoehe);
 function zeigeRunde() {
   $('spiel').hidden = false; $('ende').hidden = true;
+  const neu = E.modus === 'stufen' && S.neuNoch > 0;
+  $('neu-chip').hidden = !neu;
+  if (neu) $('neu-chip-text').textContent = 'Neu: ' + STUFEN[S.nr - 1].titel;
   document.body.classList.add('im-spiel'); kopfHoehe();
   $('gruss').textContent = E.name ? `Hallo ${E.name}!` : 'Hallo!';
   $('aufgabe-text').textContent = `Aufgabe ${runde.nr + 1} von ${E.runde}`;
@@ -1958,7 +2082,7 @@ function zeigeAufgabe() {
     ? (art === 'rueckgeld' ? 'Rechne aus, wie viel du zurückbekommst. Zieh das Rückgeld auf den Teller.' : 'Rechne aus. Zieh das Geld auf den Teller. Dann tippe auf Fertig.')
     : (art === 'rueckgeld' ? 'Rechne aus, wie viel du zurückbekommst. Lege das Rückgeld. Mach ein Foto.' : 'Rechne aus. Lege das Geld. Mach ein Foto.');
   $('foto-teil').hidden = ziehen; $('zieh-teil').hidden = !ziehen;
-  kasseLeeren(); kasseSperren(false);
+  baueVorrat(); kasseLeeren(); kasseSperren(false);
   $('schritt-foto').hidden = art === 'budget';
   $('schritt-budget').hidden = art !== 'budget';
   $('budget-meldung').innerHTML = '';
@@ -1979,11 +2103,12 @@ function zeigeAufgabe() {
 function bieteHilfe() {
   if (!E.hilfe || geloest) return;
   const reihe = $('hilfe-reihe');
-  if (fehlversuche >= 2 && hilfeStufe === 0 && !E.preise) {
+  const frueh = E.modus === 'stufen' && S.neuNoch > 0 ? 1 : 0;   // nach einem Wechsel: Hilfe schon nach dem 1. Fehlversuch
+  if (fehlversuche >= 2 - frueh && hilfeStufe === 0 && !E.preise) {
     reihe.hidden = false;
     reihe.innerHTML = `<button class="grossknopf leise" id="knopf-hilfe1" data-scan>Hilfe: Preise zeigen</button>`;
     $('knopf-hilfe1').addEventListener('click', () => { hilfeStufe = 1; zeigeWare(); reihe.innerHTML = ''; reihe.hidden = true; sage('Hier stehen die Preise. Rechne noch einmal.'); bieteHilfe(); scanNeu(); });
-  } else if (fehlversuche >= 3 && hilfeStufe <= 1) {
+  } else if (fehlversuche >= 3 - frueh && hilfeStufe <= 1) {
     reihe.hidden = false;
     reihe.innerHTML = `<button class="grossknopf leise" id="knopf-hilfe2" data-scan>Hilfe: Schritt für Schritt</button>`;
     $('knopf-hilfe2').addEventListener('click', () => {
@@ -2279,7 +2404,8 @@ function geldStueck(w, g = 3) { return `<span class="geldbild" title="${geldName
 const tellerGroesse = w => istSchein(w) ? 2.6 : 3.1;   // Geld in Schublade und auf dem Teller
 // Vorrat passend zum Laden aufbauen (Münzen oben, Scheine darunter)
 function baueVorrat() {
-  $('geldvorrat').innerHTML = '<p class="vorrat-titel">Dein Geld:</p>' + L.geld.map(w =>
+  const geld = (aufgabe && aufgabe.regeln && aufgabe.regeln.geld) || L.geld;   // Stufen wie „nur 1-€-Münzen“
+  $('geldvorrat').innerHTML = '<p class="vorrat-titel">Dein Geld:</p>' + geld.map(w =>
     `<button class="vorrat${istSchein(w) ? ' schein-zeile' : ''}" data-wert="${w}" data-scan aria-label="${sprichBetrag(w)} nehmen">${geldStueck(w, tellerGroesse(w))}${w === EINS() ? '<span class="rest" hidden></span>' : ''}</button>`).join('');
 }
 let gesperrt = false;
@@ -2477,34 +2603,100 @@ $('knopf-nein').addEventListener('click', () => budgetAntwort(false));
 // ---------------------------------------------------------------------------
 $('knopf-weiter').addEventListener('click', () => {
   const leicht = versuche <= 2 && hilfeStufe === 0;
-  merkeAufgabe(leicht);
-  runde.ergebnisse.push({ versuche, leicht });
+  runde.ergebnisse.push({ versuche, leicht: leicht || !!aufgabe.probe });
   let neueStufe = false;
-  if (E.modus === 'stufen') {
+  if (aufgabe.probe) { /* Probeaufgabe nach einem Wechsel: zählt nicht */ }
+  else if (E.modus === 'stufen') {
+    merkeAufgabe(leicht);
+    if (S.neuNoch > 0) S.neuNoch--;
     if (leicht) { S.geloest++; S.schwerInFolge = 0; } else S.schwerInFolge++;
-    if (E.steigern && S.geloest >= E.aufstieg && S.nr < STUFEN.length) { S = { nr: S.nr + 1, geloest: 0, schwerInFolge: 0 }; neueStufe = true; }
-    else if (E.steigern && E.abstieg && S.schwerInFolge >= 3 && S.nr > 1) { S = { nr: S.nr - 1, geloest: 0, schwerInFolge: 0 }; neueStufe = 'zurueck'; }
+    if (E.steigern && S.geloest >= E.aufstieg && S.nr < STUFEN.length) { S = neuS(S.nr + 1); neueStufe = true; }
+    else if (E.steigern && E.abstieg && S.schwerInFolge >= 3 && S.nr > 1) { S = neuS(S.nr - 1); neueStufe = 'zurueck'; }
     speicher.schreiben(stufenSchluessel(), S);
-  }
+  } else merkeAufgabe(leicht);
   runde.nr++;
   if (runde.nr >= E.runde) return zeigeEnde();
   aufgabe = neueAufgabe();
   zeigeAufgabe();
-  if (neueStufe) zeigeStufenKarte(neueStufe === 'zurueck');
+  if (neueStufe) zeigeStufenKarte(neueStufe === 'zurueck' ? 'zurueck' : 'auf');
   else setTimeout(vorlesenAufgabe, 400);
 });
-function zeigeStufenKarte(zurueck) {
-  const st = STUFEN[S.nr - 1];
-  $('stufe-titel').textContent = st.titel;
-  $('stufe-text').textContent = zurueck ? 'Wir üben das noch ein bisschen. ' + st.text
-    : `${E.name ? 'Hallo ' + E.name + ', das' : 'Das'} klappt schon super! Du bist bereit für eine Neuerung: ${st.text}`;
-  $('dlg-stufe').querySelector('.neu-band').textContent = zurueck ? 'Noch einmal üben' : 'Neu ab hier';
-  $('dlg-stufe').showModal();
-  if (!zurueck) jubel(true);
-  sage($('stufe-text').textContent);
+// Wechsel erklären. wie: 'auf' (nächste Stufe), 'zurueck', 'start' (Lehrkraft hat die Stufe gesetzt / erster Start),
+// 'wieder' (Kind tippt auf „Neu: …“). Stufen mit zeig: erst erklären, dann vormachen, dann Probeaufgabe.
+let zeigTakt = [], stufeWie = 'auf';
+function zeigeStufenKarte(wie) {
+  stufeWie = wie;
+  const st = STUFEN[S.nr - 1], vorher = wie === 'auf' ? STUFEN[S.nr - 2] : null;
+  const neuesThema = !!vorher && vorher.thema !== st.thema;
+  const band = $('dlg-stufe').querySelector('.neu-band');
+  let titel = st.titel, text = st.text, sprich;
+  if (wie === 'zurueck') {
+    band.textContent = 'Kurz üben'; titel = 'Wir üben das noch ein bisschen';
+    text = `Du hast schon viel geschafft! Wir machen kurz mit „${st.titel}“ weiter.`;
+    sprich = 'Du hast schon viel geschafft! Wir üben das noch ein bisschen.';
+  } else if (neuesThema) {
+    band.textContent = 'Neues Thema: ' + L.themen[st.thema];
+    sprich = `Toll gemacht! Jetzt kommt etwas Neues. ${st.text}`;
+  } else {
+    band.textContent = wie === 'wieder' ? 'Noch einmal erklärt' : 'Neu ab hier';
+    sprich = wie === 'auf' ? `Das klappt schon super! ${st.text}` : st.text;
+  }
+  $('stufe-titel').textContent = titel;
+  $('stufe-text').textContent = text;
+  const z = wie !== 'zurueck' && st.zeig;
+  zeigTakt.forEach(clearTimeout); zeigTakt = [];
+  $('stufe-zeig').hidden = true; $('stufe-probe').hidden = true; $('stufe-text').hidden = false;
+  $('knopf-stufe-zeig').hidden = !z; $('knopf-stufe-nochmal').hidden = true; $('knopf-stufe-du').hidden = true;
+  $('knopf-stufe-ok').hidden = !!z;
+  if (S.erklaeren) { S.erklaeren = false; speicher.schreiben(stufenSchluessel(), S); }
+  if (!$('dlg-stufe').open) $('dlg-stufe').showModal();
+  if (wie === 'auf') jubel(true);
+  sage(sprich);
   scanNeu();
 }
-$('knopf-stufe-ok').addEventListener('click', () => { $('dlg-stufe').close(); setTimeout(vorlesenAufgabe, 300); scanNeu(); });
+// Vormachen: Sachen mit Preis, dann fällt das Geld Stück für Stück auf den Teller, dazu die Rechnung
+function stufeVormachen() {
+  const z = STUFEN[S.nr - 1].zeig;
+  zeigTakt.forEach(clearTimeout); zeigTakt = [];
+  const waren = z.waren.map(id => PRODUKTE.find(p => p.id === id)).filter(Boolean);
+  $('zeig-waren').innerHTML = waren.map(p => `<span class="zeig-ware"><img src="${bild(p)}" alt=""><span class="preis">${fmt(p.preis)}</span></span>`).join('') +
+    (z.bezahlt ? `<span class="zeig-bezahlt">${STUFEN[S.nr - 1].art === 'budget' ? 'Ich habe' : 'Ich bezahle mit'} ${KirmesGeld.bild(z.bezahlt, 1.7)}</span>` : '');
+  $('zeig-teller').innerHTML = z.legen.map(c => `<span class="zeig-geld">${KirmesGeld.bild(c, c >= 500 ? 1.9 : 2.4)}</span>`).join('');
+  $('zeig-teller').hidden = !z.legen.length;
+  $('zeig-rechnung').textContent = '';
+  $('stufe-text').hidden = true; $('stufe-zeig').hidden = false;
+  $('knopf-stufe-zeig').hidden = true; $('knopf-stufe-nochmal').hidden = false; $('knopf-stufe-du').hidden = false;
+  const geld = [...$('zeig-teller').querySelectorAll('.zeig-geld')], schritte = Math.max(geld.length, z.rechnung.length);
+  for (let i = 0; i < schritte; i++) zeigTakt.push(setTimeout(() => {
+    if (geld[i]) geld[i].classList.add('da');
+    $('zeig-rechnung').textContent = z.rechnung[Math.min(i, z.rechnung.length - 1)];
+  }, 900 + i * 1100));
+  sage(z.sprich);
+  scanNeu();
+}
+function stufeProbe() {
+  zeigTakt.forEach(clearTimeout); zeigTakt = [];
+  $('stufe-titel').textContent = 'Jetzt du!';
+  $('dlg-stufe').querySelector('.neu-band').textContent = 'Probieraufgabe';
+  $('stufe-zeig').hidden = true; $('stufe-probe').hidden = false;
+  $('knopf-stufe-nochmal').hidden = true; $('knopf-stufe-du').hidden = true; $('knopf-stufe-ok').hidden = false;
+  sage('Jetzt du! Diese Aufgabe ist zum Probieren.');
+  scanNeu();
+}
+$('knopf-stufe-zeig').addEventListener('click', stufeVormachen);
+$('knopf-stufe-nochmal').addEventListener('click', stufeVormachen);
+$('knopf-stufe-du').addEventListener('click', stufeProbe);
+$('knopf-stufe-ok').addEventListener('click', () => {
+  zeigTakt.forEach(clearTimeout); zeigTakt = [];
+  // Nach dem Vormachen: Probeaufgabe – zählt nicht, Preise sichtbar, Hilfe an
+  if (!$('stufe-probe').hidden && aufgabe && !geloest && !wunschOffen()) {
+    aufgabe.probe = true; hilfeStufe = 1; zeigeWare();
+    $('ware-titel').insertAdjacentHTML('beforeend', ' <span class="probe-marke">Probieraufgabe</span>');
+  }
+  $('dlg-stufe').close(); setTimeout(vorlesenAufgabe, 300); scanNeu();
+});
+$('neu-chip').addEventListener('click', () => zeigeStufenKarte('wieder'));
+
 function zeigeEnde() {
   $('spiel').hidden = true; $('ende').hidden = false; document.body.classList.remove('im-spiel');
   const leicht = runde.ergebnisse.filter(e => e.leicht).length;
@@ -2528,6 +2720,8 @@ function starteRunde() {
   runde = { nr: 0, ergebnisse: [] };
   aufgabe = neueAufgabe();
   zeigeAufgabe();
+  // Neue Stufe (Lehrkraft, erster Start): erst die Erklär-Karte
+  if (E.modus === 'stufen' && S.erklaeren) zeigeStufenKarte('start');
 }
 
 // ---------------------------------------------------------------------------
@@ -2724,7 +2918,7 @@ function lehrkraftOffen() { return $('dlg-lehrkraft').open || $('dlg-code').open
 function scanZiele() {
   if (lehrkraftOffen()) return [];
   if (!$('kamera-ansicht').hidden) return [...document.querySelectorAll('[data-scan-kamera]')];
-  if ($('dlg-stufe').open) return [...$('dlg-stufe').querySelectorAll('[data-scan-dialog]')];
+  if ($('dlg-stufe').open) return [...$('dlg-stufe').querySelectorAll('[data-scan-dialog]')].filter(el => !el.hidden);
   if (albumOffen) return [...$('album-reiter').querySelectorAll('button'), $('knopf-album-zurueck')];
   if (ladenOffen) return [...$('laden-bild').querySelectorAll('.artikel:not(.zu-teuer)'), ...$('zettel').querySelectorAll('.posten, .fertig-ausgesucht'), $('knopf-laden-zurueck')];
   return [...document.querySelectorAll('[data-scan]')].filter(el => !el.disabled && el.offsetParent !== null && !el.closest('[hidden]'));
@@ -2793,10 +2987,17 @@ function protokolliere(erkannt, richtig, ersetzen, grund) {
 }
 function merkeAufgabe(leicht) {
   const liste = speicher.lesen('aufgaben', []);
-  liste.push({ zeit: Date.now(), laden: E.laden, art: aufgabe.art, stufe: aufgabe.regeln.stufe, betrag: aufgabe.art === 'budget' ? aufgabe.summe : aufgabe.loesung,
+  liste.push({ zeit: Date.now(), laden: E.laden, art: aufgabe.art, stufe: aufgabe.regeln.stufe, stufeId: aufgabe.regeln.stufeId, betrag: aufgabe.art === 'budget' ? aufgabe.summe : aufgabe.loesung,
                anzahl: aufgabe.waren.length, versuche, hilfe: hilfeStufe, leicht, fehler: fehlerArten.slice(), wunsch: !!aufgabe.wunsch });
   speicher.schreiben('aufgaben', liste.slice(-1500));
 }
+// Stufe einer gespeicherten Aufgabe (neu: stufeId; älter: Nummer der bisherigen Stufen 1–8)
+function stufeDerAufgabe(LL, a) {
+  if (a.stufeId) return LL.stufen.find(x => x.id === a.stufeId) || null;
+  if (a.stufe && LL.alt[a.stufe - 1]) return LL.stufen.find(x => x.id === LL.alt[a.stufe - 1]) || null;
+  return null;
+}
+const stufenName = (LL, st) => `${LL.themen[st.thema]} · ${st.titel}`;
 const ARTNAME = { kaufen: 'Einkaufen', rueckgeld: 'Rückgeld', budget: 'Reicht das Geld?' };
 const artName = a => (ARTNAME[a.art] || a.art) + (a.wunsch ? ' (Wunschzettel)' : '');
 // Welcher Fehler steckt wahrscheinlich hinter einem falschen Betrag? (Name, Tipp für die Förderung)
@@ -2864,10 +3065,10 @@ function zeigeBericht() {
   const sicher = nachBereich.filter(z => z.n >= 3 && z.leicht / z.n >= 0.8).map(z => z.name);
   const schwer = nachBereich.filter(z => z.n >= 3 && z.leicht / z.n < 0.6).map(z => z.name);
   const tage = new Set(liste.map(a => new Date(a.zeit).toDateString())).size;
-  const stufen = liste.filter(a => a.stufe).map(a => a.stufe), titel = nr => LL.stufen[nr - 1] ? LL.stufen[nr - 1].titel : '';
+  const stufen = liste.map(a => stufeDerAufgabe(LL, a)).filter(Boolean);
   let text = `<strong>${LL.name}:</strong> ${liste.length} Aufgaben an ${tage} ${tage === 1 ? 'Tag' : 'Tagen'}, davon ${pz} % ohne Hilfe gelöst (höchstens 2 Fotos).`;
   const zuletzt = stufen[stufen.length - 1];
-  if (zuletzt && titel(zuletzt)) text += ` Stufe zuletzt: ${zuletzt} („${titel(zuletzt)}“).`;
+  if (zuletzt) text += ` Zuletzt geübt: ${LL.themen[zuletzt.thema]} – „${zuletzt.titel}“.`;
   if (sicher.length) text += ` Sicher: ${sicher.join(', ')}.`;
   if (schwer.length) text += ` Noch schwierig: ${schwer.join(', ')}.`;
   const fehler = fehlerTabelle(liste), h = fehler.haeufig;
@@ -2875,7 +3076,8 @@ function zeigeBericht() {
     (h ? `<div class="lk-tipp"><strong>Häufigster Fehler: ${FEHLERART[h[0]][0]} (${h[1]}×)</strong>${FEHLERART[h[0]][1] ? `<span>Tipp: ${FEHLERART[h[0]][1]}</span>` : ''}</div>` : '') +
     fehler.html +
     `<details class="lk-mehr"><summary>Weitere Tabellen: nach Stufe, Betrag und Anzahl</summary>` +
-    tabelle('Aufgabe / Stufe', gruppiere(liste, a => a.stufe && titel(a.stufe) ? `Stufe ${a.stufe}: ${titel(a.stufe)}` : artName(a)).sort((a, b) => a.name.localeCompare(b.name, 'de', { numeric: true }))) +
+    tabelle('Thema / Stufe', gruppiere(liste, a => { const st = stufeDerAufgabe(LL, a); return st ? stufenName(LL, st) : artName(a); })
+      .sort((a, b) => { const i = n => LL.stufen.findIndex(st => stufenName(LL, st) === n); return i(a.name) - i(b.name); })) +
     tabelle('Betrag', nachBereich) +
     tabelle('Anzahl Sachen', gruppiere(liste, a => `${a.anzahl} ${a.anzahl === 1 ? 'Sache' : 'Sachen'}`).sort((a, b) => a.name.localeCompare(b.name, 'de', { numeric: true }))) +
     `</details><p class="fuss">Stand ${new Date().toLocaleDateString('de-DE')} · Kirmes-Kiosk ${VERSION}. „Ohne Hilfe gelöst“: mit höchstens 2 Fotos bzw. Antworten und ohne die Hilfe-Knöpfe.</p>`;
@@ -2886,7 +3088,7 @@ $('knopf-csv').addEventListener('click', () => {
   const id = LK.aLaden, liste = aufgabenImZeitraum(id);
   const kopf = ['Datum', 'Uhrzeit', 'Laden', 'Aufgabe', 'Stufe', 'Betrag', 'Sachen', 'Versuche', 'Hilfe', 'ohne Hilfe gelöst', 'Fehlerarten'];
   const zeilen = liste.map(a => { const d = new Date(a.zeit); return [d.toLocaleDateString('de-DE'), d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }),
-    LAEDEN[id].name, artName(a), a.stufe || '', betragVon(id, a.betrag), a.anzahl, a.versuche, ['nein', 'Preise', 'Schritt für Schritt'][a.hilfe] || a.hilfe, a.leicht ? 'ja' : 'nein',
+    LAEDEN[id].name, artName(a), (st => st ? stufenName(LAEDEN[id], st) : '')(stufeDerAufgabe(LAEDEN[id], a)), betragVon(id, a.betrag), a.anzahl, a.versuche, ['nein', 'Preise', 'Schritt für Schritt'][a.hilfe] || a.hilfe, a.leicht ? 'ja' : 'nein',
     (a.fehler || []).map(f => FEHLERART[f] ? FEHLERART[f][0] : f).join(', ')]; });
   const csv = '﻿' + [kopf, ...zeilen].map(z => z.map(v => `"${String(v).replace(/"/g, '""')}"`).join(';')).join('\r\n');
   const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
@@ -2901,18 +3103,18 @@ function speichereDatei(inhalt, typ, name) {
 }
 const heute = () => new Date().toISOString().slice(0, 10);
 $('knopf-lernstand-csv').addEventListener('click', () => {
-  const alle = speicher.lesen('aufgaben', []), kopf = ['Laden', 'Stufe', 'Inhalt', 'aktuelle Stufe', 'Aufgaben', 'ohne Hilfe gelöst', 'Anteil ohne Hilfe', 'zuletzt geübt', 'häufigste Fehlerart'];
+  const alle = speicher.lesen('aufgaben', []), kopf = ['Laden', 'Thema', 'Stufe', 'aktuelle Stufe', 'Aufgaben', 'ohne Hilfe gelöst', 'Anteil ohne Hilfe', 'zuletzt geübt', 'häufigste Fehlerart'];
   const zeilen = [];
   for (const id of LADEN_FOLGE) {
     const LL = LAEDEN[id], nr = stufeVon(id), eigene = alle.filter(a => (a.laden || 'kirmes') === id);
     LL.stufen.forEach((st, i) => {
-      const auf = eigene.filter(a => a.stufe === i + 1), ok = auf.filter(a => a.leicht).length;
+      const auf = eigene.filter(a => (stufeDerAufgabe(LL, a) || {}).id === st.id), ok = auf.filter(a => a.leicht).length;
       const zuletzt = auf.length ? new Date(Math.max(...auf.map(a => a.zeit))).toLocaleDateString('de-DE') : '';
       const h = fehlerTabelle(auf).haeufig;
-      zeilen.push([LL.name, i + 1, st.titel, i + 1 === nr ? (E.steigern ? 'ja' : 'ja (bleibt)') : '', auf.length, ok, auf.length ? Math.round(100 * ok / auf.length) + ' %' : '', zuletzt,
+      zeilen.push([LL.name, LL.themen[st.thema], st.titel, i + 1 === nr ? (E.steigern ? 'ja' : 'ja (bleibt)') : '', auf.length, ok, auf.length ? Math.round(100 * ok / auf.length) + ' %' : '', zuletzt,
         h ? `${FEHLERART[h[0]][0]} (${h[1]}×)` : '']);
     });
-    const ohne = eigene.filter(a => !a.stufe);
+    const ohne = eigene.filter(a => !stufeDerAufgabe(LL, a));
     if (ohne.length) zeilen.push([LL.name, '', 'feste Einstellungen', '', ohne.length, ohne.filter(a => a.leicht).length, '', new Date(Math.max(...ohne.map(a => a.zeit))).toLocaleDateString('de-DE')]);
   }
   const csv = '﻿' + [[`Lernstand vom ${new Date().toLocaleDateString('de-DE')}`], kopf, ...zeilen].map(z => z.map(v => `"${String(v).replace(/"/g, '""')}"`).join(';')).join('\r\n');
@@ -2923,7 +3125,7 @@ function zeigeLernstand() {
   $('lk-lernstand').innerHTML = LADEN_FOLGE.map(id => {
     const LL = LAEDEN[id], nr = stufeVon(id), eigene = alle.filter(a => (a.laden || 'kirmes') === id), ok = eigene.filter(a => a.leicht).length;
     const zuletzt = eigene.length ? new Date(Math.max(...eigene.map(a => a.zeit))).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' }) : '';
-    return `<div class="lk-zeile"><div class="lk-ls" style="--c:${farbeVon(id)}"><i></i><span><b>${LL.name}</b> · Stufe ${nr} von ${LL.stufen.length}: ${LL.stufen[nr - 1].titel}
+    return `<div class="lk-zeile"><div class="lk-ls" style="--c:${farbeVon(id)}"><i></i><span><b>${LL.name}</b> · ${stufenName(LL, LL.stufen[nr - 1])}
       <small>${eigene.length ? `${eigene.length} Aufgaben · ${Math.round(100 * ok / eigene.length)} % ohne Hilfe · zuletzt ${zuletzt}` : 'noch nicht geübt'}</small></span></div></div>`;
   }).join('');
 }
@@ -3357,17 +3559,25 @@ function lkStand(n) {
 }
 function zeichneStufen() {
   $('lk-stufen').innerHTML = LADEN_FOLGE.map(id => {
-    const LL = LAEDEN[id], info = LADEN_INFO[id], nr = stufeVon(id), offen = LK.info.has(id);
+    const LL = LAEDEN[id], info = LADEN_INFO[id], nr = stufeVon(id), jetzt = LL.stufen[nr - 1], offen = LK.info.has(id);
+    const themen = LL.themen.map((name, ti) => {
+      const st = LL.stufen.map((x, i) => [x, i + 1]).filter(([x]) => x.thema === ti);
+      if (!st.length) return `<div class="lk-thema leer"><span class="lk-zeichen">${ti + 1}</span>${name}<span class="lk-stand">folgt bald</span></div>`;
+      const aktiv = jetzt.thema === ti, fertig = st.every(([, n]) => n < nr), pos = st.findIndex(([, n]) => n === nr) + 1;
+      return `<details class="lk-thema${aktiv ? ' aktiv' : ''}${fertig ? ' fertig' : ''}"${aktiv ? ' open' : ''}>
+        <summary><span class="lk-zeichen">${fertig ? '✓' : ti + 1}</span>${name}<span class="lk-stand">${aktiv ? `Stufe ${pos} von ${st.length}` : fertig ? 'geschafft' : `${st.length} Stufen`}</span></summary>
+        <div class="lk-sk-stufen">${st.map(([x, n], k) =>
+          `<button class="lk-stufe" data-laden="${id}" data-stufe="${n}" aria-pressed="${n === nr}"><b>${ti + 1}.${k + 1}</b><span>${x.titel}</span>${n < nr ? '<span class="lk-ok">✓</span>' : ''}</button>`).join('')}</div>
+      </details>`;
+    }).join('');
     return `<div class="lk-sk" style="--c:${farbeVon(id)};--rand:${LL.farbeRand}">
       <div class="lk-sk-kopf">
         <span class="lk-sk-bilder">${info.bilder.map(b => `<img src="${LL.ordner}${b}.svg" alt="">`).join('')}</span>
-        <span class="lk-sk-titel"><span class="lk-sk-name">${LL.name}</span><span class="lk-sk-jetzt">Jetzt: Stufe ${nr} · ${LL.stufen[nr - 1].titel}</span></span>
+        <span class="lk-sk-titel"><span class="lk-sk-name">${LL.name}</span><span class="lk-sk-jetzt">Jetzt: ${stufenName(LL, jetzt)}</span></span>
         <button class="lk-i" data-info="${id}" aria-expanded="${offen}" aria-controls="lk-info-${id}" aria-label="Was wird hier geübt?">i</button>
       </div>
       <p class="lk-info" id="lk-info-${id}"${offen ? '' : ' hidden'}>${info.anspruch}</p>
-      <p class="lk-sk-hinweis">Stufe wählen:</p>
-      <div class="lk-sk-stufen" role="group" aria-label="Genaue Stufe">${LL.stufen.map((x, i) =>
-        `<button class="lk-stufe" data-laden="${id}" data-stufe="${i + 1}" aria-pressed="${i + 1 === nr}"><b>${i + 1}</b><span>${x.titel}</span></button>`).join('')}</div>
+      ${themen}
     </div>`;
   }).join('');
 }
@@ -3478,7 +3688,7 @@ function aktualisiereLink() {
   if (E.laden !== 'kirmes') q.set('laden', E.laden);
   q.set('modus', E.modus);
   if (E.geld !== 'foto' && LAEDEN[E.laden].foto) q.set('geld', E.geld);
-  if (E.modus === 'stufen') { q.set('stufe', stufeVon(E.laden)); q.set('aufstieg', E.aufstieg); }
+  if (E.modus === 'stufen') { q.set('st', STUFEN[stufeVon(E.laden) - 1].id); q.set('aufstieg', E.aufstieg); }
   else { q.set('art', E.art); q.set('anzahl', E.anzahl); q.set('betrag', E.betrag); q.set('max', E.max); if (E.art !== 'kaufen') q.set('bezahlt', E.bezahlt); if (E.einer) q.set('einer', E.einer); }
   q.set('runde', E.runde);
   if (E.taster !== 'aus') { q.set('taster', E.taster); q.set('tempo', E.tempo); }
@@ -3524,7 +3734,7 @@ const LADEN_INFO = {
 };
 const farbeVon = id => LAEDEN[id].farbe;   // Leitfarbe; Flächen tragen immer dunkle Schrift, darum hell wie dunkel gleich
 function stufeVon(id) {
-  const nr = id === E.laden ? S.nr : (speicher.lesen(stufenKey(id), null) || { nr: 1 }).nr;
+  const nr = id === E.laden ? S.nr : stufeIndex(LAEDEN[id], speicher.lesen(stufenKey(id), null));
   return clamp(nr, 1, LAEDEN[id].stufen.length);
 }
 function bandVon(id, nr) { const b = LADEN_INFO[id].baender; let i = 0; while (i + 1 < b.length && nr >= b[i + 1][0]) i++; return i; }
@@ -3533,6 +3743,7 @@ function startSatz() {
 }
 function zeigeStart() {
   $('spiel').hidden = true; $('ende').hidden = true; $('start').hidden = false; document.body.classList.remove('im-spiel');
+  $('neu-chip').hidden = true;
   document.body.classList.add('auf-start');
   $('laden-titel').textContent = 'Einkaufen'; document.title = 'Kirmes-Kiosk';
   const frei = E.wahl, schonMal = speicher.lesen('einstellungen', null) !== null;
@@ -3576,7 +3787,7 @@ $('knopf-start-info').addEventListener('click', () => {
     const LL = LAEDEN[id], info = LADEN_INFO[id], nr = stufeVon(id);
     return `<div class="info-laden" style="--karte:${farbeVon(id)}">
       <h3>${LL.name}</h3>
-      <span class="karte-stufe">Stufe ${nr}: ${LL.stufen[nr - 1].titel}</span>
+      <span class="karte-stufe">${stufenName(LL, LL.stufen[nr - 1])}</span>
       <p>${info.anspruch}</p>
     </div>`;
   }).join('') + `<p class="leer">Die Stufe legt die Lehrkraft über „Schwierigkeit festlegen“ fest${E.steigern ? '; sie steigt nach gelösten Aufgaben automatisch' : '; sie bleibt, bis die Lehrkraft sie ändert'}.</p>`;
@@ -3588,7 +3799,7 @@ function ladenWaehlen(id) {
   speicher.schreiben(stufenSchluessel(), S);
   zeigeLaden();
   starteRunde();
-  setTimeout(vorlesenAufgabe, 400);
+  if (!$('dlg-stufe').open) setTimeout(vorlesenAufgabe, 400);
 }
 $('laden-karten').addEventListener('click', ev => { const k = ev.target.closest('[data-laden]'); if (k) ladenWaehlen(k.dataset.laden); });
 $('knopf-zuletzt').addEventListener('click', () => ladenWaehlen(E.laden));
@@ -3598,7 +3809,7 @@ $('knopf-anderer-laden').addEventListener('click', zeigeStart);
 function setzeStufe(id, nr) {
   nr = clamp(nr, 1, LAEDEN[id].stufen.length);
   if (nr === stufeVon(id)) return;
-  const neu = { nr, geloest: 0, schwerInFolge: 0 };
+  const neu = neuS(nr, LAEDEN[id]);   // die neue Stufe wird dem Kind beim nächsten Start erklärt
   speicher.schreiben(stufenKey(id), neu);
   if (id === E.laden) { S = neu; LK.neueRunde = true; }
   LK.geaendert = true;

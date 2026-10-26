@@ -84,18 +84,21 @@ Wird die Kamera nicht erlaubt oder kommt nach 6 Sekunden kein Bild, sagt die App
 
 Nach dem **2. Fehlversuch** erscheint *Hilfe: Preise zeigen*, nach dem **3.** *Hilfe: Schritt für Schritt* (z. B. „3 € + 2 € + 1 € = ?“). Die Lösung wird nie verraten. Abschaltbar.
 
-## Stufen (wie die „Neu ab hier“-Karten auf TaskCards)
+## Stufen in Themen
 
-| Stufe | Inhalt |
+Jeder Laden hat feine Stufen in 5 Themen (Etappe 1: 12–16 Stufen je Laden; weitere Aufgabenformate folgen). Kirmes-Kiosk:
+
+| Thema | Stufen |
 |---|---|
-| 1 | 2 Sachen einkaufen (bis 10 €) |
-| 2 | 3 Sachen (bis 12 €) |
-| 3 | 4 Sachen (bis 15 €) |
-| 4 | Weniger 1-€-Stücke: höchstens zwei 1 € (Bündeln) |
-| 5 | 5 Sachen einkaufen (bis 15 €, höchstens zwei 1 €) |
-| 6 | Größere Beträge bis 20 € |
-| 7 | Rückgeld (bezahlt mit 10 €) |
-| 8 | Reicht das Geld? (10 € dabei) |
+| 1 · Geld kennen | eine Sache nur mit 1-€-Münzen · mit 1 € und 2 € · auch mit 5 € |
+| 2 · Zusammenrechnen | 2 Sachen bis 10 € · 3 Sachen bis 12 € · 3 Sachen über 10 € (Zehnerübergang) · 4 Sachen bis 15 € · 5 Sachen bis 20 € |
+| 3 · Geschickt legen | höchstens zwei 1-€-Stücke · 5 Sachen mit zwei 1-€-Stücken · größere Beträge |
+| 4 · Mehrmals und Ergänzen | folgt (zweimal dasselbe, wie viel fehlt noch?) |
+| 5 · Rückgeld und Budget | Rückgeld von 5 € · von 10 € · von 20 € · Reicht das Geld? · Reicht das Geld? – knapp |
+
+Bäckerei: *Euro und Cent kennen* (unter 1 € mit 10/20 ct, mit 50 ct, über 1 €), *Zusammenrechnen* (2 Sachen bis 2 € … 5 Sachen bis 10 €), *Rückgeld und Budget* (von 1 €, 5 €, 10 €, Reicht das Geld?, knapp). Spielwarenladen: *Große Scheine kennen* (eine Spielsache bis 20 €, 50 €, 100 €), *Zusammenrechnen* (2 Spielsachen bis 30 € … 4 bis 200 €), *Rückgeld und Budget* (von 50 €, 100 €, Reicht das Geld?, knapp). In Stufen wie „nur 1-€-Münzen“ liegt nur dieses Geld in der Schublade. Jede Stufe hat eine feste Kennung (Link: `…&st=k-2-3`); der Stand von vor Version 4.7 wird übernommen, alte Links mit `stufe=1–8` gehen weiter.
+
+**Wechsel werden erklärt:** Bei jeder neuen Stufe erscheint eine Karte, die Thorsten vorliest („Neu ab hier“, bei einem neuen Thema „Neues Thema: …“ mit Lob). Neue Aufgabenarten und neues Geld (z. B. erstes Rückgeld, „Reicht das Geld?“, 2-€-Münze, 1 € = 100 Cent) werden zusätzlich **vorgemacht** („Zeig es mir“: Sachen mit Preis, das Geld fällt Stück für Stück auf den Teller, dazu die Rechnung); danach folgt eine **Probeaufgabe**, die nicht zählt, mit sichtbaren Preisen. In den ersten 3 Aufgaben nach einem Wechsel steht oben „Neu: …“ (antippen = Erklärung noch einmal) und die Hilfe kommt schon nach dem 1. Fehlversuch. Geht es eine Stufe zurück, heißt es freundlich „Wir üben das noch ein bisschen“. Setzt die Lehrkraft eine Stufe, wird sie beim nächsten Start ebenso erklärt.
 
 Nach einer einstellbaren Zahl gelöster Aufgaben (Standard 8; gezählt werden Aufgaben mit höchstens 2 Fotos und ohne Hilfe) erscheint die Karte **„Neu ab hier“** mit Lob, und die nächste Stufe beginnt. Optional geht es nach 3 schweren Aufgaben in Folge eine Stufe zurück. Statt Stufen lässt sich im Lehrkraft-Bereich unter *Laden & Schwierigkeit* (eingeklappt) eine **„Eigene Aufgabe statt Stufen“** einschalten (Aufgabe, Anzahl Sachen, gerade/ungerade, Höchstbetrag, Bezahlen mit, 1-€-Münzen); sie gilt im Laden, in dem gerade geübt wird. Ob am Ende der Gesamtbetrag aus 4 Möglichkeiten gewählt wird, stellt ein eigener Schalter ein – er gilt für jede Stufe und für die eigene Aufgabe.
 

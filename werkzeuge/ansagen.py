@@ -122,7 +122,7 @@ def sammle(lob_stimme):
     for r in ['Du hast {} hingelegt.', 'Ich sehe {}.']:
         for a, s in euro + cent20:
             teil(r.format(a), r.format(s))
-    bezahlt = [euro_text(n) for n in [5, 10, 15, 20, 50, 100, 200]]
+    bezahlt = [euro_text(n) for n in [1, 5, 10, 15, 20, 50, 100, 200]]
     scheine = [(f'einem {n}-Euro-Schein', f'einem {w}-Euro-Schein') for n, w in
                [(5, 'Fünf'), (10, 'Zehn'), (20, 'Zwanzig'), (50, 'Fünfzig'), (100, 'Hundert')]]
     for a, s in bezahlt + scheine:
@@ -134,7 +134,7 @@ def sammle(lob_stimme):
     # Stufen-Texte und Hinweise zur Fotoqualität (aus index.html)
     for block in ['STUFEN_KIRMES', 'STUFEN_SPIELWAREN', 'STUFEN_BAECKEREI']:
         a = html.index(f'const {block}'); b = html.index('];', a)
-        for t in re.findall(r"text: '([^']+)'", html[a:b]):
+        for t in re.findall(r"(?:text|sprich): '([^']+)'", html[a:b]):   # Stufen-Texte und Vormachen
             satz(t)
     a = html.index('const QUALITAET'); b = html.index('};', a)
     for t in re.findall(r"'([^']+\.)'", html[a:b]):
@@ -160,7 +160,10 @@ def sammle(lob_stimme):
          'Tippe auf eine Sache, dann hörst du den Preis.', 'Du hast alles gefunden.',
          'Was möchtest du kaufen?', 'Das ist zu teuer.', 'Dein Korb ist voll. Tippe auf Fertig.', 'Ein neuer Aufkleber für dein Album.',
          'Such dir eine Sache im Laden aus.', 'Such dir zwei Sachen im Laden aus.', 'Such dir drei Sachen im Laden aus.',
-         'Such dir vier Sachen im Laden aus.', 'Such dir fünf Sachen im Laden aus.')
+         'Such dir vier Sachen im Laden aus.', 'Such dir fünf Sachen im Laden aus.',
+         # Erklär-Karten beim Stufenwechsel
+         'Toll gemacht! Jetzt kommt etwas Neues.', 'Du hast schon viel geschafft! Wir üben das noch ein bisschen.',
+         'Jetzt du! Diese Aufgabe ist zum Probieren.')
     # Wanduhr im Laden: „Es ist 10 Uhr 25.“ (12-Stunden-Zählung wie auf der Uhr, wie zeitSatz() in index.html)
     for h in range(1, 13):
         hs = 'ein Uhr' if h == 1 else f'{h} Uhr'
