@@ -162,7 +162,7 @@ def sammle(lob_stimme):
          'Such dir eine Sache im Laden aus.', 'Such dir zwei Sachen im Laden aus.', 'Such dir drei Sachen im Laden aus.',
          'Such dir vier Sachen im Laden aus.', 'Such dir fünf Sachen im Laden aus.',
          # Erklär-Karten beim Stufenwechsel
-         'Toll gemacht! Jetzt kommt etwas Neues.', 'Du hast schon viel geschafft! Wir üben das noch ein bisschen.',
+         'Toll gemacht! Jetzt kommt etwas Neues.', 'Das üben wir später noch einmal. Jetzt machen wir mit etwas anderem weiter.', 'Weißt du noch? Das üben wir noch einmal.', 'Du hast schon viel geschafft! Wir üben das noch ein bisschen.',
          'Jetzt du! Diese Aufgabe ist zum Probieren.')
     # Neue Aufgabenformate: wie viel fehlt, Betrag anders legen, möglichst wenig Geld
     for a, s_ in euro + cent10:

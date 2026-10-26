@@ -100,7 +100,16 @@ Bäckerei: *Euro und Cent kennen* (unter 1 € mit 10/20 ct, mit 50 ct, über 1 
 
 **Wechsel werden erklärt:** Bei jeder neuen Stufe erscheint eine Karte, die Thorsten vorliest („Neu ab hier“, bei einem neuen Thema „Neues Thema: …“ mit Lob). Neue Aufgabenarten und neues Geld (z. B. erstes Rückgeld, „Reicht das Geld?“, 2-€-Münze, 1 € = 100 Cent) werden zusätzlich **vorgemacht** („Zeig es mir“: Sachen mit Preis, das Geld fällt Stück für Stück auf den Teller, dazu die Rechnung); danach folgt eine **Probeaufgabe**, die nicht zählt, mit sichtbaren Preisen. In den ersten 3 Aufgaben nach einem Wechsel steht oben „Neu: …“ (antippen = Erklärung noch einmal) und die Hilfe kommt schon nach dem 1. Fehlversuch. Geht es eine Stufe zurück, heißt es freundlich „Wir üben das noch ein bisschen“. Setzt die Lehrkraft eine Stufe, wird sie beim nächsten Start ebenso erklärt.
 
-Nach einer einstellbaren Zahl gelöster Aufgaben (Standard 8; gezählt werden Aufgaben mit höchstens 2 Fotos und ohne Hilfe) erscheint die Karte **„Neu ab hier“** mit Lob, und die nächste Stufe beginnt. Optional geht es nach 3 schweren Aufgaben in Folge eine Stufe zurück. Statt Stufen lässt sich im Lehrkraft-Bereich unter *Laden & Schwierigkeit* (eingeklappt) eine **„Eigene Aufgabe statt Stufen“** einschalten (Aufgabe, Anzahl Sachen, gerade/ungerade, Höchstbetrag, Bezahlen mit, 1-€-Münzen); sie gilt im Laden, in dem gerade geübt wird. Ob am Ende der Gesamtbetrag aus 4 Möglichkeiten gewählt wird, stellt ein eigener Schalter ein – er gilt für jede Stufe und für die eigene Aufgabe.
+Nach einer einstellbaren Zahl gelöster Aufgaben (Standard 8; gezählt werden Aufgaben mit höchstens 2 Fotos und ohne Hilfe) erscheint die Karte **„Neu ab hier“** mit Lob, und die nächste Stufe beginnt. **Wenn eine Stufe nicht klappt** (Einstellung unter *Laden & Schwierigkeit*):
+- *weitergehen, später wiederholen* (Standard): nach 12 Aufgaben ohne Aufstieg geht es zur nächsten Stufe („Das üben wir später noch einmal …“); die Stufe wird **gemerkt**.
+- *eine Stufe zurück*: nach 3 schweren Aufgaben in Folge (frühere Einstellung „Eine Stufe zurück“ wird übernommen).
+- *auf der Stufe bleiben*.
+
+**Stand je Stufe:** In der Stufenliste und in der Auswertung steht bei jeder geübten Stufe *sicher* (grün: mind. 4 Aufgaben, davon 80 % ohne Hilfe oder die letzten 3 ohne Hilfe), *im Aufbau* (gelb), *noch schwierig* (orange: gemerkt oder unter 50 %) oder *ausgelassen* (grau). Gezählt werden die letzten 10 Aufgaben der Stufe. Mit **„auslassen“** neben jeder Stufe nimmt die Lehrkraft eine Stufe aus dem automatischen Ablauf (Aufstieg, Weitergehen und Zurück springen darüber); steht das Kind gerade darauf, geht es zur nächsten Stufe.
+
+**Wiederholung in jeder Runde** (Schalter, Standard an): In jeder 4. Aufgabe kommt eine gemerkte Stufe dran, in jeder 5. eine sichere frühere Stufe – angekündigt mit „Weißt du noch? Das üben wir noch einmal.“ Diese Aufgaben zählen für den Stand ihrer Stufe, nicht für den Aufstieg. Klappt eine gemerkte Stufe wieder (sicher), wird sie nicht mehr gemerkt.
+
+Statt Stufen lässt sich im Lehrkraft-Bereich unter *Laden & Schwierigkeit* (eingeklappt) eine **„Eigene Aufgabe statt Stufen“** einschalten (Aufgabe, Anzahl Sachen, gerade/ungerade, Höchstbetrag, Bezahlen mit, 1-€-Münzen); sie gilt im Laden, in dem gerade geübt wird. Ob am Ende der Gesamtbetrag aus 4 Möglichkeiten gewählt wird, stellt ein eigener Schalter ein – er gilt für jede Stufe und für die eigene Aufgabe.
 
 ## Lehrkraft-Bereich
 
