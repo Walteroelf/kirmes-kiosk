@@ -113,6 +113,19 @@ class Szene:
                 f'<defs>{defs}</defs>' + '\n'.join(self.teile) + '<g class="schilder">' + ''.join(self.schilder) + '</g></svg>')
 
 
+def bratwurst(cx, cy, l=56, d=13, bogen=-5):
+    """Liegende Bratwurst ohne Brötchen, leicht gebogen, mit Grillstreifen (Mitte cx, cy)."""
+    a, b = cx - l / 2, cx + l / 2
+    bahn = lambda dy, r=0: f'M{a + r:.1f} {cy + dy:.1f} Q{cx:.1f} {cy + 2 * bogen + dy:.1f} {b - r:.1f} {cy + dy:.1f}'
+    streifen = ''.join(
+        f'<line x1="{x - 2.5:.1f}" y1="{y - d * .32:.1f}" x2="{x + 2.5:.1f}" y2="{y + d * .32:.1f}" stroke="#3e1406" stroke-width="2.2" stroke-opacity=".7" stroke-linecap="round"/>'
+        for x in (cx - l * .26, cx, cx + l * .26) for y in [cy + bogen * (1 - (2 * (x - cx) / l) ** 2)])
+    return (f'<path d="{bahn(0)}" fill="none" stroke="#4a2a16" stroke-width="{d + 3}" stroke-linecap="round"/>'
+            f'<path d="{bahn(0)}" fill="none" stroke="#bf5a2e" stroke-width="{d}" stroke-linecap="round"/>'
+            f'<path d="{bahn(3, 4)}" fill="none" stroke="#5b1e0c" stroke-opacity=".35" stroke-width="{d * .45:.1f}" stroke-linecap="round"/>'
+            f'<path d="{bahn(-3, 5)}" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="2" stroke-linecap="round"/>' + streifen)
+
+
 def gemeinsame_defs(k, wand=('#fdf6e1', '#f6e7c1'), wandL=('#e9d39c', '#f3e3b8'), wandR=('#e6cf96', '#f1e0b2'),
                     front=('#ffdb2e', '#f2c400')):
     return f'''
@@ -417,7 +430,8 @@ def kirmes():
     # Grill mit Würstchen, Hotdogs
     sz += (f'<rect x="120" y="532" width="200" height="26" rx="4" fill="#3a4a5c"/><rect x="126" y="526" width="188" height="10" rx="3" fill="{sz.u("metall")}"/>'
            + ''.join(f'<line x1="{x}" y1="528" x2="{x}" y2="534" stroke="#9aa5b1" stroke-width="2"/>' for x in range(134, 312, 12)))
-    sz += sz.artikel('wurst', ''.join(sz.bild('wurst', cx, 540 + dy, 70) for cx, dy in [(160, -8), (220, -10), (280, -8), (190, 2), (250, 2)]), (122, 470, 196, 76), (220, 596))
+    # Bratwürste ohne Brötchen direkt auf dem Rost (damit sie nicht wie die Hotdogs aussehen)
+    sz += sz.artikel('wurst', ''.join(bratwurst(cx, cy) for cx, cy in [(160, 512), (220, 511), (280, 512), (190, 520), (250, 520)]), (122, 470, 196, 76), (220, 596))
     sz += sz.artikel('hotdog', f'<rect x="334" y="548" width="96" height="10" rx="3" fill="#c5ccd3"/>' + sz.bild('hotdog', 368, 552, 80) + sz.bild('hotdog', 392, 562, 84),
                      (330, 494, 104, 70), (382, 596))
     sz += sz.artikel('burger', sz.bild('burger', 470, 562, 88) + sz.bild('burger', 512, 566, 92), (436, 488, 112, 80), (492, 596))
