@@ -317,7 +317,7 @@ def baeckerei():
 
     # Ladenschild, Rückbuffet, Kaffeemaschine
     sz += (f'<rect x="690" y="140" width="230" height="46" rx="4" fill="#fff" stroke="{T}" stroke-width="3"/><rect x="690" y="140" width="230" height="9" fill="#ffd200"/>'
-           f'<text x="805" y="178" text-anchor="middle" class="ladenschild">bäckerei</text>')
+           f'<text x="805" y="178" text-anchor="middle" class="ladenschild">Bäckerei</text>')
     sz += (f'<rect x="672" y="388" width="268" height="92" fill="#f4f1ea"/><rect x="666" y="378" width="280" height="12" fill="{sz.u("metall")}"/>'
            '<g stroke="#d6d0c0" stroke-width="2" fill="none"><rect x="682" y="398" width="76" height="72" rx="3"/><rect x="768" y="398" width="76" height="72" rx="3"/><rect x="854" y="398" width="76" height="72" rx="3"/></g>')
     sz += (f'<g><rect x="820" y="296" width="106" height="84" rx="8" fill="{sz.u("metallS")}"/><rect x="830" y="306" width="86" height="26" rx="4" fill="{T}"/>'
@@ -498,7 +498,7 @@ def kirmes():
     sz += sz.uhr(852, 214, 26)
     schild = (f'<rect x="420" y="8" width="360" height="54" rx="6" fill="#fff" stroke="{T}" stroke-width="3"/>'
               + ''.join(f'<circle cx="{x}" cy="{y}" r="4" fill="#ffd200" stroke="#e8b800"/>' for x in range(432, 780, 20) for y in (16, 54))
-              + f'<text x="600" y="47" text-anchor="middle" class="ladenschild gross">kirmes-kiosk</text>')
+              + f'<text x="600" y="47" text-anchor="middle" class="ladenschild gross">Kirmes-Kiosk</text>')
     sz += schild
     return sz, defs
 
@@ -519,7 +519,7 @@ def spielwaren():
     sz += sz.uhr(826, 138, 28)
     # Poster/Schild an der rechten Rückwand
     sz += (f'<rect x="870" y="128" width="160" height="46" rx="4" fill="#fff" stroke="{T}" stroke-width="3"/><rect x="870" y="128" width="160" height="9" fill="#9fd3f0"/>'
-           f'<text x="950" y="166" text-anchor="middle" class="ladenschild klein">spielwaren</text>')
+           f'<text x="950" y="166" text-anchor="middle" class="ladenschild klein">Spielwaren</text>')
     # Großes Wandregal (weiß lackiert, Kanten hellblau)
     R0, R1 = 168, 772
     reg = [f'<rect x="{R0}" y="96" width="{R1 - R0}" height="384" fill="#fbfdff" stroke="#d3e3ee" stroke-width="3"/>',

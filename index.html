@@ -498,7 +498,7 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
 .album-reiter button[aria-pressed="true"] { background: var(--f); }
 .album-seite { background: var(--tresen); border: 2px solid var(--linie); border-top: 10px solid var(--f); border-radius: var(--r); padding: 18px; display: grid; gap: 14px; }
 .album-seite-kopf { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
-.album-seite-kopf h2 { margin: 0; flex: 1; font: 300 30px var(--anzeige); text-transform: lowercase; }
+.album-seite-kopf h2 { margin: 0; flex: 1; font: 300 30px var(--anzeige); }
 .album-seite-kopf span { font: 700 19px var(--anzeige); }
 .plaetze { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 .platz { display: grid; gap: 6px; justify-items: center; text-align: center; font-size: 16px; font-weight: 700; }
@@ -529,7 +529,7 @@ body.laden-offen { overflow: hidden; }
 .laden-kopf { display: flex; align-items: center; gap: 12px; background: var(--tresen); position: relative; box-shadow: inset 14px 0 0 var(--laden);
   padding: calc(10px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 10px max(30px, env(safe-area-inset-left, 0px)); }
 .laden-kopf::after { content: ""; position: absolute; left: 0; right: 0; bottom: -8px; height: 8px; background: var(--laden); z-index: 1; }
-.laden-titel { flex: 1; font-family: var(--anzeige); font-weight: 300; font-size: clamp(24px, 4vw, 34px); text-transform: lowercase; color: var(--holz); }
+.laden-titel { flex: 1; font-family: var(--anzeige); font-weight: 300; font-size: clamp(24px, 4vw, 34px); color: var(--holz); }
 .laden-bild { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; background: var(--himmel); }
 .laden-bild svg { display: block; width: 100%; height: 100%; }
 .laden-svg .preis { font: 700 15px var(--anzeige); fill: #1d3a5c; }
@@ -589,7 +589,7 @@ body.laden-offen { overflow: hidden; }
 body.auf-start .markise { box-shadow: none; }
 body.auf-start .markise::after { background: linear-gradient(90deg, var(--orange) 0 33.3%, var(--gelb) 0 66.6%, var(--hellblau) 0); }
 .schild-titel { background: none; border: none; box-shadow: none; padding: 0 0 0 6px; font-family: var(--anzeige); font-weight: 300;
-  text-transform: lowercase; letter-spacing: .01em; color: var(--holz); font-size: clamp(28px, 4.6vw, 40px); }
+  letter-spacing: .01em; color: var(--holz); font-size: clamp(28px, 4.6vw, 40px); }
 .rundknopf { border: none; border-radius: var(--r); background: var(--flaeche); color: var(--markise); box-shadow: none; width: 54px; height: 54px; }
 .rundknopf:active { transform: none; box-shadow: none; filter: brightness(.95); }
 .stumm-knopf[aria-pressed="true"] { background: var(--hm); color: #fff; }
@@ -850,6 +850,9 @@ body.im-spiel .nur-spiel { display: flex; }
 /* ===== Kopfzeile im Spiel: eine Zeile ===== */
 body.im-spiel .kopf { flex-wrap: nowrap; }
 body.im-spiel .schild-titel { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Ladenname möglichst ganz zeigen; kürzer wird zuerst der Neu-Hinweis */
+body.im-spiel .schild-titel { flex: 0 1 auto; flex-shrink: .2; }
+body.im-spiel .neu-chip { min-width: 0; flex-shrink: 1; }
 @media (max-width: 900px) { body.im-spiel .kopf .gruss, .kopf-fortschritt .punkte { display: none; } }
 @media (max-width: 480px) { body.im-spiel .kopf-fortschritt { display: none; } }   /* Handy: Platz für den Ladennamen */
 
@@ -857,7 +860,7 @@ body.im-spiel .schild-titel { min-width: 0; overflow: hidden; text-overflow: ell
 @media (min-width: 900px) and (orientation: landscape), (min-width: 700px) and (min-height: 900px) and (orientation: portrait) {
   body.im-spiel { padding-bottom: 0; }
   body.im-spiel .kopf { padding-top: 8px; padding-bottom: 8px; }
-  body.im-spiel .schild-titel { font-size: 30px; }
+  body.im-spiel .schild-titel { font-size: 28px; flex-shrink: 0; }
   #spiel { max-width: 1240px; margin: 16px auto 0; height: calc(100vh - var(--kopf, 80px) - 30px); height: calc(100dvh - var(--kopf, 80px) - 30px); gap: 14px; }
   #spiel.wunsch .spiel-rechts { display: none; }
   #spiel > .tresen { padding: 14px; gap: 10px; min-height: 0; overflow: hidden; }
@@ -1622,7 +1625,7 @@ body.im-spiel .schild-titel { min-width: 0; overflow: hidden; text-overflow: ell
 <script src="aufkleber.js"></script>
 <script>
 'use strict';
-const VERSION = '4.9.0';
+const VERSION = '4.9.1';
 const STAND = '26.10.2026';
 
 // ---------------------------------------------------------------------------
@@ -1633,7 +1636,7 @@ const PRODUKTE_KIRMES = [
   { id: 'brezel', name: 'Brezel', preis: 1 },
   { id: 'wurst', name: 'Wurst', preis: 3 },
   { id: 'hotdog', name: 'Hot Dog', preis: 2 },
-  { id: 'falaffel', name: 'Falaffel', preis: 4 },
+  { id: 'falaffel', name: 'Falafel', preis: 4 },
   { id: 'burger', name: 'Burger', preis: 5 },
   { id: 'pommes', name: 'Pommes', preis: 3 },
   { id: 'pizza', name: 'Pizza', preis: 4 },
@@ -1643,13 +1646,13 @@ const PRODUKTE_KIRMES = [
   { id: 'cola', name: 'Cola', preis: 3 },
   { id: 'saft', name: 'Saft', preis: 2 },
   { id: 'zuckerwatte', name: 'Zuckerwatte', preis: 2 },
-  { id: 'kirschkuchen', name: 'Kirsch-Kuchen', preis: 3 },
+  { id: 'kirschkuchen', name: 'Kirschkuchen', preis: 3 },
   { id: 'lebkuchen', name: 'Lebkuchen', preis: 3 },
   { id: 'schokolade', name: 'Schokolade', preis: 1 },
   { id: 'popcorn', name: 'Popcorn', preis: 2 },
   { id: 'donut', name: 'Donut', preis: 1 },
   { id: 'muffin', name: 'Muffin', preis: 1 },
-  { id: 'schoko-kuchen', name: 'Schoko-Kuchen', preis: 3 },
+  { id: 'schoko-kuchen', name: 'Schokokuchen', preis: 3 },
 ];
 
 // Stufen in Themen. id bleibt fest (Lernstand, Links), auch wenn später Stufen dazukommen.
@@ -1662,7 +1665,7 @@ const STUFEN_KIRMES = [
     zeig: { waren: ['wurst'], legen: [100, 100, 100], rechnung: ['1 €', '2 €', '3 €'], sprich: 'Die Wurst kostet 3 Euro. Ich lege drei 1-Euro-Münzen: eins, zwei, drei.' } },
   { id: 'k-1-2', thema: 0, titel: 'Eine Sache mit 1 € und 2 €', text: 'Jetzt gibt es auch 2-Euro-Münzen. Eine 2-Euro-Münze ist so viel wie zwei 1-Euro-Münzen.',
     art: 'kaufen', anzahl: 1, max: 5, einer: 0, geld: [1, 2],
-    zeig: { waren: ['falaffel'], legen: [200, 200], rechnung: ['2 €', '2 € + 2 € = 4 €'], sprich: 'Die Falaffel kostet 4 Euro. Eine 2-Euro-Münze und noch eine 2-Euro-Münze sind 4 Euro.' } },
+    zeig: { waren: ['falaffel'], legen: [200, 200], rechnung: ['2 €', '2 € + 2 € = 4 €'], sprich: 'Die Falafel kostet 4 Euro. Eine 2-Euro-Münze und noch eine 2-Euro-Münze sind 4 Euro.' } },
   { id: 'k-1-3', thema: 0, titel: 'Eine Sache, auch mit 5 €', text: 'Jetzt gibt es auch einen 5-Euro-Schein. Er ist so viel wie fünf 1-Euro-Münzen.',
     art: 'kaufen', anzahl: 1, max: 5, einer: 0, geld: [1, 2, 5],
     zeig: { waren: ['burger'], legen: [500], rechnung: ['5 €'], sprich: 'Der Burger kostet 5 Euro. Ein 5-Euro-Schein ist genau 5 Euro.' } },
