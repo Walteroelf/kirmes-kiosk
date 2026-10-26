@@ -152,6 +152,10 @@ def sammle(lob_stimme):
          'Was möchtest du kaufen?', 'Das ist zu teuer.', 'Dein Korb ist voll. Tippe auf Fertig.', 'Ein neuer Aufkleber für dein Album.',
          'Such dir eine Sache im Laden aus.', 'Such dir zwei Sachen im Laden aus.', 'Such dir drei Sachen im Laden aus.',
          'Such dir vier Sachen im Laden aus.', 'Such dir fünf Sachen im Laden aus.')
+    # Wunschzettel: Höchstbetrag (aus Stufen und eigener Aufgabe; Rückgeld: 1 € bzw. 10 ct weniger als der Schein)
+    for a, s in [euro_text(n) for n in list(range(1, 31)) + [49, 50, 60, 99, 100, 150, 199, 200]] + \
+                [cent_text(v) for v in list(range(100, 1001, 100)) + [490, 990, 1990]]:
+        teil(f'Du darfst höchstens {a} ausgeben.', f'Du darfst höchstens {s} ausgeben.')
 
     # Laden-Ansicht: „Ein Kakao kostet 1 Euro 90.“ (wie satzPreis() in index.html: Nominativ, Betrag wie sprichBetrag)
     sprech = dict((m[0].strip("'"), m[1]) for m in re.findall(r"('?[\w-]+'?): \['([^']+)', '[^']+'\]", html[html.index('const SPRECH'):html.index('const ZAHL_SPRECH')]))

@@ -127,6 +127,9 @@ main { max-width: 980px; margin: 36px auto 0; display: grid; gap: 22px; }
 }
 .produkt img { max-height: 140px; width: auto; object-fit: contain; }
 .produkt .name { font-weight: 700; font-size: 18px; text-align: center; }
+.produkt { position: relative; }
+.produkt .menge { position: absolute; top: 8px; left: 8px; min-width: 52px; padding: 2px 10px; border-radius: 22px; background: var(--markise); color: var(--auf-markise);
+  font: 700 26px var(--anzeige); text-align: center; }
 .preis {
   display: inline-block; margin-top: 4px; font-family: var(--anzeige); font-weight: 900; font-size: 24px;
   background: var(--teller); color: var(--teller-text); border: 3px solid var(--teller-text); border-radius: 8px; padding: 0 10px;
@@ -515,6 +518,9 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
 .laden-svg .schild.zu-teuer { opacity: .45; }
 .korb-titel { font: 700 19px var(--anzeige); display: flex; align-items: center; gap: 8px; white-space: nowrap; }
 .korb-titel svg { width: 30px; height: 30px; }
+.korb-grenze { display: block; font-size: 16px; color: var(--holz-hell); }
+.wunsch-grenze { display: block; margin-top: 6px; font-size: 20px; font-weight: 400; }
+.wunsch-grenze b { font-weight: 700; }
 .korb-leer { color: var(--holz-hell); font-size: 17px; }
 .fertig-ausgesucht { margin-left: auto; border: none; border-radius: var(--r); background: var(--gut); color: #fff; font: 700 20px var(--anzeige); padding: 12px 20px; min-height: 56px; cursor: pointer; white-space: nowrap; }
 .zum-laden svg { width: 44px; height: 44px; display: block; }
@@ -539,6 +545,7 @@ body.laden-offen { overflow: hidden; }
 .laden-svg .schild.leuchtet rect:last-of-type { animation: blinken 1s ease-in-out 2; }
 @keyframes blinken { 50% { fill: #ffd200; } }
 @media (prefers-reduced-motion: reduce) { .laden-svg .artikel.leuchtet image, .laden-svg .schild.leuchtet rect { animation: none; } }
+.laden-svg .anzahl { font: 700 16px var(--anzeige); fill: #fff; }
 .zettel { display: flex; align-items: center; gap: 12px; padding: 10px max(16px, env(safe-area-inset-left, 0px)); background: var(--tresen); border-top: 4px solid var(--laden); flex-wrap: wrap; }
 .zettel-titel { font: 700 19px var(--anzeige); display: flex; align-items: center; gap: 8px; }
 .zettel-titel svg { width: 30px; height: 30px; }
@@ -579,6 +586,7 @@ body.auf-start .markise::after { background: linear-gradient(90deg, var(--orange
   text-transform: lowercase; letter-spacing: .01em; color: var(--holz); font-size: clamp(28px, 4.6vw, 40px); }
 .rundknopf { border: none; border-radius: var(--r); background: var(--flaeche); color: var(--markise); box-shadow: none; width: 54px; height: 54px; }
 .rundknopf:active { transform: none; box-shadow: none; filter: brightness(.95); }
+.stumm-knopf[aria-pressed="true"] { background: var(--hm); color: #fff; }
 main { margin-top: 30px; }
 .gruss { font-family: var(--anzeige); font-weight: 400; }
 .punkt { border: none; width: 16px; height: 16px; background: var(--flaeche); }
@@ -797,6 +805,7 @@ label.lk-zeile { cursor: pointer; }
     <button class="rundknopf" id="knopf-vorlesen" data-scan aria-label="Aufgabe vorlesen" title="Vorlesen">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" fill-opacity=".15"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>
     </button>
+<button class="rundknopf stumm-knopf" data-scan aria-pressed="false" aria-label="Ansagen ausschalten" title="Ansagen aus/an"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" fill-opacity=".15"/><path d="M16.5 9.5l5 5M21.5 9.5l-5 5"/></svg></button>
     <button class="rundknopf" id="knopf-lehrkraft" aria-label="Einstellungen (Lehrkraft)" title="Einstellungen (Lehrkraft)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" fill="currentColor" fill-opacity=".15"/></svg>
     </button>
@@ -928,6 +937,7 @@ label.lk-zeile { cursor: pointer; }
     <button class="rundknopf" id="knopf-laden-vorlesen" aria-label="Vorlesen" title="Vorlesen">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" fill-opacity=".15"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>
     </button>
+    <button class="rundknopf stumm-knopf" aria-pressed="false" aria-label="Ansagen ausschalten" title="Ansagen aus/an"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" fill-opacity=".15"/><path d="M16.5 9.5l5 5M21.5 9.5l-5 5"/></svg></button>
   </div>
   <div class="laden-bild" id="laden-bild"></div>
   <div class="zettel" id="zettel"></div>
@@ -936,7 +946,7 @@ label.lk-zeile { cursor: pointer; }
 
 <!-- Sammelalbum -->
 <div class="laden-ansicht album-ansicht" id="album-ansicht" hidden role="dialog" aria-label="Mein Album">
-  <div class="laden-kopf album-kopf"><span class="laden-titel">mein album</span></div>
+  <div class="laden-kopf album-kopf"><span class="laden-titel">mein album</span><button class="rundknopf stumm-knopf" aria-pressed="false" aria-label="Ansagen ausschalten" title="Ansagen aus/an"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" fill-opacity=".15"/><path d="M16.5 9.5l5 5M21.5 9.5l-5 5"/></svg></button></div>
   <div class="album-inhalt">
     <div class="album-reiter" id="album-reiter"></div>
     <section class="album-seite" id="album-seite"></section>
@@ -1143,6 +1153,10 @@ label.lk-zeile { cursor: pointer; }
               <span class="lk-text"><strong>Gleiche Sachen mehrmals</strong><small>Zum Beispiel zweimal Popcorn in einer Aufgabe.</small></span>
               <input type="checkbox" class="lk-schiebe" data-key="doppelt">
             </label>
+            <div class="lk-zeile wahl" data-wenn="doppelt">
+              <span class="lk-text"><strong>Gleiche Sachen anzeigen</strong><small>Zusammengefasst ist schwerer: Das Kind muss den Preis mehrmals nehmen.</small></span>
+              <div class="lk-chips" data-key="mengen"><button data-wert="einzeln">einzeln nebeneinander</button><button data-wert="zusammen">zusammengefasst (2×, 3×)</button></div>
+            </div>
           </div>
         </div>
       </section>
@@ -1232,6 +1246,10 @@ label.lk-zeile { cursor: pointer; }
               <span class="lk-text"><strong>Stimme</strong><small data-wenn="stimme=thorsten" id="lk-ton-stand"></small></span>
               <div class="lk-chips" data-key="stimme"><button data-wert="thorsten">Thorsten (natürlich)</button><button data-wert="geraet">Stimme des Geräts</button></div>
             </div>
+            <label class="lk-zeile" data-wenn="ton">
+              <span class="lk-text"><strong>Ansagen stumm</strong><small>Das Kind kann die Ansagen auch selbst mit dem Knopf oben aus- und einschalten. „Vorlesen“ liest trotzdem vor.</small></span>
+              <input type="checkbox" class="lk-schiebe" data-key="stumm">
+            </label>
           </div>
         </div>
         <div class="lk-gruppe">
@@ -1391,7 +1409,7 @@ label.lk-zeile { cursor: pointer; }
 <script src="aufkleber.js"></script>
 <script>
 'use strict';
-const VERSION = '4.3.3';
+const VERSION = '4.4.0';
 const STAND = '26.10.2026';
 
 // ---------------------------------------------------------------------------
@@ -1608,7 +1626,8 @@ const EINS = () => L.faktor;   // Wert einer 1-€-Münze in der Einheit des Lad
 const STANDARD = { name: '', laden: 'kirmes', geld: 'foto', modus: 'stufen', start: 1, aufstieg: 8, abstieg: false,
                    art: 'kaufen', anzahl: 3, betrag: 'alle', max: 15, bezahlt: 10, runde: 10, einer: 0, schild: false,
                    preise: false, hilfe: true, doppelt: true, betragzeigen: true, ton: true, kamera: true, fotos: false,
-                   taster: 'aus', tempo: 2500, wahl: true, steigern: true, stimme: 'thorsten', markieren: 'hilfe', wunsch: true };
+                   taster: 'aus', tempo: 2500, wahl: true, steigern: true, stimme: 'thorsten', markieren: 'hilfe', wunsch: true,
+                   mengen: 'einzeln', stumm: false };
 const SCHALTER = ['wunsch', 'wahl', 'steigern', 'abstieg', 'preise', 'hilfe', 'doppelt', 'betragzeigen', 'ton', 'kamera', 'fotos', 'schild'];
 const speicher = {
   lesen(k, f) { try { const v = localStorage.getItem('kirmes-' + k); return v ? JSON.parse(v) : f; } catch (e) { return f; } },
@@ -1631,6 +1650,7 @@ function ausLink() {
   if (q.has('einer')) e.einer = clamp(+q.get('einer'), 0, 9);
   if (q.has('stimme') && ['thorsten', 'geraet'].includes(q.get('stimme'))) e.stimme = q.get('stimme');
   if (q.has('markieren') && ['hilfe', 'immer', 'nie'].includes(q.get('markieren'))) e.markieren = q.get('markieren');
+  if (q.has('mengen') && ['einzeln', 'zusammen'].includes(q.get('mengen'))) e.mengen = q.get('mengen');
   if (q.has('taster') && ['aus', 'taste', 'bildschirm'].includes(q.get('taster'))) e.taster = q.get('taster');
   if (q.has('tempo')) e.tempo = clamp(+q.get('tempo'), 800, 8000);
   for (const k of SCHALTER) if (q.has(k)) e[k] = q.get(k) === '1';
@@ -1717,7 +1737,7 @@ const wunschOffen = () => !!(aufgabe && aufgabe.wunsch && !aufgabe.waren.length)
 const wunschGrenze = () => aufgabe.art === 'rueckgeld' ? aufgabe.bezahlt - (L.cent ? 10 : 1) : aufgabe.regeln.max;
 function wunschSatz() {
   const n = aufgabe.regeln.anzahl;
-  return `Was möchtest du kaufen? Such dir ${n === 1 ? 'eine Sache' : (ZAHL_SPRECH[n] || n) + ' Sachen'} im Laden aus.`;
+  return `Was möchtest du kaufen? Such dir ${n === 1 ? 'eine Sache' : (ZAHL_SPRECH[n] || n) + ' Sachen'} im Laden aus. Du darfst höchstens ${sprichBetrag(wunschGrenze())} ausgeben.`;
 }
 function wunschFertig() {
   const R = aufgabe.regeln, waren = korb.slice().sort((a, b) => a.name.localeCompare(b.name, 'de'));
@@ -1750,13 +1770,16 @@ function zeigeRunde() {
   }
 }
 function preiseSichtbar() { return E.preise || hilfeStufe >= 1; }
+// Gleiche Sachen einzeln nebeneinander oder zusammengefasst („2×“, Einstellung E.mengen – schwerer)
+const mengenZusammen = () => E.doppelt && E.mengen === 'zusammen';
 function zeigeWare() {
   const ware = $('ware'); ware.innerHTML = '';
-  for (const p of aufgabe.waren) {
+  const liste = mengenZusammen() ? einkaufsliste().map(([id, n]) => [aufgabe.waren.find(p => p.id === id), n]) : aufgabe.waren.map(p => [p, 1]);
+  for (const [p, n] of liste) {
     const k = document.createElement('div');
     k.className = 'produkt';
-    k.innerHTML = `<img src="${bild(p)}" alt="${p.name}"><div><div class="name">${p.name}</div>` +
-      (preiseSichtbar() ? `<div style="text-align:center"><span class="preis">${fmt(p.preis)}</span></div>` : '') + '</div>';
+    k.innerHTML = (n > 1 ? `<span class="menge">${n}×</span>` : '') + `<img src="${bild(p)}" alt="${p.name}"><div><div class="name">${p.name}</div>` +
+      (preiseSichtbar() ? `<div style="text-align:center"><span class="preis">${n > 1 ? 'je ' : ''}${fmt(p.preis)}</span></div>` : '') + '</div>';
     ware.appendChild(k);
   }
 }
@@ -1770,7 +1793,7 @@ function zeigeAufgabe() {
     // Wunschzettel: erst im Laden aussuchen, dann rechnen
     const k = aufgabe.regeln.anzahl;
     $('ware-titel').textContent = 'Was möchtest du kaufen?';
-    $('ware').innerHTML = `<div class="wunsch-hinweis">Such dir ${k === 1 ? 'eine Sache' : k + ' Sachen'} im Laden aus.</div>`;
+    $('ware').innerHTML = `<div class="wunsch-hinweis">Such dir ${k === 1 ? 'eine Sache' : k + ' Sachen'} im Laden aus.<span class="wunsch-grenze">Du darfst höchstens <b>${fmt(wunschGrenze())}</b> ausgeben.</span></div>`;
     ['bezahlen', 'hilfe-reihe', 'schritt-foto', 'schritt-budget', 'schritt-schild', 'weiter-reihe'].forEach(id => { $(id).hidden = true; });
     window.scrollTo({ top: 0, behavior: 'smooth' });
     scanNeu();
@@ -2354,8 +2377,10 @@ function starteRunde() {
 // sageDanach() hängt eine Ansage an die laufende an – sie entfällt, wenn inzwischen etwas Neues gesagt wurde.
 let ansage = Promise.resolve(), jubelEnde = 0;
 const warte = s => new Promise(r => setTimeout(r, Math.max(0, s * 1000)));
+// Stumm (Knopf oben, E.stumm): keine Ansagen von selbst – „Vorlesen“ liest trotzdem vor (vorlesenGewollt)
+let vorlesenGewollt = false;
 function sage(text) {
-  if (!E.ton) return (ansage = Promise.resolve());
+  if (!E.ton || (E.stumm && !vorlesenGewollt)) return (ansage = Promise.resolve());
   stoppeTon();
   const lauf = tonLauf, vorlauf = Math.max(0, jubelEnde - performance.now()) / 1000;
   const system = () => warte(vorlauf).then(() => { if (lauf === tonLauf) return sprichSystem(text); });
@@ -2494,11 +2519,25 @@ function vorlesenAufgabe() {
   else if (aufgabe.art === 'budget') sage(`${kauf} Ich habe ${sprichBetrag(aufgabe.bezahlt)} dabei. Reicht mein Geld?`);
   else sage(`${kauf} ${aufgabe.waren.length === 1 ? 'Wie viel kostet das?' : 'Wie viel kostet das zusammen?'} ${legen}`);
 }
-$('knopf-vorlesen').addEventListener('click', () => {
+function aufWunsch(f) { vorlesenGewollt = true; try { f(); } finally { vorlesenGewollt = false; } }
+$('knopf-vorlesen').addEventListener('click', () => aufWunsch(() => {
   if (!$('start').hidden) return sage(startSatz());
   if (!$('ende').hidden) return sage($('ende-text').textContent);
   vorlesenAufgabe();
-});
+}));
+function zeigeStumm() {
+  document.querySelectorAll('.stumm-knopf').forEach(b => {
+    b.setAttribute('aria-pressed', String(!!E.stumm));
+    b.setAttribute('aria-label', E.stumm ? 'Ansagen einschalten' : 'Ansagen ausschalten');
+  });
+}
+document.querySelectorAll('.stumm-knopf').forEach(b => b.addEventListener('click', () => {
+  E.stumm = !E.stumm;
+  speicher.schreiben('einstellungen', E);
+  if (E.stumm) stoppeTon();
+  zeigeStumm();
+}));
+zeigeStumm();
 function jubel(gross) {
   if (!E.ton) return;
   jubelEnde = performance.now() + (gross ? 850 : 650);   // so lange wartet die nächste Ansage
@@ -2857,10 +2896,11 @@ function einkaufsliste() {
 }
 const alleGefunden = () => einkaufsliste().every(([id, n]) => (gefunden.get(id) || 0) >= n);
 const markierungZeigen = () => E.markieren === 'immer' || (E.markieren === 'hilfe' && (fehlversuche > 0 || hilfeStufe > 0));
-function markierungSvg(box) {
+function markierungSvg(box, n) {
   const [x, y, w, h] = box.split(' ').map(Number);
   return `<g class="markierung" pointer-events="none"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="10" fill="none" stroke="#2f9e55" stroke-width="5"/>
-    <circle cx="${x + w}" cy="${y}" r="17" fill="#2f9e55"/><path d="M${x + w - 10} ${y - 3}h20l-3 12h-14zM${x + w - 6} ${y - 3}l6-8 6 8" fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/></g>`;
+    <circle cx="${x + w}" cy="${y}" r="17" fill="#2f9e55"/><path d="M${x + w - 10} ${y - 3}h20l-3 12h-14zM${x + w - 6} ${y - 3}l6-8 6 8" fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+    ${n > 1 ? `<rect x="${x - 6}" y="${y - 14}" width="40" height="26" rx="13" fill="#2f9e55"/><text x="${x + 14}" y="${y + 5}" text-anchor="middle" class="anzahl">${n}×</text>` : ''}</g>`;
 }
 async function oeffneLaden() {
   const box = $('laden-bild');
@@ -2880,9 +2920,9 @@ async function oeffneLaden() {
     }
   } catch (e) { box.innerHTML = '<p style="padding:20px;font-size:20px">Der Laden kann gerade nicht geladen werden. Bitte einmal mit Internet öffnen.</p>'; box.dataset.laden = ''; }
   box.querySelectorAll('.markierung').forEach(m => m.remove());
-  if (!wunschOffen() && markierungZeigen()) for (const [id] of einkaufsliste()) {
+  if (!wunschOffen() && markierungZeigen()) for (const [id, n] of einkaufsliste()) {
     const a = box.querySelector(`.artikel[data-id="${id}"]`);
-    if (a) a.insertAdjacentHTML('beforeend', markierungSvg(a.dataset.box));
+    if (a) a.insertAdjacentHTML('beforeend', markierungSvg(a.dataset.box, mengenZusammen() ? n : 1));
   }
   $('laden-ansicht-titel').textContent = L.name;
   zeigeZettel();
@@ -2898,7 +2938,7 @@ function schliesseLaden() {
 function zeigeKorb() {
   const n = aufgabe.regeln.anzahl, voll = korb.length >= n;
   $('zettel').classList.remove('eng');
-  $('zettel').innerHTML = `<span class="korb-titel">${KORB_SVG}Dein Korb (${korb.length} von ${n}):</span>` +
+  $('zettel').innerHTML = `<span class="korb-titel">${KORB_SVG}<span>Dein Korb (${korb.length} von ${n}):<small class="korb-grenze">höchstens ${fmt(wunschGrenze())}</small></span></span>` +
     (korb.length ? korb.map((p, i) => `<button class="posten gefunden" data-korb="${i}"><img src="${bild(p)}" alt=""><span class="was">${p.name}<small>${fmt(p.preis)}</small></span></button>`).join('')
       : '<span class="korb-leer">Tippe auf eine Sache.</span>') +
     (voll ? '<button class="fertig-ausgesucht" id="knopf-ausgesucht">Fertig ausgesucht</button>' : '');
@@ -2914,13 +2954,16 @@ function zeigeKorb() {
 function zeigeZettel() {
   if (wunschOffen()) return zeigeKorb();
   $('laden-bild').querySelectorAll('.zu-teuer').forEach(x => x.classList.remove('zu-teuer'));
-  // Jede Sache einzeln (zwei Donuts = zwei Posten nebeneinander); jedes Antippen im Laden hakt einen ab
-  const posten = einkaufsliste().flatMap(([id, n]) => Array.from({ length: n }, (_, i) => [id, i < (gefunden.get(id) || 0)]));
+  // Einzeln: zwei Donuts = zwei Posten, jedes Antippen im Laden hakt einen ab.
+  // Zusammengefasst: ein Posten „2× Donut“, einmal Antippen hakt ihn ab.
+  const zusammen = mengenZusammen();
+  const posten = einkaufsliste().flatMap(([id, n]) => zusammen ? [[id, n, (gefunden.get(id) || 0) >= n]]
+    : Array.from({ length: n }, (_, i) => [id, 1, i < (gefunden.get(id) || 0)]));
   $('zettel').classList.toggle('eng', posten.length >= 4);
-  $('zettel').innerHTML = `<span class="zettel-titel">${ZETTEL_SVG}<span>Einkaufszettel:</span></span>` + posten.map(([id, ok]) => {
+  $('zettel').innerHTML = `<span class="zettel-titel">${ZETTEL_SVG}<span>Einkaufszettel:</span></span>` + posten.map(([id, n, ok]) => {
     const p = PRODUKTE.find(x => x.id === id);
     return `<button class="posten${ok ? ' gefunden' : ''}" data-id="${id}"><img src="${bild(p)}" alt="">
-      <span class="was">${p.name}<small>${ok ? fmt(p.preis) : 'Preis?'}</small></span><span class="haken"></span></button>`;
+      <span class="was">${n > 1 ? n + '× ' : ''}${p.name}<small>${ok ? (n > 1 ? 'je ' : '') + fmt(p.preis) : 'Preis?'}</small></span><span class="haken"></span></button>`;
   }).join('') + (alleGefunden() ? '<span class="alles">Alles gefunden!</span>' : '');
 }
 function leuchte(a) {
@@ -2942,7 +2985,7 @@ function tippeArtikel(a) {
   leuchte(a); sage(satzPreis(p));
   const soll = einkaufsliste().find(([id]) => id === p.id);
   if (soll && (gefunden.get(p.id) || 0) < soll[1]) {
-    gefunden.set(p.id, (gefunden.get(p.id) || 0) + 1); zeigeZettel();
+    gefunden.set(p.id, mengenZusammen() ? soll[1] : (gefunden.get(p.id) || 0) + 1); zeigeZettel();
     if (alleGefunden()) sageDanach('Super! Du hast alles gefunden.');
   }
   scanNeu();
@@ -2965,7 +3008,7 @@ $('zettel').addEventListener('click', ev => {
 });
 $('knopf-zum-laden').addEventListener('click', oeffneLaden);
 $('knopf-laden-zurueck').addEventListener('click', schliesseLaden);
-$('knopf-laden-vorlesen').addEventListener('click', () => sage('Tippe auf eine Sache, dann hörst du den Preis.'));
+$('knopf-laden-vorlesen').addEventListener('click', () => aufWunsch(() => sage(wunschOffen() ? wunschSatz() : 'Tippe auf eine Sache, dann hörst du den Preis.')));
 document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && ladenOffen && E.taster === 'aus') schliesseLaden(); });
 
 // ---------------------------------------------------------------------------
@@ -3124,10 +3167,10 @@ function lkSetze(k, roh) {
 function lkStand(n) {
   switch (n) {
     case 1: return (E.wahl ? 'Kind wählt' : 'Immer ' + LADEN_KURZ[E.laden]) + ' · ' + (E.modus === 'fest' ? 'eigene Aufgabe' : E.steigern ? `steigt nach ${E.aufstieg}` : 'Stufe bleibt');
-    case 2: return [`${E.runde} pro Runde`, E.wunsch && 'Wunschzettel', E.schild && 'Betrag wählen'].filter(Boolean).join(' · ');
+    case 2: return [`${E.runde} pro Runde`, E.wunsch && 'Wunschzettel', E.schild && 'Betrag wählen', E.doppelt && E.mengen === 'zusammen' && 'mit 2×'].filter(Boolean).join(' · ');
     case 3: return `${[E.preise, E.hilfe, E.betragzeigen && !E.schild, E.markieren !== 'nie'].filter(Boolean).length} von 4 Hilfen an`;
     case 4: return E.geld === 'foto' ? 'Spielgeld fotografieren' : 'Geld ziehen';
-    case 5: return (E.ton ? (E.stimme === 'thorsten' ? 'Thorsten' : 'Gerätestimme') : 'ohne Ton') + ' · ' + (E.taster === 'aus' ? 'Taster aus' : 'Taster an');
+    case 5: return (E.ton ? (E.stumm ? 'Ansagen stumm' : E.stimme === 'thorsten' ? 'Thorsten' : 'Gerätestimme') : 'ohne Ton') + ' · ' + (E.taster === 'aus' ? 'Taster aus' : 'Taster an');
     case 6: return `${LADEN_KURZ[LK.aLaden]}: ${LK.anzahl ? LK.anzahl + ' Aufgaben' : 'noch nichts'}`;
     case 7: return 'Druckvorlagen · Link';
     default: return 'Sichern · Löschen';
@@ -3243,7 +3286,7 @@ $('dlg-lehrkraft').addEventListener('close', () => {
     if (E.ton && E.stimme === 'thorsten') ansagenSpeichern();
   }
   LK.geaendert = LK.neueRunde = false;
-  scanNeu();
+  zeigeStumm(); scanNeu();
 });
 function aktualisiereLink() {
   const q = new URLSearchParams();
@@ -3256,6 +3299,7 @@ function aktualisiereLink() {
   if (E.taster !== 'aus') { q.set('taster', E.taster); q.set('tempo', E.tempo); }
   if (E.stimme !== STANDARD.stimme) q.set('stimme', E.stimme);
   if (E.markieren !== STANDARD.markieren) q.set('markieren', E.markieren);
+  if (E.mengen !== STANDARD.mengen) q.set('mengen', E.mengen);
   for (const k of SCHALTER) if (!!E[k] !== STANDARD[k]) q.set(k, E[k] ? '1' : '0');
   const basis = location.protocol.startsWith('http') ? location.origin + location.pathname : 'https://walteroelf.github.io/kirmes-kiosk/';
   $('link-text').textContent = basis + '?' + q.toString();
