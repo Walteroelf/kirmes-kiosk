@@ -1042,6 +1042,13 @@ body.im-spiel .stufe-chip { min-width: 0; flex-shrink: 1; }
 .stufe-chip i { width: 26px; height: 26px; border-radius: 50%; background: #fff; display: grid; place-items: center; font-style: normal; font-family: var(--anzeige); flex: none; }
 .stufe-chip span { overflow: hidden; text-overflow: ellipsis; }
 @media (max-width: 760px) { .stufe-chip #stufe-chip-text { display: none; } .stufe-chip { padding-right: 6px; } }
+
+/* ===== Wunschzettel: Höchstbetrag groß als Geld ===== */
+.budget-schein { display: grid; justify-items: center; gap: 8px; margin: 14px auto 0; padding: 12px 18px; border-radius: var(--r); background: var(--teller, #fff); border: 3px solid var(--laden-rand); width: fit-content; max-width: 100%; }
+.budget-schein .budget-geld { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; line-height: 0; }
+.budget-schein strong { font: 700 30px var(--anzeige); color: var(--holz); white-space: nowrap; }
+.budget-schein.klein { grid-auto-flow: column; align-items: center; gap: 8px; margin: 0; padding: 4px 10px; border-width: 2px; flex: none; }
+.budget-schein.klein strong { font-size: 20px; }
 </style>
 </head>
 <body>
@@ -1715,7 +1722,7 @@ body.im-spiel .stufe-chip { min-width: 0; flex-shrink: 1; }
 <script src="symbole.js"></script>
 <script>
 'use strict';
-const VERSION = '5.0.4';
+const VERSION = '5.0.5';
 const STAND = '27.10.2026';
 
 // ---------------------------------------------------------------------------
@@ -2337,6 +2344,12 @@ function neueAufgabeIntern() {
 const wunschOffen = () => !!(aufgabe && aufgabe.wunsch && !aufgabe.waren.length);
 // Höchstbetrag für die ausgesuchten Sachen (Kaufen: Stufen-Maximum, Rückgeld: weniger als der Schein)
 const wunschGrenze = () => aufgabe.art === 'rueckgeld' ? aufgabe.bezahlt - (L.cent ? 10 : 1) : aufgabe.regeln.max;
+// Höchstbetrag groß als Geld (Schein bzw. Stücke) mit „höchstens …“ – beim Aussuchen gut sichtbar
+function budgetSchein(gross = true) {
+  const g = wunschGrenze(), geld = [...new Set([...L.geld, 5 * L.faktor, 10 * L.faktor, 20 * L.faktor, 50 * L.faktor, 100 * L.faktor])];
+  const stuecke = zerlege(g, geld);
+  return `<div class="budget-schein${gross ? '' : ' klein'}"><span class="budget-geld">${stuecke.map(w => geldStueck(w, istSchein(w) ? (gross ? 2.4 : 1.3) : (gross ? 3.2 : 1.8))).join('')}</span><strong>höchstens ${fmt(g)}</strong></div>`;
+}
 function wunschSatz() {
   const n = aufgabe.regeln.anzahl;
   return `Was möchtest du kaufen? Such dir ${n === 1 ? 'eine Sache' : (ZAHL_SPRECH[n] || n) + ' Sachen'} im Laden aus. Du darfst höchstens ${sprichBetrag(wunschGrenze())} ausgeben.`;
@@ -2416,7 +2429,7 @@ function zeigeAufgabe() {
     // Wunschzettel: erst im Laden aussuchen, dann rechnen
     const k = aufgabe.regeln.anzahl;
     $('ware-titel').textContent = 'Was möchtest du kaufen?';
-    $('ware').innerHTML = `<div class="wunsch-hinweis">Such dir ${k === 1 ? 'eine Sache' : k + ' Sachen'} im Laden aus.<span class="wunsch-grenze">Du darfst höchstens <b>${fmt(wunschGrenze())}</b> ausgeben.</span></div>`;
+    $('ware').innerHTML = `<div class="wunsch-hinweis">Such dir ${k === 1 ? 'eine Sache' : k + ' Sachen'} im Laden aus.${budgetSchein()}</div>`;
     ['bezahlen', 'hilfe-reihe', 'schritt-foto', 'schritt-budget', 'schritt-schild', 'weiter-reihe'].forEach(id => { $(id).hidden = true; });
     window.scrollTo({ top: 0, behavior: 'smooth' });
     scanNeu();
@@ -3812,7 +3825,7 @@ function schliesseLaden() {
 function zeigeKorb() {
   const n = aufgabe.regeln.anzahl, voll = korb.length >= n;
   $('zettel').classList.toggle('eng', korb.length >= 3);
-  $('zettel').innerHTML = `<span class="korb-titel">${KORB_SVG}<span>Dein Korb (${korb.length} von ${n}):<small class="korb-grenze">höchstens ${fmt(wunschGrenze())}</small></span></span>` +
+  $('zettel').innerHTML = `<span class="korb-titel">${KORB_SVG}<span>Dein Korb (${korb.length} von ${n}):</span></span>${budgetSchein(false)}` +
     (korb.length ? korb.map((p, i) => `<button class="posten gefunden" data-korb="${i}"><img src="${bild(p)}" alt=""><span class="was">${p.name}<small>${fmt(p.preis)}</small></span></button>`).join('')
       : '<span class="korb-leer">Tippe auf eine Sache.</span>') +
     (voll ? '<button class="fertig-ausgesucht" id="knopf-ausgesucht">Fertig ausgesucht</button>' : '');
