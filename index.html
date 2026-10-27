@@ -674,7 +674,11 @@ dialog::backdrop { background: rgba(29, 58, 92, .45); }
 .lk-navi { overflow: auto; border-right: 2px solid var(--linie); padding: 8px 10px 16px; display: flex; flex-direction: column; gap: 2px; background: var(--tresen); }
 .lk-navi-gruppe { margin: 14px 10px 4px; font-size: 13px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--holz-hell); }
 .lk-navi-gruppe:first-child { margin-top: 6px; }
-.lk-punkt { display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: center; text-align: left;
+.lk-navi > * { flex-shrink: 0; }
+.lk-navi { overflow-x: hidden; }
+.lk-punkt > span { min-width: 0; }
+.lk-punkt-name, .lk-punkt-stand { hyphens: auto; -webkit-hyphens: auto; overflow-wrap: break-word; }   /* nie zusammendrücken – sonst überlappen die Einträge, wenn die Leiste zu kurz ist */
+.lk-punkt { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 12px; align-items: center; text-align: left;
   border: none; background: none; padding: 9px 10px; border-radius: var(--r); color: var(--holz); min-height: 58px; }
 .lk-punkt svg { width: 26px; height: 26px; color: var(--markise); }
 .lk-punkt-name { display: block; font-weight: 700; font-size: 17px; line-height: 1.25; }
@@ -793,7 +797,7 @@ label.lk-zeile { cursor: pointer; }
   #dlg-lehrkraft:not(.detail) .lk-inhalt { display: none; }
   #dlg-lehrkraft.detail .lk-navi { display: none; }
   .lk-navi { border-right: none; padding-inline: 6px; }
-  .lk-punkt { grid-template-columns: 28px 1fr auto; border-radius: 0; border-bottom: 1px solid var(--linie); }
+  .lk-punkt { grid-template-columns: 28px minmax(0, 1fr) auto; border-radius: 0; border-bottom: 1px solid var(--linie); }
   .lk-pfeil { display: block; }
   .lk-punkt[aria-current="page"] { background: none; color: var(--holz); }
   .lk-punkt[aria-current="page"] svg { color: var(--markise); }
@@ -1625,8 +1629,8 @@ body.im-spiel .neu-chip { min-width: 0; flex-shrink: 1; }
 <script src="aufkleber.js"></script>
 <script>
 'use strict';
-const VERSION = '4.9.1';
-const STAND = '26.10.2026';
+const VERSION = '4.9.2';
+const STAND = '27.10.2026';
 
 // ---------------------------------------------------------------------------
 // Läden. Beträge in der Einheit des Ladens: Kirmes und Spielwaren in ganzen Euro,
