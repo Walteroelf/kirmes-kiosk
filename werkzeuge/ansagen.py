@@ -48,6 +48,10 @@ AUSSPRACHE = [
     (r'\bBurger\b', 'Börger'),
     (r'\bMuffins\b', 'Maffins'), (r'\bMuffin\b', 'Maffin'),
     (r'\bDonuts\b', 'Dohnatts'), (r'\bDonut\b', 'Dohnatt'),
+    # „1-Euro-Münze“ und „1 Euro“ in den Stufen-Texten: sonst „eins Euro“
+    (r'\bzwei 1 Euro\b', 'zwei Ein-Euro-Stücken'),
+    (r'\b1-Euro-', 'Ein-Euro-'),
+    (r'(?<![\d,.])\b1 Euro\b', 'ein Euro'),
 ]
 
 
