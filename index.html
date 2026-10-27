@@ -1221,7 +1221,7 @@ body.im-spiel .neu-chip { min-width: 0; flex-shrink: 1; }
 <!-- Neue Stufe -->
 <dialog id="dlg-stufe" class="neu-karte" aria-labelledby="stufe-titel">
   <div class="dialog-inhalt">
-    <span class="neu-band">Neu ab hier</span>
+    <span class="neu-band"></span>
     <h2 id="stufe-titel"></h2>
     <p id="stufe-text"></p>
     <div class="stufe-zeig" id="stufe-zeig" hidden>
@@ -1710,7 +1710,7 @@ body.im-spiel .neu-chip { min-width: 0; flex-shrink: 1; }
 <script src="symbole.js"></script>
 <script>
 'use strict';
-const VERSION = '5.0.1';
+const VERSION = '5.0.2';
 const STAND = '27.10.2026';
 
 // ---------------------------------------------------------------------------
@@ -1770,21 +1770,21 @@ const STUFEN_KIRMES = [
     art: 'kaufen', anzahl: 5, max: 15, einer: 2 },
   { id: 'k-3-3', thema: 2, titel: 'Größere Beträge', text: 'Jetzt wird es teurer: bis zu 20 €.',
     art: 'kaufen', anzahl: 4, max: 20, einer: 2 },
-  { id: 'k-3-4', thema: 2, titel: 'Mit möglichst wenig Geld', text: 'Neu: Lege das Geld mit möglichst wenig Münzen und Scheinen.',
+  { id: 'k-3-4', thema: 2, titel: 'Mit möglichst wenig Geld', text: 'Lege das Geld mit möglichst wenig Münzen und Scheinen.',
     art: 'kaufen', wenig: true, anzahl: 3, max: 15, einer: 0,
     zeig: { waren: ['burger', 'limo'], legen: [500, 200, 100], rechnung: ['5 € + 3 € = 8 €', '8 € = 5 € + 2 € + 1 €: nur 3 Stücke!'], sprich: 'Der Burger und die Limo kosten zusammen 8 Euro. Ich nehme den 5-Euro-Schein, eine 2-Euro-Münze und eine 1-Euro-Münze. Das sind nur 3 Stücke.' } },
-  { id: 'k-3-5', thema: 2, titel: 'Betrag anders legen', text: 'Neu: Lege den Betrag mit anderem Geld – der passende Schein fehlt.',
+  { id: 'k-3-5', thema: 2, titel: 'Betrag anders legen', text: 'Lege den Betrag mit anderem Geld – der passende Schein fehlt.',
     art: 'anders', ziele: [5, 10, 20], anzahl: 0, max: 20, einer: 0,
     zeig: { ziel: 1000, legen: [500, 200, 200, 100], rechnung: ['10 € ohne den 10-€-Schein', '5 € + 2 € + 2 € + 1 € = 10 €'], sprich: 'Ich soll 10 Euro legen, aber ohne den 10-Euro-Schein. Ich nehme 5 Euro, 2 Euro, 2 Euro und 1 Euro. Das sind auch 10 Euro.' } },
-  { id: 'k-4-1', thema: 3, titel: 'Zweimal dasselbe', text: 'Neu: Du kaufst zwei gleiche Sachen. Dann brauchst du den Preis zweimal.',
+  { id: 'k-4-1', thema: 3, titel: 'Zweimal dasselbe', text: 'Du kaufst zwei gleiche Sachen. Dann brauchst du den Preis zweimal.',
     art: 'mehrmals', anzahl: 2, max: 10, einer: 0,
     zeig: { waren: ['wurst', 'wurst'], legen: [200, 100, 200, 100], rechnung: ['3 €', '3 € + 3 € = 6 €'], sprich: 'Ich kaufe zwei Würste. Eine Wurst kostet 3 Euro. Ich lege 3 Euro und noch einmal 3 Euro. Zusammen sind das 6 Euro.' } },
   { id: 'k-4-2', thema: 3, titel: 'Dreimal dasselbe', text: 'Jetzt kaufst du drei gleiche Sachen. Du brauchst den Preis dreimal.',
     art: 'mehrmals', anzahl: 3, max: 15, einer: 0 },
-  { id: 'k-4-3', thema: 3, titel: 'Wie viel fehlt noch?', text: 'Neu: Du hast schon etwas Geld. Lege, wie viel noch fehlt.',
+  { id: 'k-4-3', thema: 3, titel: 'Wie viel fehlt noch?', text: 'Du hast schon etwas Geld. Lege, wie viel noch fehlt.',
     art: 'fehlt', anzahl: 1, min: 2, max: 5, einer: 0,
     zeig: { waren: ['burger'], habe: 300, legen: [200], rechnung: ['5 € − 3 € = 2 €'], sprich: 'Der Burger kostet 5 Euro. Ich habe 3 Euro. Von 3 Euro bis 5 Euro fehlen 2 Euro.' } },
-  { id: 'k-5-1', thema: 4, titel: 'Rückgeld von 5 €', text: 'Neu: Du bezahlst mit einem Schein und bekommst Geld zurück. Lege das Rückgeld.',
+  { id: 'k-5-1', thema: 4, titel: 'Rückgeld von 5 €', text: 'Du bezahlst mit einem Schein und bekommst Geld zurück. Lege das Rückgeld.',
     art: 'rueckgeld', anzahl: 1, max: 4, bezahlt: 5, einer: 0,
     zeig: { waren: ['pommes'], bezahlt: 500, legen: [200], rechnung: ['5 € − 3 € = 2 €'], sprich: 'Die Pommes kosten 3 Euro. Ich bezahle mit 5 Euro. Von 3 Euro bis 5 Euro fehlen 2 Euro. Das ist das Rückgeld.' } },
   { id: 'k-5-2', thema: 4, titel: 'Rückgeld von 10 €', text: 'Du bezahlst mit einem 10-€-Schein. Wie viel Geld bekommst du zurück? Lege das Rückgeld.',
@@ -1796,20 +1796,20 @@ const STUFEN_KIRMES = [
     zeig: { waren: ['limo', 'burger'], bezahlt: 1000, legen: [], rechnung: ['3 € + 5 € = 8 €', '8 € ist weniger als 10 €: Das Geld reicht!'], sprich: 'Ich habe 10 Euro. Die Limo kostet 3 Euro, der Burger 5 Euro. Zusammen sind das 8 Euro. Das ist weniger als 10 Euro. Das Geld reicht.' } },
   { id: 'k-5-5', thema: 4, titel: 'Reicht das Geld? – knapp', text: 'Jetzt ist es knapp. Rechne genau, ob das Geld reicht.',
     art: 'budget', anzahl: 3, max: 15, bezahlt: 10, einer: 0, spanne: 1 },
-  { id: 'k-5-6', thema: 4, titel: 'Wunschzettel mit Budget', text: 'Neu: Du hast 15 Euro. Such dir selbst aus, was du kaufst.',
+  { id: 'k-5-6', thema: 4, titel: 'Wunschzettel mit Budget', text: 'Du hast 15 Euro. Such dir selbst aus, was du kaufst.',
     art: 'kaufen', budgetWunsch: true, anzahl: 3, max: 15, einer: 0,
     zeig: { waren: ['popcorn', 'limo'], legen: [200, 100, 200], rechnung: ['Du hast 15 €', '2 € + 3 € = 5 € – das passt!'], sprich: 'Du hast 15 Euro und suchst dir selbst Sachen aus. Popcorn für 2 Euro und Limo für 3 Euro sind zusammen 5 Euro. Das passt.' } },
   // Verkäufer sein: Der Kunde (Thorsten) kauft ein und gibt Geld. kunde: reicht (Ja/Nein) · schein · mehrere; preisZuerst: erst den Preis wählen
-  { id: 'k-6-1', thema: 5, titel: 'Reicht das Geld vom Kunden?', text: 'Neu: Jetzt bist du der Verkäufer! Der Kunde gibt dir Geld. Schau, ob es reicht.',
+  { id: 'k-6-1', thema: 5, titel: 'Reicht das Geld vom Kunden?', text: 'Jetzt bist du der Verkäufer! Der Kunde gibt dir Geld. Schau, ob es reicht.',
     art: 'verkaufen', kunde: 'reicht', anzahl: 1, min: 2, max: 10, einer: 0,
     zeig: { waren: ['burger'], kunde: [200, 200, 100], legen: [], rechnung: ['Burger: 5 €', '2 € + 2 € + 1 € = 5 €', 'Das reicht!'], sprich: 'Der Kunde kauft einen Burger für 5 Euro. Er gibt dir 2 Euro, 2 Euro und 1 Euro. Das sind 5 Euro. Das reicht.' } },
-  { id: 'k-6-2', thema: 5, titel: 'Rückgeld geben', text: 'Neu: Der Kunde bezahlt mit einem Schein. Gib ihm das Rückgeld.',
+  { id: 'k-6-2', thema: 5, titel: 'Rückgeld geben', text: 'Der Kunde bezahlt mit einem Schein. Gib ihm das Rückgeld.',
     art: 'verkaufen', kunde: 'schein', scheine: [5, 10], anzahl: 1, max: 9, einer: 0,
     zeig: { waren: ['pizza'], kunde: [500], legen: [100], rechnung: ['5 € − 4 € = 1 €'], sprich: 'Der Kunde kauft ein Stück Pizza für 4 Euro und gibt dir 5 Euro. Von 4 Euro bis 5 Euro fehlt 1 Euro. Du gibst 1 Euro zurück.' } },
   { id: 'k-6-3', thema: 5, titel: 'Kunde gibt mehrere Stücke', text: 'Jetzt gibt der Kunde mehrere Münzen und Scheine. Zähle zuerst sein Geld.',
     art: 'verkaufen', kunde: 'mehrere', anzahl: 2, min: 3, max: 15, einer: 0,
     zeig: { waren: ['wurst', 'limo'], kunde: [500, 200], legen: [100], rechnung: ['3 € + 3 € = 6 €', '5 € + 2 € = 7 €', '7 € − 6 € = 1 €'], sprich: 'Der Kunde kauft eine Wurst und eine Limo. Das kostet 6 Euro. Er gibt dir 5 Euro und 2 Euro, also 7 Euro. Du gibst 1 Euro zurück.' } },
-  { id: 'k-6-4', thema: 5, titel: 'Erst den Preis, dann Rückgeld', text: 'Neu: Tippe zuerst auf den richtigen Preis. Dann gib das Rückgeld.',
+  { id: 'k-6-4', thema: 5, titel: 'Erst den Preis, dann Rückgeld', text: 'Tippe zuerst auf den richtigen Preis. Dann gib das Rückgeld.',
     art: 'verkaufen', kunde: 'schein', scheine: [10, 20], preisZuerst: true, anzahl: 3, min: 4, max: 19, einer: 0,
     zeig: { waren: ['brezel', 'wurst', 'tee'], kunde: [1000], legen: [200, 200], rechnung: ['1 € + 3 € + 2 € = 6 €', '10 € − 6 € = 4 €'], sprich: 'Zuerst rechne ich den Preis: 1 Euro, 3 Euro und 2 Euro sind 6 Euro. Der Kunde gibt 10 Euro. Ich gebe 4 Euro zurück.' } },
 ];
@@ -1855,16 +1855,16 @@ const STUFEN_SPIELWAREN = [
     art: 'kaufen', anzahl: 3, max: 150, einer: 0 },
   { id: 's-2-5', thema: 1, titel: '4 Spielsachen bis 200 €', text: 'Ab jetzt werden 4 Spielsachen eingekauft – bis zu 200 €!',
     art: 'kaufen', anzahl: 4, max: 200, einer: 0 },
-  { id: 's-3-1', thema: 2, titel: 'Mit möglichst wenig Scheinen', text: 'Neu: Lege das Geld mit möglichst wenig Münzen und Scheinen.',
+  { id: 's-3-1', thema: 2, titel: 'Mit möglichst wenig Scheinen', text: 'Lege das Geld mit möglichst wenig Münzen und Scheinen.',
     art: 'kaufen', wenig: true, anzahl: 2, max: 100, einer: 0,
     zeig: { waren: ['puzzle', 'kuscheltier'], legen: [2000, 500, 200, 200], rechnung: ['14 € + 15 € = 29 €', '29 € = 20 € + 5 € + 2 € + 2 €'], sprich: 'Das Puzzle und das Kuscheltier kosten zusammen 29 Euro. Ich nehme 20 Euro, 5 Euro, 2 Euro und 2 Euro. Das sind nur 4 Stücke.' } },
-  { id: 's-3-2', thema: 2, titel: 'Betrag anders legen', text: 'Neu: Lege den Betrag mit anderem Geld – der passende Schein fehlt.',
+  { id: 's-3-2', thema: 2, titel: 'Betrag anders legen', text: 'Lege den Betrag mit anderem Geld – der passende Schein fehlt.',
     art: 'anders', ziele: [50, 100], anzahl: 0, max: 100, einer: 0,
     zeig: { ziel: 10000, legen: [5000, 2000, 2000, 1000], rechnung: ['100 € ohne den 100-€-Schein', '50 € + 20 € + 20 € + 10 € = 100 €'], sprich: 'Ich soll 100 Euro legen, aber ohne den 100-Euro-Schein. Ich nehme 50, 20, 20 und 10 Euro. Das sind auch 100 Euro.' } },
-  { id: 's-4-1', thema: 3, titel: 'Zweimal dasselbe', text: 'Neu: Du kaufst zwei gleiche Spielsachen. Dann brauchst du den Preis zweimal.',
+  { id: 's-4-1', thema: 3, titel: 'Zweimal dasselbe', text: 'Du kaufst zwei gleiche Spielsachen. Dann brauchst du den Preis zweimal.',
     art: 'mehrmals', anzahl: 2, max: 100, einer: 0,
     zeig: { waren: ['kuscheltier', 'kuscheltier'], legen: [1000, 500, 1000, 500], rechnung: ['15 €', '15 € + 15 € = 30 €'], sprich: 'Ich kaufe zwei Kuscheltiere. Ein Kuscheltier kostet 15 Euro. 15 Euro und noch einmal 15 Euro sind 30 Euro.' } },
-  { id: 's-4-2', thema: 3, titel: 'Wie viel fehlt noch?', text: 'Neu: Du hast schon etwas Geld. Lege, wie viel noch fehlt.',
+  { id: 's-4-2', thema: 3, titel: 'Wie viel fehlt noch?', text: 'Du hast schon etwas Geld. Lege, wie viel noch fehlt.',
     art: 'fehlt', anzahl: 1, min: 20, max: 100, schritt: 10, einer: 0,
     zeig: { waren: ['puppenhaus'], habe: 6000, legen: [2000, 500, 200, 200], rechnung: ['89 € − 60 € = 29 €'], sprich: 'Das Puppenhaus kostet 89 Euro. Ich habe 60 Euro. Von 60 Euro bis 89 Euro fehlen 29 Euro.' } },
   { id: 's-5-1', thema: 4, titel: 'Rückgeld von 50 €', text: 'Du bezahlst mit einem 50-€-Schein. Wie viel Geld bekommst du zurück? Lege das Rückgeld.',
@@ -1877,19 +1877,19 @@ const STUFEN_SPIELWAREN = [
     zeig: { waren: ['ball', 'puppe'], bezahlt: 10000, legen: [], rechnung: ['8 € + 25 € = 33 €', '33 € ist weniger als 100 €: Das Geld reicht!'], sprich: 'Ich habe 100 Euro. Der Ball kostet 8 Euro, die Puppe 25 Euro. Zusammen sind das 33 Euro. Das ist weniger als 100 Euro. Das Geld reicht.' } },
   { id: 's-5-4', thema: 4, titel: 'Reicht das Geld? – knapp', text: 'Jetzt ist es knapp. Rechne genau, ob das Geld reicht.',
     art: 'budget', anzahl: 3, max: 200, bezahlt: 100, einer: 0, spanne: 10 },
-  { id: 's-5-5', thema: 4, titel: 'Wunschzettel mit Budget', text: 'Neu: Du hast 100 Euro. Such dir selbst aus, was du kaufst.',
+  { id: 's-5-5', thema: 4, titel: 'Wunschzettel mit Budget', text: 'Du hast 100 Euro. Such dir selbst aus, was du kaufst.',
     art: 'kaufen', budgetWunsch: true, anzahl: 3, max: 100, einer: 0,
     zeig: { waren: ['ball', 'puzzle'], legen: [2000, 200], rechnung: ['Du hast 100 €', '8 € + 14 € = 22 € – das passt!'], sprich: 'Du hast 100 Euro und suchst dir selbst Sachen aus. Ein Ball für 8 Euro und ein Puzzle für 14 Euro sind zusammen 22 Euro. Das passt.' } },
-  { id: 's-6-1', thema: 5, titel: 'Reicht das Geld vom Kunden?', text: 'Neu: Jetzt bist du der Verkäufer! Der Kunde gibt dir Geld. Schau, ob es reicht.',
+  { id: 's-6-1', thema: 5, titel: 'Reicht das Geld vom Kunden?', text: 'Jetzt bist du der Verkäufer! Der Kunde gibt dir Geld. Schau, ob es reicht.',
     art: 'verkaufen', kunde: 'reicht', anzahl: 1, min: 6, max: 50, einer: 0,
     zeig: { waren: ['puzzle'], kunde: [1000, 200, 200], legen: [], rechnung: ['Puzzle: 14 €', '10 € + 2 € + 2 € = 14 €', 'Das reicht!'], sprich: 'Der Kunde kauft ein Puzzle für 14 Euro. Er gibt dir 10 Euro, 2 Euro und 2 Euro. Das sind 14 Euro. Das reicht.' } },
-  { id: 's-6-2', thema: 5, titel: 'Rückgeld geben', text: 'Neu: Der Kunde bezahlt mit einem Schein. Gib ihm das Rückgeld.',
+  { id: 's-6-2', thema: 5, titel: 'Rückgeld geben', text: 'Der Kunde bezahlt mit einem Schein. Gib ihm das Rückgeld.',
     art: 'verkaufen', kunde: 'schein', scheine: [20, 50, 100], anzahl: 1, max: 99, einer: 0,
     zeig: { waren: ['ball'], kunde: [2000], legen: [1000, 200], rechnung: ['20 € − 8 € = 12 €'], sprich: 'Der Kunde kauft einen Ball für 8 Euro und gibt dir 20 Euro. Von 8 Euro bis 20 Euro fehlen 12 Euro. Du gibst 12 Euro zurück.' } },
   { id: 's-6-3', thema: 5, titel: 'Kunde gibt mehrere Scheine', text: 'Jetzt gibt der Kunde mehrere Scheine und Münzen. Zähle zuerst sein Geld.',
     art: 'verkaufen', kunde: 'mehrere', anzahl: 2, min: 10, max: 100, einer: 0,
     zeig: { waren: ['ball', 'puzzle'], kunde: [2000, 500], legen: [200, 100], rechnung: ['8 € + 14 € = 22 €', '20 € + 5 € = 25 €', '25 € − 22 € = 3 €'], sprich: 'Der Kunde kauft einen Ball und ein Puzzle. Das kostet 22 Euro. Er gibt dir 20 Euro und 5 Euro, also 25 Euro. Du gibst 3 Euro zurück.' } },
-  { id: 's-6-4', thema: 5, titel: 'Erst den Preis, dann Rückgeld', text: 'Neu: Tippe zuerst auf den richtigen Preis. Dann gib das Rückgeld.',
+  { id: 's-6-4', thema: 5, titel: 'Erst den Preis, dann Rückgeld', text: 'Tippe zuerst auf den richtigen Preis. Dann gib das Rückgeld.',
     art: 'verkaufen', kunde: 'schein', scheine: [50, 100], preisZuerst: true, anzahl: 3, min: 15, max: 99, einer: 0,
     zeig: { waren: ['ball', 'puzzle', 'jojo'], kunde: [5000], legen: [2000, 200, 200], rechnung: ['8 € + 14 € + 4 € = 26 €', '50 € − 26 € = 24 €'], sprich: 'Zuerst rechne ich den Preis: 8 Euro, 14 Euro und 4 Euro sind 26 Euro. Der Kunde gibt 50 Euro. Ich gebe 24 Euro zurück.' } },
 ];
@@ -1937,21 +1937,21 @@ const STUFEN_BAECKEREI = [
     art: 'kaufen', anzahl: 4, max: 800, einer: 0 },
   { id: 'b-2-5', thema: 1, titel: '5 Sachen bis 10 €', text: 'Ab jetzt werden 5 Sachen gekauft – bis zu 10 €.',
     art: 'kaufen', anzahl: 5, max: 1000, einer: 0 },
-  { id: 'b-3-1', thema: 2, titel: 'Mit möglichst wenig Münzen', text: 'Neu: Lege das Geld mit möglichst wenig Münzen und Scheinen.',
+  { id: 'b-3-1', thema: 2, titel: 'Mit möglichst wenig Münzen', text: 'Lege das Geld mit möglichst wenig Münzen und Scheinen.',
     art: 'kaufen', wenig: true, anzahl: 2, max: 300, einer: 0,
     zeig: { waren: ['broetchen', 'keks'], legen: [100], rechnung: ['40 ct + 60 ct = 1 €', 'Eine 1-€-Münze genügt!'], sprich: 'Das Brötchen und der Keks kosten zusammen 1 Euro. Statt vieler Cent-Münzen nehme ich eine 1-Euro-Münze.' } },
-  { id: 'b-3-2', thema: 2, titel: 'Betrag anders legen', text: 'Neu: Lege den Betrag mit anderen Münzen – die passende Münze fehlt.',
+  { id: 'b-3-2', thema: 2, titel: 'Betrag anders legen', text: 'Lege den Betrag mit anderen Münzen – die passende Münze fehlt.',
     art: 'anders', ziele: [50, 100, 200], anzahl: 0, max: 200, einer: 0,
     zeig: { ziel: 100, legen: [50, 20, 20, 10], rechnung: ['1 € ohne die 1-€-Münze', '50 ct + 20 ct + 20 ct + 10 ct = 1 €'], sprich: 'Ich soll 1 Euro legen, aber ohne die 1-Euro-Münze. Ich nehme 50 Cent, 20 Cent, 20 Cent und 10 Cent. Das ist auch 1 Euro.' } },
-  { id: 'b-4-1', thema: 3, titel: 'Zweimal dasselbe', text: 'Neu: Du kaufst zwei gleiche Sachen. Dann brauchst du den Preis zweimal.',
+  { id: 'b-4-1', thema: 3, titel: 'Zweimal dasselbe', text: 'Du kaufst zwei gleiche Sachen. Dann brauchst du den Preis zweimal.',
     art: 'mehrmals', anzahl: 2, max: 300, einer: 0,
     zeig: { waren: ['broetchen', 'broetchen'], legen: [20, 20, 20, 20], rechnung: ['40 ct', '40 ct + 40 ct = 80 ct'], sprich: 'Ich kaufe zwei Brötchen. Ein Brötchen kostet 40 Cent. 40 Cent und noch einmal 40 Cent sind 80 Cent.' } },
-  { id: 'b-4-2', thema: 3, titel: 'Bis zum vollen Euro', text: 'Neu: Du hast schon einige Cent. Lege, wie viel bis 1 Euro fehlt.',
+  { id: 'b-4-2', thema: 3, titel: 'Bis zum vollen Euro', text: 'Du hast schon einige Cent. Lege, wie viel bis 1 Euro fehlt.',
     art: 'fehlt', ziel: 100, anzahl: 0, max: 100, einer: 0, geld: [10, 20, 50],
     zeig: { habe: 70, ziel: 100, legen: [20, 10], rechnung: ['1 € − 70 ct = 30 ct'], sprich: 'Ich habe 70 Cent. Bis 1 Euro fehlen 30 Cent.' } },
   { id: 'b-4-3', thema: 3, titel: 'Wie viel fehlt noch?', text: 'Jetzt kostet eine Sache mehr. Lege, wie viel noch fehlt.',
     art: 'fehlt', anzahl: 1, min: 110, max: 420, schritt: 10, einer: 0 },
-  { id: 'b-5-1', thema: 4, titel: 'Rückgeld von 1 €', text: 'Neu: Du bezahlst mit 1 Euro und bekommst Geld zurück. Lege das Rückgeld.',
+  { id: 'b-5-1', thema: 4, titel: 'Rückgeld von 1 €', text: 'Du bezahlst mit 1 Euro und bekommst Geld zurück. Lege das Rückgeld.',
     art: 'rueckgeld', anzahl: 1, max: 60, bezahlt: 100, einer: 0, geld: [10, 20, 50],
     zeig: { waren: ['broetchen'], bezahlt: 100, legen: [50, 10], rechnung: ['1 € − 40 ct = 60 ct'], sprich: 'Das Brötchen kostet 40 Cent. Ich bezahle mit 1 Euro. Von 40 Cent bis 1 Euro fehlen 60 Cent. Das ist das Rückgeld.' } },
   { id: 'b-5-2', thema: 4, titel: 'Rückgeld von 5 €', text: 'Du bezahlst mit einem 5-€-Schein. Wie viel Geld bekommst du zurück? Lege das Rückgeld.',
@@ -1963,19 +1963,19 @@ const STUFEN_BAECKEREI = [
     zeig: { waren: ['croissant', 'kakao'], bezahlt: 500, legen: [], rechnung: ['1,30 € + 1,90 € = 3,20 €', '3,20 € ist weniger als 5 €: Das Geld reicht!'], sprich: 'Ich habe 5 Euro. Das Croissant kostet 1 Euro 30, der Kakao 1 Euro 90. Zusammen sind das 3 Euro 20. Das ist weniger als 5 Euro. Das Geld reicht.' } },
   { id: 'b-5-5', thema: 4, titel: 'Reicht das Geld? – knapp', text: 'Jetzt ist es knapp. Rechne genau, ob das Geld reicht.',
     art: 'budget', anzahl: 3, max: 1000, bezahlt: 500, einer: 0, spanne: 50 },
-  { id: 'b-5-6', thema: 4, titel: 'Wunschzettel mit Budget', text: 'Neu: Du hast 5 Euro. Such dir selbst aus, was du kaufst.',
+  { id: 'b-5-6', thema: 4, titel: 'Wunschzettel mit Budget', text: 'Du hast 5 Euro. Such dir selbst aus, was du kaufst.',
     art: 'kaufen', budgetWunsch: true, anzahl: 3, max: 500, einer: 0,
     zeig: { waren: ['croissant', 'kakao'], legen: [200, 100, 20], rechnung: ['Du hast 5 €', '1,30 € + 1,90 € = 3,20 € – das passt!'], sprich: 'Du hast 5 Euro und suchst dir selbst Sachen aus. Ein Croissant für 1 Euro 30 und ein Kakao für 1 Euro 90 sind zusammen 3 Euro 20. Das passt.' } },
-  { id: 'b-6-1', thema: 5, titel: 'Reicht das Geld vom Kunden?', text: 'Neu: Jetzt bist du der Verkäufer! Der Kunde gibt dir Geld. Schau, ob es reicht.',
+  { id: 'b-6-1', thema: 5, titel: 'Reicht das Geld vom Kunden?', text: 'Jetzt bist du der Verkäufer! Der Kunde gibt dir Geld. Schau, ob es reicht.',
     art: 'verkaufen', kunde: 'reicht', anzahl: 1, min: 30, max: 300, einer: 0,
     zeig: { waren: ['croissant'], kunde: [100, 20, 10], legen: [], rechnung: ['Croissant: 1,30 €', '1 € + 20 ct + 10 ct = 1,30 €', 'Das reicht!'], sprich: 'Der Kunde kauft ein Croissant für 1 Euro 30. Er gibt dir 1 Euro, 20 Cent und 10 Cent. Das sind 1 Euro 30. Das reicht.' } },
-  { id: 'b-6-2', thema: 5, titel: 'Rückgeld geben', text: 'Neu: Der Kunde bezahlt mit einer Münze oder einem Schein. Gib ihm das Rückgeld.',
+  { id: 'b-6-2', thema: 5, titel: 'Rückgeld geben', text: 'Der Kunde bezahlt mit einer Münze oder einem Schein. Gib ihm das Rückgeld.',
     art: 'verkaufen', kunde: 'schein', scheine: [100, 200, 500], anzahl: 1, max: 450, einer: 0,
     zeig: { waren: ['broetchen'], kunde: [100], legen: [50, 10], rechnung: ['1 € − 40 ct = 60 ct'], sprich: 'Der Kunde kauft ein Brötchen für 40 Cent und gibt dir 1 Euro. Von 40 Cent bis 1 Euro fehlen 60 Cent. Du gibst 60 Cent zurück.' } },
   { id: 'b-6-3', thema: 5, titel: 'Kunde gibt mehrere Stücke', text: 'Jetzt gibt der Kunde mehrere Münzen. Zähle zuerst sein Geld.',
     art: 'verkaufen', kunde: 'mehrere', anzahl: 2, min: 60, max: 500, einer: 0,
     zeig: { waren: ['broetchen', 'croissant'], kunde: [100, 100], legen: [20, 10], rechnung: ['40 ct + 1,30 € = 1,70 €', '1 € + 1 € = 2 €', '2 € − 1,70 € = 30 ct'], sprich: 'Der Kunde kauft ein Brötchen und ein Croissant. Das kostet 1 Euro 70. Er gibt dir 1 Euro und 1 Euro, also 2 Euro. Du gibst 30 Cent zurück.' } },
-  { id: 'b-6-4', thema: 5, titel: 'Erst den Preis, dann Rückgeld', text: 'Neu: Tippe zuerst auf den richtigen Preis. Dann gib das Rückgeld.',
+  { id: 'b-6-4', thema: 5, titel: 'Erst den Preis, dann Rückgeld', text: 'Tippe zuerst auf den richtigen Preis. Dann gib das Rückgeld.',
     art: 'verkaufen', kunde: 'schein', scheine: [500, 1000], preisZuerst: true, anzahl: 3, min: 150, max: 900, einer: 0,
     zeig: { waren: ['broetchen', 'croissant', 'kakao'], kunde: [500], legen: [100, 20, 20], rechnung: ['40 ct + 1,30 € + 1,90 € = 3,60 €', '5 € − 3,60 € = 1,40 €'], sprich: 'Zuerst rechne ich den Preis: 40 Cent, 1 Euro 30 und 1 Euro 90 sind 3 Euro 60. Der Kunde gibt 5 Euro. Ich gebe 1 Euro 40 zurück.' } },
 ];
@@ -2364,7 +2364,7 @@ function zeigeRunde() {
   $('spiel').hidden = false; $('ende').hidden = true;
   const neu = E.modus === 'stufen' && S.neuNoch > 0;
   $('neu-chip').hidden = !neu;
-  if (neu) $('neu-chip-text').textContent = 'Neu: ' + STUFEN[S.nr - 1].titel;
+  if (neu) $('neu-chip-text').textContent = STUFEN[S.nr - 1].titel;   // antippen: Erklärung noch einmal
   document.body.classList.add('im-spiel'); kopfHoehe();
   $('gruss').textContent = E.name ? `Hallo ${E.name}!` : 'Hallo!';
   if (mehrereKinder()) $('gruss').insertAdjacentHTML('afterbegin', kindBild(aktuellesKind(), 'mini'));
@@ -3036,7 +3036,7 @@ $('knopf-weiter').addEventListener('click', () => {
   else setTimeout(vorlesenAufgabe, 400);
 });
 // Wechsel erklären. wie: 'auf' (nächste Stufe), 'zurueck', 'start' (Lehrkraft hat die Stufe gesetzt / erster Start),
-// 'wieder' (Kind tippt auf „Neu: …“). Stufen mit zeig: erst erklären, dann vormachen, dann Probeaufgabe.
+// 'wieder' (Kind tippt oben auf den Namen der Stufe). Stufen mit zeig: erst erklären, dann vormachen, dann Probeaufgabe.
 let zeigTakt = [], stufeWie = 'auf';
 function zeigeStufenKarte(wie) {
   stufeWie = wie;
@@ -3053,10 +3053,10 @@ function zeigeStufenKarte(wie) {
     text = `Du hast schon viel geschafft! Wir machen kurz mit „${st.titel}“ weiter.`;
     sprich = 'Du hast schon viel geschafft! Wir üben das noch ein bisschen.';
   } else if (neuesThema) {
-    band.textContent = 'Neues Thema: ' + L.themen[st.thema];
+    band.textContent = L.themen[st.thema];
     sprich = `Toll gemacht! Jetzt kommt etwas Neues. ${st.text}`;
   } else {
-    band.textContent = wie === 'wieder' ? 'Noch einmal erklärt' : 'Neu ab hier';
+    band.textContent = wie === 'wieder' ? 'Noch einmal erklärt' : L.themen[st.thema];
     sprich = wie === 'auf' ? `Das klappt schon super! ${st.text}` : st.text;
   }
   $('stufe-titel').textContent = titel;
