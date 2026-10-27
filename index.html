@@ -998,6 +998,45 @@ body.im-spiel .neu-chip { min-width: 0; flex-shrink: 1; }
 .lk-stand-zeile { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .lk-stand-zeile .lk-stand-punkt { margin-left: 0; }
 .wiederholung { margin: 0; order: -1; background: #e8f4fb; border-left: 6px solid var(--hellblau); border-radius: var(--r); padding: 6px 12px; font-weight: 700; font-size: 17px; }
+
+/* ===== Mehrere Kinder: Bilder ===== */
+.kind-bild { display: inline-grid; place-items: center; flex: none; width: 44px; height: 44px; border-radius: 12px; background: var(--kachel); color: #1d3a5c; font-weight: 700; }
+.kind-bild svg { width: 84%; height: 84%; }
+.kind-bild.mini { width: 34px; height: 34px; border-radius: 9px; vertical-align: middle; margin-right: 8px; }
+.kind-bild.mittel { width: 56px; height: 56px; border-radius: 14px; }
+.kind-bild.gross { width: 100%; height: auto; aspect-ratio: 1; border-radius: 18px; }
+.kind-wahl { gap: 14px; }
+.kind-wahl-tipp { margin: -6px 0 0; text-align: center; font-size: 20px; color: var(--holz-hell); }
+.kind-karten { display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 190px)); justify-content: center; gap: 16px; }
+.kind-karte { display: grid; gap: 8px; justify-items: center; border: 3px solid transparent; border-radius: 22px; background: var(--tresen); padding: 10px 10px 12px; font-family: var(--anzeige); font-weight: 700; font-size: 22px; color: var(--holz); }
+.kind-karte:active { transform: translateY(2px); filter: brightness(.96); }
+.start.erscheint .kind-karte { animation: plopp .38s cubic-bezier(.3,1.5,.6,1) both; }
+.kind-chip { justify-self: start; display: inline-flex; align-items: center; gap: 10px; border: 2px solid var(--linie); border-radius: 30px; background: var(--tresen); padding: 4px 14px 4px 4px; font-weight: 700; font-size: 16px; color: var(--holz); }
+.gruss .kind-bild.mini { margin-right: 6px; }
+.lk-kind { display: inline-flex; align-items: center; gap: 6px; border: 2px solid var(--linie); border-radius: 22px; background: var(--tresen); padding: 2px 12px 2px 2px; font-weight: 700; font-size: 15px; color: var(--holz); white-space: nowrap; }
+.lk-kind .kind-bild.mini { margin: 0; width: 30px; height: 30px; }
+.lk-kind-zeile { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 14px; align-items: center; }
+.lk-kind-zeile .lk-knopfreihe, .lk-kind-zeile .lk-frage { grid-column: 1 / -1; }
+.lk-kind-zeile.aktiv { background: color-mix(in srgb, var(--hellblau) 18%, transparent); }
+.lk-marke { display: inline-block; border-radius: 14px; background: var(--markise); color: var(--auf-markise); font-weight: 700; font-size: 14px; padding: 4px 12px; }
+.lk-bildwahl { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 10px; padding: 12px; }
+.lk-bild { display: grid; justify-items: center; gap: 4px; border: 2px solid var(--linie); border-radius: 14px; background: var(--tresen); padding: 8px 4px; font-weight: 700; font-size: 14px; color: var(--holz); }
+.lk-bild:disabled { opacity: .3; }
+/* ===== Erinnerung: sichern ===== */
+.lk-sicherung { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; max-width: 640px; margin-bottom: 18px;
+  border-left: 6px solid var(--hm); background: var(--hm-hell); border-radius: var(--r); padding: 10px 12px; }
+.lk-sicherung svg { width: 28px; height: 28px; color: var(--hm); }
+.lk-sicherung strong { display: block; }
+.lk-sicherung small { display: block; font-size: 14px; }
+@media (max-width: 560px) { .lk-sicherung { grid-template-columns: auto minmax(0, 1fr); } .lk-sicherung .lk-knopf { grid-column: 1 / -1; } }
+.lk-punkt-stand.warn { color: var(--hm); font-weight: 700; }
+.lk-punkt[aria-current="page"] .lk-punkt-stand.warn { color: var(--auf-markise); }
+/* ===== Verkäufer sein ===== */
+.kunde-bild { display: inline-grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; background: var(--teller, #fff); flex: none; }
+.kunde-bild svg { width: 40px; height: 40px; }
+.bezahlen .kunde-geld { flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding-left: 56px; }
+.preis-fest { margin-left: auto; font-weight: 700; background: var(--gut-hell); color: var(--gut); border-radius: 14px; padding: 2px 10px; white-space: nowrap; }
+.zeig-bezahlt .kunde-bild { margin-right: 4px; }
 </style>
 </head>
 <body>
@@ -1026,7 +1065,13 @@ body.im-spiel .neu-chip { min-width: 0; flex-shrink: 1; }
 </div>
 
 <main id="start" hidden>
+  <section class="tresen start kind-wahl" id="kind-wahl" hidden>
+    <h2 class="start-frage">Wer übt heute?</h2>
+    <p class="kind-wahl-tipp">Tippe auf dein Bild.</p>
+    <div class="kind-karten" id="kind-karten"></div>
+  </section>
   <section class="tresen start" id="start-tresen">
+    <button class="kind-chip" id="knopf-kind" data-scan hidden aria-label="Anderes Kind wählen"></button>
     <h2 class="start-frage" id="start-frage">Wo möchtest du einkaufen?</h2>
     <div class="laden-karten" id="laden-karten"></div>
     <button class="grossknopf weiter zuletzt" id="knopf-zuletzt" data-scan><span id="zuletzt-titel">Weiter wie zuletzt</span><small id="zuletzt-laden"></small></button>
@@ -1092,7 +1137,7 @@ body.im-spiel .neu-chip { min-width: 0; flex-shrink: 1; }
 
   <!-- Reicht das Geld? -->
   <section class="schritt" id="schritt-budget" hidden>
-    <h3><span class="nr">?</span><span>Reicht das Geld?</span></h3>
+    <h3><span class="nr">?</span><span id="budget-frage">Reicht das Geld?</span></h3>
     <div class="antworten">
       <button class="grossknopf ja" id="knopf-ja" data-scan>
         <svg class="gross" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
@@ -1228,12 +1273,17 @@ body.im-spiel .neu-chip { min-width: 0; flex-shrink: 1; }
   <div class="lk-kopf">
     <button class="lk-zurueck" id="knopf-lk-zurueck">‹ Übersicht</button>
     <h2 id="lk-titel">Lehrkraft-Bereich</h2>
+    <button class="lk-kind" id="knopf-lk-kind" hidden></button>
     <button class="lk-knopf" id="knopf-lk-abbrechen"><span class="lk-lang">Zur&nbsp;</span>Ladenauswahl</button>
     <button class="lk-fertig" id="knopf-lk-fertig">Fertig</button>
   </div>
   <div class="lk-koerper">
     <nav class="lk-navi" id="lk-navi" aria-label="Abschnitte">
       <p class="lk-navi-gruppe">Üben</p>
+      <button class="lk-punkt" data-seite="9">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c0-3.3 2.4-5.5 5.5-5.5s5.5 2.2 5.5 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M15.5 13.8c2.8-.4 5 1.4 5 4.7"/></svg>
+        <span><span class="lk-punkt-name">Kinder</span><span class="lk-punkt-stand" data-stand="9"></span></span><span class="lk-pfeil">›</span>
+      </button>
       <button class="lk-punkt" data-seite="1">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h5v-5h5v-5h5V5h3"/><path d="M3 20h18"/></svg>
         <span><span class="lk-punkt-name">Laden &amp; Schwierigkeit</span><span class="lk-punkt-stand" data-stand="1"></span></span><span class="lk-pfeil">›</span>
@@ -1270,6 +1320,35 @@ body.im-spiel .neu-chip { min-width: 0; flex-shrink: 1; }
     </nav>
 
     <div class="lk-inhalt" id="lk-inhalt">
+
+      <!-- Erinnerung: Lernstand sichern -->
+      <div class="lk-sicherung nicht-drucken" id="lk-sicherung" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.4-3.4 7.9-8 9-4.6-1.1-8-4.6-8-9V6z"/><path d="M12 8v5M12 16.5v.5"/></svg>
+        <span><strong>Lernstand sichern</strong><small id="lk-sicherung-text"></small></span>
+        <button class="lk-knopf voll" id="knopf-sicherung-jetzt">Jetzt sichern</button>
+      </div>
+
+      <!-- 9 · Kinder -->
+      <section class="lk-seite" data-seite="9" hidden>
+        <h3 class="lk-seite-titel">Kinder</h3>
+        <div class="lk-gruppe">
+          <div class="lk-karte">
+            <div class="lk-zeile"><span class="lk-text"><small>Mehrere Kinder können dieses Gerät nutzen. Jedes Kind tippt beim Start auf sein Bild. Einstellungen, Stufen, Auswertung und Album gelten je Kind. Es werden keine Namen gespeichert.</small></span></div>
+          </div>
+        </div>
+        <div class="lk-gruppe">
+          <h4>Kinder auf diesem Gerät</h4>
+          <div class="lk-karte" id="lk-kinder"></div>
+        </div>
+        <div class="lk-gruppe" id="lk-bildwahl-gruppe" hidden>
+          <h4 id="lk-bildwahl-titel">Bild wählen</h4>
+          <div class="lk-karte">
+            <div class="lk-bildwahl" id="lk-bildwahl"></div>
+            <div class="lk-zeile"><button class="lk-knopf" id="knopf-bildwahl-abbrechen">Abbrechen</button></div>
+          </div>
+        </div>
+        <div><button class="lk-knopf" id="knopf-kind-neu">+ Kind hinzufügen</button></div>
+      </section>
 
       <!-- 1 · Laden & Schwierigkeit -->
       <section class="lk-seite" data-seite="1">
@@ -1567,7 +1646,7 @@ body.im-spiel .neu-chip { min-width: 0; flex-shrink: 1; }
           <h4>Lernstand sichern</h4>
           <div class="lk-karte">
             <div class="lk-zeile wahl">
-              <span class="lk-text"><small>Alle Läden, Stufen, Aufgaben und das Album als Datei – zum Beispiel, um auf einem anderen Gerät weiterzumachen. Der Name kommt nicht in die Datei.</small></span>
+              <span class="lk-text"><strong id="lk-sicherung-stand"></strong><small>Alle Kinder, Läden, Stufen, Aufgaben und Alben als Datei – zur Sicherheit, falls das Gerät zurückgesetzt wird, oder um auf einem anderen Gerät weiterzumachen. Namen kommen nicht in die Datei. Die App erinnert hier, wenn länger nicht gesichert wurde.</small><small>Tipp: Die App über „Teilen → Zum Home-Bildschirm“ öffnen. Dann bleibt der Speicher auch nach längeren Pausen erhalten.</small></span>
               <div class="lk-knopfreihe">
                 <button class="lk-knopf" id="knopf-lernstand-sichern">Als Datei sichern</button>
                 <label class="lk-knopf" for="lernstand-datei">Datei laden …</label>
@@ -1597,7 +1676,7 @@ body.im-spiel .neu-chip { min-width: 0; flex-shrink: 1; }
           <h4>Löschen</h4>
           <div class="lk-karte">
             <div class="lk-zeile zwei">
-              <span class="lk-text"><strong>Protokoll und Auswertung</strong><small>Stufen, Album und Einstellungen bleiben erhalten.</small></span>
+              <span class="lk-text"><strong>Protokoll und Auswertung</strong><small id="lk-loeschen-text">Stufen, Album und Einstellungen bleiben erhalten.</small></span>
               <button class="lk-knopf gefahr" id="knopf-protokoll-loeschen">Löschen …</button>
               <div class="lk-frage" id="loeschen-frage" hidden>Wirklich löschen?
                 <button class="lk-knopf gefahr voll" id="knopf-loeschen-ja">Ja, löschen</button>
@@ -1605,7 +1684,7 @@ body.im-spiel .neu-chip { min-width: 0; flex-shrink: 1; }
               </div>
             </div>
             <div class="lk-zeile zwei">
-              <span class="lk-text"><strong>Alle Daten auf diesem Gerät</strong><small>Name, Einstellungen, Stufen, Album, Protokoll und Auswertung.</small></span>
+              <span class="lk-text"><strong>Alle Daten auf diesem Gerät</strong><small>Alle Kinder: Name, Einstellungen, Stufen, Album, Protokoll und Auswertung.</small></span>
               <button class="lk-knopf gefahr" id="knopf-alles-loeschen">Alles löschen …</button>
               <div class="lk-frage" id="alles-frage" hidden>Wirklich alles löschen?
                 <button class="lk-knopf gefahr voll" id="knopf-alles-ja">Ja, alles löschen</button>
@@ -1627,9 +1706,10 @@ body.im-spiel .neu-chip { min-width: 0; flex-shrink: 1; }
 <script src="erkennung.js"></script>
 <script src="geld.js"></script>
 <script src="aufkleber.js"></script>
+<script src="symbole.js"></script>
 <script>
 'use strict';
-const VERSION = '4.9.2';
+const VERSION = '5.0.0';
 const STAND = '27.10.2026';
 
 // ---------------------------------------------------------------------------
@@ -1718,6 +1798,19 @@ const STUFEN_KIRMES = [
   { id: 'k-5-6', thema: 4, titel: 'Wunschzettel mit Budget', text: 'Neu: Du hast 15 Euro. Such dir selbst aus, was du kaufst.',
     art: 'kaufen', budgetWunsch: true, anzahl: 3, max: 15, einer: 0,
     zeig: { waren: ['popcorn', 'limo'], legen: [200, 100, 200], rechnung: ['Du hast 15 €', '2 € + 3 € = 5 € – das passt!'], sprich: 'Du hast 15 Euro und suchst dir selbst Sachen aus. Popcorn für 2 Euro und Limo für 3 Euro sind zusammen 5 Euro. Das passt.' } },
+  // Verkäufer sein: Der Kunde (Thorsten) kauft ein und gibt Geld. kunde: reicht (Ja/Nein) · schein · mehrere; preisZuerst: erst den Preis wählen
+  { id: 'k-6-1', thema: 5, titel: 'Reicht das Geld vom Kunden?', text: 'Neu: Jetzt bist du der Verkäufer! Der Kunde gibt dir Geld. Schau, ob es reicht.',
+    art: 'verkaufen', kunde: 'reicht', anzahl: 1, min: 2, max: 10, einer: 0,
+    zeig: { waren: ['burger'], kunde: [200, 200, 100], legen: [], rechnung: ['Burger: 5 €', '2 € + 2 € + 1 € = 5 €', 'Das reicht!'], sprich: 'Der Kunde kauft einen Burger für 5 Euro. Er gibt dir 2 Euro, 2 Euro und 1 Euro. Das sind 5 Euro. Das reicht.' } },
+  { id: 'k-6-2', thema: 5, titel: 'Rückgeld geben', text: 'Neu: Der Kunde bezahlt mit einem Schein. Gib ihm das Rückgeld.',
+    art: 'verkaufen', kunde: 'schein', scheine: [5, 10], anzahl: 1, max: 9, einer: 0,
+    zeig: { waren: ['pizza'], kunde: [500], legen: [100], rechnung: ['5 € − 4 € = 1 €'], sprich: 'Der Kunde kauft ein Stück Pizza für 4 Euro und gibt dir 5 Euro. Von 4 Euro bis 5 Euro fehlt 1 Euro. Du gibst 1 Euro zurück.' } },
+  { id: 'k-6-3', thema: 5, titel: 'Kunde gibt mehrere Stücke', text: 'Jetzt gibt der Kunde mehrere Münzen und Scheine. Zähle zuerst sein Geld.',
+    art: 'verkaufen', kunde: 'mehrere', anzahl: 2, min: 3, max: 15, einer: 0,
+    zeig: { waren: ['wurst', 'limo'], kunde: [500, 200], legen: [100], rechnung: ['3 € + 3 € = 6 €', '5 € + 2 € = 7 €', '7 € − 6 € = 1 €'], sprich: 'Der Kunde kauft eine Wurst und eine Limo. Das kostet 6 Euro. Er gibt dir 5 Euro und 2 Euro, also 7 Euro. Du gibst 1 Euro zurück.' } },
+  { id: 'k-6-4', thema: 5, titel: 'Erst den Preis, dann Rückgeld', text: 'Neu: Tippe zuerst auf den richtigen Preis. Dann gib das Rückgeld.',
+    art: 'verkaufen', kunde: 'schein', scheine: [10, 20], preisZuerst: true, anzahl: 3, min: 4, max: 19, einer: 0,
+    zeig: { waren: ['brezel', 'wurst', 'tee'], kunde: [1000], legen: [200, 200], rechnung: ['1 € + 3 € + 2 € = 6 €', '10 € − 6 € = 4 €'], sprich: 'Zuerst rechne ich den Preis: 1 Euro, 3 Euro und 2 Euro sind 6 Euro. Der Kunde gibt 10 Euro. Ich gebe 4 Euro zurück.' } },
 ];
 const ALT_KIRMES = ['k-2-1', 'k-2-2', 'k-2-4', 'k-3-1', 'k-3-2', 'k-3-3', 'k-5-2', 'k-5-4'];   // bisherige Stufen 1–8
 
@@ -1786,6 +1879,18 @@ const STUFEN_SPIELWAREN = [
   { id: 's-5-5', thema: 4, titel: 'Wunschzettel mit Budget', text: 'Neu: Du hast 100 Euro. Such dir selbst aus, was du kaufst.',
     art: 'kaufen', budgetWunsch: true, anzahl: 3, max: 100, einer: 0,
     zeig: { waren: ['ball', 'puzzle'], legen: [2000, 200], rechnung: ['Du hast 100 €', '8 € + 14 € = 22 € – das passt!'], sprich: 'Du hast 100 Euro und suchst dir selbst Sachen aus. Ein Ball für 8 Euro und ein Puzzle für 14 Euro sind zusammen 22 Euro. Das passt.' } },
+  { id: 's-6-1', thema: 5, titel: 'Reicht das Geld vom Kunden?', text: 'Neu: Jetzt bist du der Verkäufer! Der Kunde gibt dir Geld. Schau, ob es reicht.',
+    art: 'verkaufen', kunde: 'reicht', anzahl: 1, min: 6, max: 50, einer: 0,
+    zeig: { waren: ['puzzle'], kunde: [1000, 200, 200], legen: [], rechnung: ['Puzzle: 14 €', '10 € + 2 € + 2 € = 14 €', 'Das reicht!'], sprich: 'Der Kunde kauft ein Puzzle für 14 Euro. Er gibt dir 10 Euro, 2 Euro und 2 Euro. Das sind 14 Euro. Das reicht.' } },
+  { id: 's-6-2', thema: 5, titel: 'Rückgeld geben', text: 'Neu: Der Kunde bezahlt mit einem Schein. Gib ihm das Rückgeld.',
+    art: 'verkaufen', kunde: 'schein', scheine: [20, 50, 100], anzahl: 1, max: 99, einer: 0,
+    zeig: { waren: ['ball'], kunde: [2000], legen: [1000, 200], rechnung: ['20 € − 8 € = 12 €'], sprich: 'Der Kunde kauft einen Ball für 8 Euro und gibt dir 20 Euro. Von 8 Euro bis 20 Euro fehlen 12 Euro. Du gibst 12 Euro zurück.' } },
+  { id: 's-6-3', thema: 5, titel: 'Kunde gibt mehrere Scheine', text: 'Jetzt gibt der Kunde mehrere Scheine und Münzen. Zähle zuerst sein Geld.',
+    art: 'verkaufen', kunde: 'mehrere', anzahl: 2, min: 10, max: 100, einer: 0,
+    zeig: { waren: ['ball', 'puzzle'], kunde: [2000, 500], legen: [200, 100], rechnung: ['8 € + 14 € = 22 €', '20 € + 5 € = 25 €', '25 € − 22 € = 3 €'], sprich: 'Der Kunde kauft einen Ball und ein Puzzle. Das kostet 22 Euro. Er gibt dir 20 Euro und 5 Euro, also 25 Euro. Du gibst 3 Euro zurück.' } },
+  { id: 's-6-4', thema: 5, titel: 'Erst den Preis, dann Rückgeld', text: 'Neu: Tippe zuerst auf den richtigen Preis. Dann gib das Rückgeld.',
+    art: 'verkaufen', kunde: 'schein', scheine: [50, 100], preisZuerst: true, anzahl: 3, min: 15, max: 99, einer: 0,
+    zeig: { waren: ['ball', 'puzzle', 'jojo'], kunde: [5000], legen: [2000, 200, 200], rechnung: ['8 € + 14 € + 4 € = 26 €', '50 € − 26 € = 24 €'], sprich: 'Zuerst rechne ich den Preis: 8 Euro, 14 Euro und 4 Euro sind 26 Euro. Der Kunde gibt 50 Euro. Ich gebe 24 Euro zurück.' } },
 ];
 const ALT_SPIELWAREN = ['s-2-1', 's-2-2', 's-2-3', 's-2-4', 's-2-5', 's-5-1', 's-5-2', 's-5-3'];
 
@@ -1860,6 +1965,18 @@ const STUFEN_BAECKEREI = [
   { id: 'b-5-6', thema: 4, titel: 'Wunschzettel mit Budget', text: 'Neu: Du hast 5 Euro. Such dir selbst aus, was du kaufst.',
     art: 'kaufen', budgetWunsch: true, anzahl: 3, max: 500, einer: 0,
     zeig: { waren: ['croissant', 'kakao'], legen: [200, 100, 20], rechnung: ['Du hast 5 €', '1,30 € + 1,90 € = 3,20 € – das passt!'], sprich: 'Du hast 5 Euro und suchst dir selbst Sachen aus. Ein Croissant für 1 Euro 30 und ein Kakao für 1 Euro 90 sind zusammen 3 Euro 20. Das passt.' } },
+  { id: 'b-6-1', thema: 5, titel: 'Reicht das Geld vom Kunden?', text: 'Neu: Jetzt bist du der Verkäufer! Der Kunde gibt dir Geld. Schau, ob es reicht.',
+    art: 'verkaufen', kunde: 'reicht', anzahl: 1, min: 30, max: 300, einer: 0,
+    zeig: { waren: ['croissant'], kunde: [100, 20, 10], legen: [], rechnung: ['Croissant: 1,30 €', '1 € + 20 ct + 10 ct = 1,30 €', 'Das reicht!'], sprich: 'Der Kunde kauft ein Croissant für 1 Euro 30. Er gibt dir 1 Euro, 20 Cent und 10 Cent. Das sind 1 Euro 30. Das reicht.' } },
+  { id: 'b-6-2', thema: 5, titel: 'Rückgeld geben', text: 'Neu: Der Kunde bezahlt mit einer Münze oder einem Schein. Gib ihm das Rückgeld.',
+    art: 'verkaufen', kunde: 'schein', scheine: [100, 200, 500], anzahl: 1, max: 450, einer: 0,
+    zeig: { waren: ['broetchen'], kunde: [100], legen: [50, 10], rechnung: ['1 € − 40 ct = 60 ct'], sprich: 'Der Kunde kauft ein Brötchen für 40 Cent und gibt dir 1 Euro. Von 40 Cent bis 1 Euro fehlen 60 Cent. Du gibst 60 Cent zurück.' } },
+  { id: 'b-6-3', thema: 5, titel: 'Kunde gibt mehrere Stücke', text: 'Jetzt gibt der Kunde mehrere Münzen. Zähle zuerst sein Geld.',
+    art: 'verkaufen', kunde: 'mehrere', anzahl: 2, min: 60, max: 500, einer: 0,
+    zeig: { waren: ['broetchen', 'croissant'], kunde: [100, 100], legen: [20, 10], rechnung: ['40 ct + 1,30 € = 1,70 €', '1 € + 1 € = 2 €', '2 € − 1,70 € = 30 ct'], sprich: 'Der Kunde kauft ein Brötchen und ein Croissant. Das kostet 1 Euro 70. Er gibt dir 1 Euro und 1 Euro, also 2 Euro. Du gibst 30 Cent zurück.' } },
+  { id: 'b-6-4', thema: 5, titel: 'Erst den Preis, dann Rückgeld', text: 'Neu: Tippe zuerst auf den richtigen Preis. Dann gib das Rückgeld.',
+    art: 'verkaufen', kunde: 'schein', scheine: [500, 1000], preisZuerst: true, anzahl: 3, min: 150, max: 900, einer: 0,
+    zeig: { waren: ['broetchen', 'croissant', 'kakao'], kunde: [500], legen: [100, 20, 20], rechnung: ['40 ct + 1,30 € + 1,90 € = 3,60 €', '5 € − 3,60 € = 1,40 €'], sprich: 'Zuerst rechne ich den Preis: 40 Cent, 1 Euro 30 und 1 Euro 90 sind 3 Euro 60. Der Kunde gibt 5 Euro. Ich gebe 1 Euro 40 zurück.' } },
 ];
 const ALT_BAECKEREI = ['b-1-3', 'b-2-2', 'b-2-3', 'b-2-4', 'b-2-5', 'b-5-2', 'b-5-3', 'b-5-4'];
 
@@ -1896,17 +2013,17 @@ const ZAHL_SPRECH = ['', 'eins', 'zwei', 'drei', 'vier', 'fünf', 'sechs'];
 const LAEDEN = {
   kirmes: { name: 'Kirmes-Kiosk', faktor: 1, cent: false, foto: true, ordner: 'bilder/', farbe: '#f39325', farbeRand: '#c76f0a',
             produkte: PRODUKTE_KIRMES, stufen: STUFEN_KIRMES, alt: ALT_KIRMES,
-            themen: ['Geld kennen', 'Zusammenrechnen', 'Geschickt legen', 'Mehrmals und Ergänzen', 'Rückgeld und Budget'], geld: [1, 2, 5, 10, 20], ausschnitt: '86 0 1028 700',
+            themen: ['Geld kennen', 'Zusammenrechnen', 'Geschickt legen', 'Mehrmals und Ergänzen', 'Rückgeld und Budget', 'Verkäufer sein'], geld: [1, 2, 5, 10, 20], ausschnitt: '86 0 1028 700',
             maxWahl: [5, 10, 12, 15, 20, 30], bezahltWahl: [10, 15, 20], spanne: 6, schritte: [1, 2, 10, 3],
             bereiche: [[5, 'bis 5 €'], [10, '6–10 €'], [15, '11–15 €'], [20, '16–20 €'], [Infinity, 'über 20 €']] },
   spielwaren: { name: 'Spielwarenladen', faktor: 1, cent: false, foto: false, ordner: 'bilder/spielwaren/', farbe: '#9fd3f0', farbeRand: '#3d9ad6',
             produkte: PRODUKTE_SPIELWAREN, stufen: STUFEN_SPIELWAREN, alt: ALT_SPIELWAREN,
-            themen: ['Große Scheine kennen', 'Zusammenrechnen', 'Geschickt legen', 'Mehrmals und Ergänzen', 'Rückgeld und Budget'], geld: [1, 2, 5, 10, 20, 50, 100], ausschnitt: '0 20 1090 760',
+            themen: ['Große Scheine kennen', 'Zusammenrechnen', 'Geschickt legen', 'Mehrmals und Ergänzen', 'Rückgeld und Budget', 'Verkäufer sein'], geld: [1, 2, 5, 10, 20, 50, 100], ausschnitt: '0 20 1090 760',
             maxWahl: [30, 50, 100, 150, 200], bezahltWahl: [20, 50, 100, 200], spanne: 40, schritte: [1, 10, 5, 20],
             bereiche: [[20, 'bis 20 €'], [50, '21–50 €'], [100, '51–100 €'], [150, '101–150 €'], [Infinity, 'über 150 €']] },
   baeckerei: { name: 'Bäckerei', faktor: 100, cent: true, foto: false, ordner: 'bilder/baeckerei/', farbe: '#ffd200', farbeRand: '#c9a400',
             produkte: PRODUKTE_BAECKEREI, stufen: STUFEN_BAECKEREI, alt: ALT_BAECKEREI,
-            themen: ['Euro und Cent kennen', 'Zusammenrechnen', 'Geschickt legen', 'Mehrmals und Ergänzen', 'Rückgeld und Budget'], geld: [10, 20, 50, 100, 200, 500], ausschnitt: '20 16 1150 720',
+            themen: ['Euro und Cent kennen', 'Zusammenrechnen', 'Geschickt legen', 'Mehrmals und Ergänzen', 'Rückgeld und Budget', 'Verkäufer sein'], geld: [10, 20, 50, 100, 200, 500], ausschnitt: '20 16 1150 720',
             maxWahl: [2, 3, 5, 8, 10], bezahltWahl: [5, 10, 20], spanne: 250, schritte: [10, 50, 100, 20],
             bereiche: [[100, 'bis 1 €'], [200, '1,10–2 €'], [500, '2,10–5 €'], [1000, '5,10–10 €'], [Infinity, 'über 10 €']] },
 };
@@ -1955,10 +2072,24 @@ const STANDARD = { name: '', laden: 'kirmes', geld: 'foto', modus: 'stufen', sta
                    taster: 'aus', tempo: 2500, wahl: true, steigern: true, stimme: 'thorsten', markieren: 'hilfe', wunsch: true,
                    mengen: 'einzeln', stumm: false };
 const SCHALTER = ['wunsch', 'wahl', 'steigern', 'abstieg', 'wiederholen', 'preise', 'hilfe', 'doppelt', 'betragzeigen', 'ton', 'kamera', 'fotos', 'schild'];
+// Mehrere Kinder auf einem Gerät: jedes Kind hat seinen eigenen Speicher (ohne Namen, nur ein Bild aus symbole.js).
+// Das erste Kind (p1) nutzt die bisherigen Schlüssel – so bleibt der Lernstand von vor Version 5 beim ersten Kind.
+const GERAET_KEYS = new Set(['kinder', 'kind', 'sicherung', 'kamera-geht']);
+let kindId = 'p1';
+const speicherKey = (k, kind = kindId) => GERAET_KEYS.has(k) || kind === 'p1' ? 'kirmes-' + k : `kirmes-${kind}-${k}`;
 const speicher = {
-  lesen(k, f) { try { const v = localStorage.getItem('kirmes-' + k); return v ? JSON.parse(v) : f; } catch (e) { return f; } },
-  schreiben(k, v) { try { localStorage.setItem('kirmes-' + k, JSON.stringify(v)); } catch (e) { /* kein Speicher */ } },
+  lesen(k, f, kind) { try { const v = localStorage.getItem(speicherKey(k, kind)); return v ? JSON.parse(v) : f; } catch (e) { return f; } },
+  schreiben(k, v, kind) { try { localStorage.setItem(speicherKey(k, kind), JSON.stringify(v)); } catch (e) { /* kein Speicher */ } },
+  loeschen(k, kind) { try { localStorage.removeItem(speicherKey(k, kind)); } catch (e) { /* egal */ } },
 };
+const kinder = () => speicher.lesen('kinder', null) || [{ id: 'p1', symbol: null }];
+const mehrereKinder = () => kinder().length > 1;
+const aktuellesKind = () => kinder().find(k => k.id === kindId) || kinder()[0];
+const kindName = k => k && k.symbol && KinderSymbole.liste[k.symbol] ? KinderSymbole.liste[k.symbol].name : 'Kind ohne Bild';
+const kindBild = (k, klasse = '') => `<span class="kind-bild ${klasse}" style="--kachel:${k && k.symbol ? KinderSymbole.liste[k.symbol].farbe : 'var(--flaeche)'}">${k && k.symbol ? KinderSymbole.liste[k.symbol].svg : '?'}</span>`;
+kindId = (k => kinder().some(x => x.id === k) ? k : kinder()[0].id)(speicher.lesen('kind', 'p1'));
+// Speicher möglichst behalten (Safari löscht sonst nach längerer Pause; als App auf dem Home-Bildschirm ist er sicherer)
+try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); } catch (e) { /* egal */ }
 function clamp(v, a, b) { return Math.max(a, Math.min(b, isNaN(v) ? a : Math.round(v))); }
 function ausLink() {
   const q = new URLSearchParams(location.search), e = {};
@@ -1986,11 +2117,14 @@ function ausLink() {
   if (!q.has('modus') && (q.has('anzahl') || q.has('einer'))) e.modus = 'fest';
   return e;
 }
-let E = Object.assign({}, STANDARD, speicher.lesen('einstellungen', {}), ausLink());
-if (typeof E.schild !== 'boolean') E.schild = E.schild === '4' || E.schild === 'alle';
-if (E.abstieg && !speicher.lesen('einstellungen', {}).schwierig) E.schwierig = 'zurueck';   // vor 4.9: Haken „eine Stufe zurück“
-// Stufen-Fortschritt: { nr, geloest, schwerInFolge }
-if (!LAEDEN[E.laden]) E.laden = 'kirmes';
+let E;
+function ladeEinstellungen(extra = {}) {
+  E = Object.assign({}, STANDARD, speicher.lesen('einstellungen', {}), extra);
+  if (typeof E.schild !== 'boolean') E.schild = E.schild === '4' || E.schild === 'alle';
+  if (E.abstieg && !speicher.lesen('einstellungen', {}).schwierig) E.schwierig = 'zurueck';   // vor 4.9: Haken „eine Stufe zurück“
+  if (!LAEDEN[E.laden]) E.laden = 'kirmes';
+}
+ladeEinstellungen(ausLink());
 // Stufen-Fortschritt je Laden (Kirmes behält den alten Speicherplatz 'stufe')
 const stufenKey = id => id === 'kirmes' ? 'stufe' : 'stufe-' + id;
 const stufenSchluessel = () => stufenKey(E.laden);
@@ -2035,6 +2169,14 @@ function ladenSetzen(id) {
     : neuS(1);
 }
 ladenSetzen(E.laden);
+// Anderes Kind: dessen Einstellungen, Stufen, Auswertung und Album
+function kindWechseln(id) {
+  if (!kinder().some(k => k.id === id)) return;
+  kindId = id; speicher.schreiben('kind', id);
+  ladeEinstellungen();
+  ladenSetzen(E.laden);
+  if (typeof zeigeLaden === 'function') { zeigeLaden(); zeigeStumm(); }
+}
 { // Link: st=<Kennung> (neu) oder stufe=<1–8> (bisherige Nummerierung)
   const q = new URLSearchParams(location.search), i = STUFEN.findIndex(x => x.id === q.get('st'));
   if (i >= 0) S = neuS(i + 1);
@@ -2048,7 +2190,8 @@ function regeln() {
     const st = regelnStufe || STUFEN[clamp(S.nr, 1, STUFEN.length) - 1];
     return { art: st.art, anzahl: st.anzahl, max: st.max, min: st.min || 0, betrag: 'alle', einer: st.einer, schild: E.schild ? '4' : 'aus', bezahlt: st.bezahlt || 10 * L.faktor,
              spanne: st.spanne || L.spanne, geld: st.geld || null, stufe: S.nr, stufeId: st.id,
-             wenig: !!st.wenig, budgetWunsch: !!st.budgetWunsch, ziele: st.ziele || null, ziel: st.ziel || 0, schritt: st.schritt || 0 };
+             wenig: !!st.wenig, budgetWunsch: !!st.budgetWunsch, ziele: st.ziele || null, ziel: st.ziel || 0, schritt: st.schritt || 0,
+             kunde: st.kunde || null, scheine: st.scheine || null, preisZuerst: !!st.preisZuerst };
   }
   return { art: E.art, anzahl: E.anzahl, max: E.max * L.faktor, min: 0, betrag: L.cent ? 'alle' : E.betrag, einer: E.einer, schild: E.schild ? '4' : 'aus', bezahlt: E.bezahlt * L.faktor,
            spanne: L.spanne, geld: null, stufe: null, stufeId: null };
@@ -2100,6 +2243,46 @@ function neueAufgabeFormat(R) {
   const habe = werte.length ? zufallAus(werte) : unit;
   return { art: 'fehlt', waren, summe: ziel, ziel, habe, bezahlt: habe, loesung: ziel - habe, regeln: R, schluessel: 'fehlt' + ziel + '-' + habe };
 }
+// Verkäufer sein: Geld, das der Kunde gibt (in der Einheit des Ladens)
+const summeVon = l => l.reduce((a, b) => a + b, 0);
+function kundenGeld(R, summe) {
+  const alle = [...new Set([...L.geld, ...(R.scheine || [])])].sort((a, b) => a - b);
+  if (R.kunde === 'schein') { const s = (R.scheine || alle).filter(w => w > summe); return s.length ? [s[0]] : null; }
+  if (R.kunde === 'mehrere') {
+    // 2–3 Stücke, zusammen mehr als der Preis; keines ist überflüssig (wie ein echter Kunde)
+    const pool = alle.filter(w => w < summe * 2 && w >= alle[0]);
+    for (let t = 0; t < 300; t++) {
+      const n = 2 + (Math.random() < .35 ? 1 : 0), l = Array.from({ length: n }, () => zufallAus(pool)).sort((a, b) => b - a), g = summeVon(l);
+      if (g > summe && g - l[l.length - 1] < summe && g - summe <= summe) return l;
+    }
+    return null;
+  }
+  // reicht: genau passend, etwas zu viel oder ein Stück zu wenig
+  const klein = alle.filter(w => w < summe), l = zerlege(summe, klein.length ? klein : [alle[0]]);
+  if (summeVon(l) !== summe) return null;
+  const r = Math.random();
+  if (r < .45 && l.length > 1) l.pop();                                     // reicht nicht
+  else if (r < .7) { const i = l.length - 1, gr = alle.find(w => w > l[i]); if (gr) l[i] = gr; }   // etwas zu viel
+  return l.sort((a, b) => b - a);
+}
+function neueAufgabeVerkauf(R) {
+  let ersatz = null;
+  for (let t = 0; t < 1500; t++) {
+    const waren = zieheWaren(R.anzahl, E.doppelt), summe = summeVon(waren.map(p => p.preis));
+    const schluessel = waren.map(p => p.id).sort().join();
+    const kunde = kundenGeld(R, summe);
+    if (!kunde) continue;
+    waren.sort((a, b) => a.name.localeCompare(b.name, 'de'));
+    const gegeben = summeVon(kunde), a = R.kunde === 'reicht'
+      ? { art: 'budget', loesung: gegeben >= summe }
+      : { art: 'rueckgeld', loesung: gegeben - summe, phase: R.preisZuerst ? 'preis' : null };
+    const auf = Object.assign({ verkauf: true, kunde, waren, summe, bezahlt: gegeben, regeln: R, schluessel }, a);
+    if (!ersatz) ersatz = auf;
+    if (summe < (R.min || 0) || summe > R.max || (aufgabe && schluessel === aufgabe.schluessel)) continue;
+    return auf;
+  }
+  return ersatz;
+}
 // Wiederholung: an festen Stellen der Runde eine gemerkte (noch schwierige) bzw. eine sichere frühere Stufe
 function wiederholStufe() {
   if (E.modus !== 'stufen' || !E.wiederholen || !runde) return null;
@@ -2121,6 +2304,7 @@ function neueAufgabe(wdh = true) {
 function neueAufgabeIntern() {
   const R = regeln();
   if (['anders', 'mehrmals', 'fehlt'].includes(R.art)) return neueAufgabeFormat(R);
+  if (R.art === 'verkaufen') return neueAufgabeVerkauf(R);
   let beste = null;
   const budgetReicht = Math.random() < 0.5;
   for (let t = 0; t < 3000; t++) {
@@ -2164,6 +2348,8 @@ function wunschFertig() {
 // ---------------------------------------------------------------------------
 // Anzeige
 // ---------------------------------------------------------------------------
+// Der Kunde (Verkäufer sein): schlichte Figur im Stil der Laden-Bilder
+const KUNDE_SVG = `<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 47C8 36 15 31 24 31S40 36 40 47Z" fill="#9fd3f0"/><path d="M19 31L24 38L29 31Z" fill="#fff"/><circle cx="24" cy="19" r="10" fill="#f6cfa8"/><path d="M14 18C14 10 19 7 24 7S35 10 34 18C31 14 27 13 24 13S16 14 14 18Z" fill="#a0673a"/><circle cx="20.5" cy="20" r="1.4" fill="#1d3a5c"/><circle cx="27.5" cy="20" r="1.4" fill="#1d3a5c"/><path d="M20.5 24.5Q24 27 27.5 24.5" fill="none" stroke="#1d3a5c" stroke-width="1.5" stroke-linecap="round"/></svg>`;
 const SYMBOL_GUT = `<svg class="symbol" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="var(--gut)"/><path d="M18 33l9 9 19-20" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 const SYMBOL_HM = `<svg class="symbol" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="var(--hm)"/><path d="M24 24a8 8 0 1 1 11 7.4c-2 .9-3 2.4-3 4.6v2" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/><circle cx="32" cy="47" r="3.6" fill="#fff"/></svg>`;
 const STERN = f => `<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z" fill="${f ? 'var(--senf)' : 'none'}" stroke="var(--holz)" stroke-width="1.6" stroke-linejoin="round"/></svg>`;
@@ -2180,6 +2366,7 @@ function zeigeRunde() {
   if (neu) $('neu-chip-text').textContent = 'Neu: ' + STUFEN[S.nr - 1].titel;
   document.body.classList.add('im-spiel'); kopfHoehe();
   $('gruss').textContent = E.name ? `Hallo ${E.name}!` : 'Hallo!';
+  if (mehrereKinder()) $('gruss').insertAdjacentHTML('afterbegin', kindBild(aktuellesKind(), 'mini'));
   $('aufgabe-text').textContent = `Aufgabe ${runde.nr + 1} von ${E.runde}`;
   const punkte = $('punkte'); punkte.innerHTML = '';
   for (let i = 0; i < E.runde; i++) {
@@ -2188,7 +2375,7 @@ function zeigeRunde() {
     punkte.appendChild(d);
   }
 }
-function preiseSichtbar() { return E.preise || hilfeStufe >= 1 || (aufgabe && aufgabe.art === 'fehlt'); }
+function preiseSichtbar() { return E.preise || hilfeStufe >= 1 || (aufgabe && (aufgabe.art === 'fehlt' || aufgabe.verkauf)); }   // Verkäufer: Preise immer
 // Gleiche Sachen einzeln nebeneinander oder zusammengefasst („2×“, Einstellung E.mengen – schwerer)
 const mengenZusammen = () => (aufgabe && aufgabe.art === 'mehrmals') || (E.doppelt && E.mengen === 'zusammen');
 function zeigeWare() {
@@ -2228,22 +2415,25 @@ function zeigeAufgabe() {
     scanNeu();
     return;
   }
-  $('ware-titel').textContent = art === 'anders' ? 'Lege diesen Betrag anders:' : art === 'fehlt' ? (n ? 'Das möchte ich kaufen:' : 'Wie viel fehlt bis 1 €?')
+  $('ware-titel').textContent = aufgabe.verkauf ? (n === 1 ? 'Der Kunde kauft:' : `Der Kunde kauft (${n} Sachen):`) : art === 'anders' ? 'Lege diesen Betrag anders:' : art === 'fehlt' ? (n ? 'Das möchte ich kaufen:' : 'Wie viel fehlt bis 1 €?')
     : art === 'budget' ? `Das möchte ich kaufen (${n} Sachen):` : n === 1 ? 'Das möchte ich kaufen:' : `Das möchte ich kaufen (${n} Sachen):`;
   const bz = $('bezahlen');
-  if (art === 'rueckgeld') { bz.hidden = false; bz.innerHTML = `<span>Ich bezahle mit:</span>${scheinChip(aufgabe.bezahlt)}`; }
+  if (aufgabe.verkauf) { bz.hidden = false; bz.innerHTML = `<span class="kunde-bild">${KUNDE_SVG}</span><span>Der Kunde gibt dir:</span><span class="preis-fest" id="preis-fest" hidden></span><span class="kunde-geld">${aufgabe.kunde.map(scheinChip).join('')}</span>`; }
+  else if (art === 'rueckgeld') { bz.hidden = false; bz.innerHTML = `<span>Ich bezahle mit:</span>${scheinChip(aufgabe.bezahlt)}`; }
   else if (art === 'budget') { bz.hidden = false; bz.innerHTML = `<span>Ich habe:</span>${scheinChip(aufgabe.bezahlt)}`; }
   else if (art === 'fehlt') { bz.hidden = false; bz.innerHTML = `<span>Ich habe schon:</span>${zerlege(aufgabe.habe).map(scheinChip).join('')}<span>= ${fmt(aufgabe.habe)}</span>`; }
   else { bz.hidden = true; bz.innerHTML = ''; }
   $('hilfe-reihe').hidden = true; $('hilfe-reihe').innerHTML = '';
   const ziehen = E.geld === 'ziehen' || !L.foto;   // Spielwaren/Bäckerei: nur ziehen
   $('foto-auftrag').textContent = ziehen
-    ? (art === 'rueckgeld' ? 'Rechne aus, wie viel du zurückbekommst. Zieh das Rückgeld auf den Teller.'
+    ? (aufgabe.verkauf ? 'Wie viel Rückgeld bekommt der Kunde? Zieh es auf den Teller.'
+      : art === 'rueckgeld' ? 'Rechne aus, wie viel du zurückbekommst. Zieh das Rückgeld auf den Teller.'
       : art === 'fehlt' ? 'Rechne aus, wie viel fehlt. Zieh das Geld auf den Teller.'
       : art === 'anders' ? 'Lege den Betrag mit anderem Geld auf den Teller.'
       : aufgabe.regeln.wenig ? 'Rechne aus. Lege das Geld mit möglichst wenig Stücken.'
       : 'Rechne aus. Zieh das Geld auf den Teller. Dann tippe auf Fertig.')
-    : (art === 'rueckgeld' ? 'Rechne aus, wie viel du zurückbekommst. Lege das Rückgeld. Mach ein Foto.' : 'Rechne aus. Lege das Geld. Mach ein Foto.');
+    : (aufgabe.verkauf ? 'Wie viel Rückgeld bekommt der Kunde? Lege es hin. Mach ein Foto.'
+      : art === 'rueckgeld' ? 'Rechne aus, wie viel du zurückbekommst. Lege das Rückgeld. Mach ein Foto.' : 'Rechne aus. Lege das Geld. Mach ein Foto.');
   $('foto-teil').hidden = ziehen; $('zieh-teil').hidden = !ziehen;
   baueVorrat(); kasseLeeren(); kasseSperren(false);
   $('schritt-foto').hidden = art === 'budget';
@@ -2256,6 +2446,11 @@ function zeigeAufgabe() {
   $('knopf-foto').hidden = false; $('knopf-foto').querySelector('span').textContent = 'Foto vom Geld';
   $('schritt-schild').hidden = true; $('schild-meldung').innerHTML = '';
   $('weiter-reihe').hidden = true;
+  $('budget-frage').textContent = aufgabe.verkauf ? 'Reicht das Geld vom Kunden?' : 'Reicht das Geld?';
+  // Verkäufer „erst den Preis“: Schritt 1 Preis wählen, Schritt 2 Rückgeld
+  $('schritt-schild').querySelector('.nr').textContent = aufgabe.phase === 'preis' ? '1' : '2';
+  $('schritt-foto').querySelector('.nr').textContent = aufgabe.phase === 'preis' ? '2' : '1';
+  if (aufgabe.phase === 'preis') { $('schritt-foto').hidden = true; zeigePreisWahl(); }
   window.scrollTo({ top: 0, behavior: 'smooth' });
   scanNeu();
 }
@@ -2267,7 +2462,7 @@ function bieteHilfe() {
   if (!E.hilfe || geloest) return;
   const reihe = $('hilfe-reihe');
   const frueh = E.modus === 'stufen' && S.neuNoch > 0 ? 1 : 0;   // nach einem Wechsel: Hilfe schon nach dem 1. Fehlversuch
-  if (fehlversuche >= 2 - frueh && hilfeStufe === 0 && !E.preise && !['fehlt', 'anders'].includes(aufgabe.art)) {
+  if (fehlversuche >= 2 - frueh && hilfeStufe === 0 && !E.preise && !aufgabe.verkauf && !['fehlt', 'anders'].includes(aufgabe.art)) {
     reihe.hidden = false;
     reihe.innerHTML = `<button class="grossknopf leise" id="knopf-hilfe1" data-scan>Hilfe: Preise zeigen</button>`;
     $('knopf-hilfe1').addEventListener('click', () => { hilfeStufe = 1; zeigeWare(); reihe.innerHTML = ''; reihe.hidden = true; sage('Hier stehen die Preise. Rechne noch einmal.'); bieteHilfe(); scanNeu(); });
@@ -2279,10 +2474,10 @@ function bieteHilfe() {
       const teile = aufgabe.waren.map(p => `<span class="preis">${fmt(p.preis)}</span>`).join('<span>+</span>');
       reihe.innerHTML = aufgabe.art === 'fehlt' ? `<div class="rechenweg"><span class="preis">${fmt(aufgabe.ziel)}</span><span>−</span><span class="preis">${fmt(aufgabe.habe)}</span><span>= ?</span></div>`
         : aufgabe.art === 'anders' ? `<div class="rechenweg"><span>Andere Stücke für</span><span class="preis">${fmt(aufgabe.ohne)}</span></div>`
-        : aufgabe.art === 'rueckgeld'
-        ? `<div class="rechenweg">${scheinChip(aufgabe.bezahlt)}<span>−</span><span>(</span>${teile}<span>)</span><span>= ?</span></div>`
+        : aufgabe.art === 'rueckgeld' && aufgabe.phase !== 'preis'
+        ? `<div class="rechenweg">${aufgabe.verkauf && aufgabe.kunde.length > 1 ? `<span>(</span>${aufgabe.kunde.map(scheinChip).join('<span>+</span>')}<span>)</span>` : scheinChip(aufgabe.bezahlt)}<span>−</span><span>(</span>${teile}<span>)</span><span>= ?</span></div>`
         : `<div class="rechenweg">${teile}<span>= ?</span></div>`;
-      sage(aufgabe.art === 'rueckgeld' ? `Rechne zuerst alle Preise zusammen. Dann zieh das von ${sprichBetrag(aufgabe.bezahlt)} ab.` : 'Rechne die Preise Schritt für Schritt zusammen.');
+      sage(aufgabe.art === 'rueckgeld' && aufgabe.phase !== 'preis' ? `Rechne zuerst alle Preise zusammen. Dann zieh das von ${sprichBetrag(aufgabe.bezahlt)} ab.` : 'Rechne die Preise Schritt für Schritt zusammen.');
       scanNeu();
     });
   }
@@ -2725,8 +2920,45 @@ function zeigeSchilder() {
   sageDanach(rueck ? 'Welches Schild passt zum Rückgeld?' : 'Welches Preis-Schild passt?');
   scanNeu();
 }
+// Verkäufer: zuerst den Gesamtpreis wählen, dann das Rückgeld legen
+function naheWerte(soll) {
+  const set = new Set([soll]), [a, b, c, d] = L.schritte;   // typische "Fehler-Abstände" im jeweiligen Laden
+  const nah = [soll - a, soll + a, soll - b, soll + b, soll + c, soll - c, soll + d].filter(v => v >= L.schritte[0]);
+  while (set.size < 4 && nah.length) set.add(nah.splice(Math.floor(Math.random() * Math.min(4, nah.length)), 1)[0]);
+  return [...set].sort((a, b) => a - b);
+}
+function zeigePreisWahl() {
+  const box = $('schilder');
+  box.className = 'schilder';
+  box.innerHTML = naheWerte(aufgabe.summe).map(v => `<button class="preisschild" data-scan data-wert="${v}" aria-label="${sprichBetrag(v)}"><small>Gesamt-Preis:</small><span>${fmt(v)}</span></button>`).join('');
+  $('schild-auftrag').textContent = 'Was kostet alles zusammen? Tippe auf den richtigen Preis.';
+  $('schild-meldung').innerHTML = '';
+  $('schritt-schild').hidden = false;
+  scanNeu();
+}
+function preisGewaehlt(k) {
+  const v = +k.dataset.wert;
+  if (v === aufgabe.summe) {
+    $('schilder').querySelectorAll('.preisschild').forEach(b => { b.classList.toggle('falsch', +b.dataset.wert !== v); b.disabled = true; });
+    k.classList.add('richtig');
+    $('schild-meldung').innerHTML = meldung(true, 'Richtig!', `Zusammen kostet es ${fmt(v)}.`, true);
+    aufgabe.phase = 'rueck';
+    $('preis-fest').hidden = false; $('preis-fest').textContent = `Preis: ${fmt(v)}`;
+    sage(`Richtig! Zusammen kostet es ${sprichBetrag(v)}. Jetzt gib mir das Rückgeld.`);
+    setTimeout(() => { if (aufgabe && aufgabe.phase === 'rueck' && !geloest) { $('schritt-schild').hidden = true; $('schritt-foto').hidden = false; scanNeu(); } }, 1600);
+  } else {
+    versuche++; fehlversuche++;
+    k.classList.add('falsch'); k.disabled = true;
+    $('schild-meldung').innerHTML = meldung(false, 'Schau noch mal.', 'Rechne die Preise zusammen.');
+    sage('Schau noch mal. Rechne die Preise zusammen.');
+    bieteHilfe();
+  }
+  scanNeu();
+}
 $('schilder').addEventListener('click', ev => {
-  const k = ev.target.closest('.preisschild'); if (!k || !geloest) return;
+  const k = ev.target.closest('.preisschild');
+  if (k && aufgabe && aufgabe.phase === 'preis') return preisGewaehlt(k);
+  if (!k || !geloest) return;
   const v = +k.dataset.wert, soll = aufgabe.loesung, rueck = aufgabe.art === 'rueckgeld';
   if (v === soll) {
     $('schilder').querySelectorAll('.preisschild').forEach(b => { b.classList.toggle('falsch', +b.dataset.wert !== soll); b.disabled = true; });
@@ -2761,8 +2993,9 @@ function budgetAntwort(ja) {
     $('weiter-reihe').hidden = false;
   } else {
     fehlversuche++;
-    $('budget-meldung').innerHTML = meldung(false, 'Schau noch einmal.', 'Rechne die Preise zusammen und vergleiche mit deinem Geld.');
-    sage('Schau noch einmal. Rechne die Preise zusammen und vergleiche mit deinem Geld.');
+    const t = aufgabe.verkauf ? 'Rechne den Preis und zähle das Geld vom Kunden.' : 'Rechne die Preise zusammen und vergleiche mit deinem Geld.';
+    $('budget-meldung').innerHTML = meldung(false, 'Schau noch einmal.', t);
+    sage('Schau noch einmal. ' + t);
     bieteHilfe();
   }
   protokolliere(null, richtig, false, ja ? 'Antwort: reicht' : 'Antwort: reicht nicht');
@@ -2846,7 +3079,8 @@ function stufeVormachen() {
   $('zeig-waren').innerHTML = waren.map(p => `<span class="zeig-ware"><img src="${bild(p)}" alt=""><span class="preis">${fmt(p.preis)}</span></span>`).join('') +
     (z.ziel ? `<span class="zeig-bezahlt">${STUFEN[S.nr - 1].art === 'anders' ? 'Lege' : 'Bis'} ${KirmesGeld.bild(z.ziel, z.ziel >= 500 ? 1.7 : 2.6)}${STUFEN[S.nr - 1].art === 'anders' ? ' – ohne dieses Stück' : ''}</span>` : '') +
     (z.habe ? `<span class="zeig-bezahlt">Ich habe ${zerlege(z.habe, [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000]).map(c => KirmesGeld.bild(c, c >= 500 ? 1.4 : 1.9)).join('')}</span>` : '') +
-    (z.bezahlt ? `<span class="zeig-bezahlt">${STUFEN[S.nr - 1].art === 'budget' ? 'Ich habe' : 'Ich bezahle mit'} ${KirmesGeld.bild(z.bezahlt, 1.7)}</span>` : '');
+    (z.bezahlt ? `<span class="zeig-bezahlt">${STUFEN[S.nr - 1].art === 'budget' ? 'Ich habe' : 'Ich bezahle mit'} ${KirmesGeld.bild(z.bezahlt, 1.7)}</span>` : '') +
+    (z.kunde ? `<span class="zeig-bezahlt"><span class="kunde-bild">${KUNDE_SVG}</span>Der Kunde gibt dir ${z.kunde.map(c => KirmesGeld.bild(c, c >= 500 ? 1.4 : 1.9)).join('')}</span>` : '');
   $('zeig-teller').innerHTML = z.legen.map(c => `<span class="zeig-geld">${KirmesGeld.bild(c, c >= 500 ? 1.9 : 2.4)}</span>`).join('');
   $('zeig-teller').hidden = !z.legen.length;
   $('zeig-rechnung').textContent = '';
@@ -3059,6 +3293,12 @@ function vorlesenAufgabe() {
   // Im Zieh-Modus gibt es kein Foto: dann "zieh das Geld auf den Teller".
   const legen = zieh ? `Zieh das ${rueck ? 'Rückgeld' : 'Geld'} auf den Teller und tippe dann auf Fertig.`
     : `Leg das ${rueck ? 'Rückgeld' : 'Geld'} hin und mach ein Foto.`;
+  if (aufgabe.verkauf) {
+    const gib = `Hallo! ${kauf} Ich gebe dir ${sprichBetrag(aufgabe.bezahlt)}.`;
+    if (aufgabe.art === 'budget') return sag(`${gib} Reicht das?`);
+    if (aufgabe.phase === 'preis') return sag(`${gib} Was kostet alles zusammen? Tippe auf den richtigen Preis.`);
+    return sag(`${gib} Wie viel Geld bekomme ich zurück? ${legen}`);
+  }
   if (aufgabe.art === 'anders') return sag(`${andersSatz(aufgabe.ohne)} ${legen}`);
   if (aufgabe.art === 'fehlt') return sag(`Ich habe ${sprichBetrag(aufgabe.habe)}. ${aufgabe.waren.length ? satzPreis(aufgabe.waren[0]) + ' Wie viel fehlt noch?' : 'Wie viel fehlt bis 1 Euro?'} ${legen}`);
   if (aufgabe.regeln.wenig) return sag(`${kauf} Wie viel kostet das zusammen? Nimm möglichst wenig Münzen und Scheine. ${legen}`);
@@ -3186,7 +3426,7 @@ function protokolliere(erkannt, richtig, ersetzen, grund) {
 function merkeAufgabe(leicht) {
   const liste = speicher.lesen('aufgaben', []);
   liste.push({ zeit: Date.now(), laden: E.laden, art: aufgabe.art, stufe: aufgabe.regeln.stufe, stufeId: aufgabe.regeln.stufeId, betrag: aufgabe.art === 'budget' ? aufgabe.summe : aufgabe.loesung,
-               anzahl: aufgabe.waren.length, versuche, hilfe: hilfeStufe, leicht, fehler: fehlerArten.slice(), wunsch: !!aufgabe.wunsch });
+               anzahl: aufgabe.waren.length, versuche, hilfe: hilfeStufe, leicht, fehler: fehlerArten.slice(), wunsch: !!aufgabe.wunsch, verkauf: !!aufgabe.verkauf });
   speicher.schreiben('aufgaben', liste.slice(-1500));
 }
 // Stufe einer gespeicherten Aufgabe (neu: stufeId; älter: Nummer der bisherigen Stufen 1–8)
@@ -3337,15 +3577,44 @@ function zeigeLernstand() {
 }
 const LERNSTAND_KEYS = ['einstellungen', 'stufe', 'stufe-spielwaren', 'stufe-baeckerei', 'aufgaben', 'protokoll', 'album',
   'gemerkt-kirmes', 'gemerkt-baeckerei', 'gemerkt-spielwaren', 'auslassen-kirmes', 'auslassen-baeckerei', 'auslassen-spielwaren'];
-$('knopf-lernstand-sichern').addEventListener('click', () => {
+// Lernstand eines Kindes (ohne Namen und ohne Vorschaubilder)
+function lernstandVon(id) {
   const daten = {};
-  for (const k of LERNSTAND_KEYS) { const v = speicher.lesen(k, null); if (v !== null) daten[k] = v; }
+  for (const k of LERNSTAND_KEYS) { const v = speicher.lesen(k, null, id); if (v !== null) daten[k] = v; }
   if (daten.einstellungen) daten.einstellungen = Object.assign({}, daten.einstellungen, { name: '' });   // Name bleibt auf dem Gerät
   if (daten.protokoll) daten.protokoll = daten.protokoll.map(e => Object.assign({}, e, { foto: '' }));    // ohne Vorschaubilder
-  speichereDatei(JSON.stringify({ app: 'kirmes-kiosk', art: 'lernstand', version: VERSION, datum: new Date().toISOString(), daten }, null, 1),
+  return daten;
+}
+function lernstandSchreiben(id, daten, name) {
+  for (const k of LERNSTAND_KEYS) { if (k in daten) speicher.schreiben(k, daten[k], id); else speicher.loeschen(k, id); }
+  if (name) speicher.schreiben('einstellungen', Object.assign({}, speicher.lesen('einstellungen', {}, id), { name }), id);   // Name auf diesem Gerät behalten
+}
+// Sicherung: alle Kinder in einer Datei. Erinnerung nach 14 Tagen (bzw. ab 20 Aufgaben, wenn noch nie gesichert)
+function sichereLernstand() {
+  const liste = kinder(), daten = {};
+  for (const k of liste) daten[k.id] = lernstandVon(k.id);
+  speichereDatei(JSON.stringify({ app: 'kirmes-kiosk', art: 'lernstand', version: VERSION, datum: new Date().toISOString(), kinder: liste, daten }, null, 1),
     'application/json', `lernstand-${heute()}.json`);
+  speicher.schreiben('sicherung', Date.now());
   $('lernstand-meldung').textContent = 'Datei gespeichert.';
-});
+  zeichneLk();
+}
+function sicherungStand() {
+  const zuletzt = speicher.lesen('sicherung', 0);
+  const neu = kinder().reduce((n, k) => n + speicher.lesen('aufgaben', [], k.id).filter(a => a.zeit > zuletzt).length, 0);
+  const tage = zuletzt ? Math.floor((Date.now() - zuletzt) / 864e5) : null;
+  return { zuletzt, neu, tage, faellig: neu > 0 && (zuletzt ? tage >= 14 : neu >= 20) };
+}
+function zeigeSicherungHinweis() {
+  const st = sicherungStand();
+  $('lk-sicherung').hidden = !st.faellig;
+  $('lk-sicherung-text').textContent = !st.faellig ? '' : st.zuletzt
+    ? `Letzte Sicherung vor ${st.tage} Tagen, seitdem ${st.neu} neue Aufgaben. Die Daten liegen nur auf diesem Gerät.`
+    : `Der Lernstand (${st.neu} Aufgaben) wurde noch nie gesichert. Die Daten liegen nur auf diesem Gerät.`;
+  $('lk-sicherung-stand').textContent = st.zuletzt ? `Zuletzt gesichert am ${new Date(st.zuletzt).toLocaleDateString('de-DE')}.` : 'Noch nie gesichert.';
+}
+$('knopf-lernstand-sichern').addEventListener('click', sichereLernstand);
+$('knopf-sicherung-jetzt').addEventListener('click', sichereLernstand);
 let lernstandNeu = null;
 $('lernstand-datei').addEventListener('change', async ev => {
   const datei = ev.target.files[0]; ev.target.value = '';
@@ -3353,23 +3622,33 @@ $('lernstand-datei').addEventListener('change', async ev => {
   try {
     const j = JSON.parse(await datei.text());
     if (!j || j.app !== 'kirmes-kiosk' || j.art !== 'lernstand' || typeof j.daten !== 'object') throw new Error('falsch');
-    lernstandNeu = j.daten;
-    const n = (j.daten.aufgaben || []).length;
-    $('lernstand-frage-text').textContent = `Lernstand vom ${new Date(j.datum).toLocaleDateString('de-DE')} (${n} Aufgaben) laden? Der Lernstand auf diesem Gerät wird ersetzt.`;
+    lernstandNeu = j;
+    const datum = new Date(j.datum).toLocaleDateString('de-DE');
+    if (Array.isArray(j.kinder)) {   // ab Version 5: alle Kinder
+      const n = j.kinder.reduce((s, k) => s + ((j.daten[k.id] || {}).aufgaben || []).length, 0);
+      $('lernstand-frage-text').textContent = `Lernstand vom ${datum} laden (${j.kinder.length === 1 ? 'ein Kind' : j.kinder.length + ' Kinder'}, ${n} Aufgaben)? Alle Kinder auf diesem Gerät werden ersetzt.`;
+    } else {   // ältere Datei: ein Kind
+      const n = (j.daten.aufgaben || []).length;
+      $('lernstand-frage-text').textContent = `Lernstand vom ${datum} (${n} Aufgaben) laden? ${mehrereKinder() ? `Der Lernstand von „${kindName(aktuellesKind())}“` : 'Der Lernstand auf diesem Gerät'} wird ersetzt.`;
+    }
     $('lernstand-frage').hidden = false; $('lernstand-meldung').textContent = '';
   } catch (e) { $('lernstand-meldung').textContent = 'Diese Datei ist kein Lernstand der Kirmes-Kiosk-App.'; }
 });
 $('knopf-lernstand-nein').addEventListener('click', () => { lernstandNeu = null; $('lernstand-frage').hidden = true; });
 $('knopf-lernstand-ja').addEventListener('click', () => {
   if (!lernstandNeu) return;
-  const name = E.name;
-  for (const k of LERNSTAND_KEYS) {
-    if (k in lernstandNeu) speicher.schreiben(k, lernstandNeu[k]);
-    else try { localStorage.removeItem('kirmes-' + k); } catch (e) { /* egal */ }
+  const j = lernstandNeu;
+  if (Array.isArray(j.kinder)) {
+    const namen = {}; for (const k of kinder()) { namen[k.id] = speicher.lesen('einstellungen', {}, k.id).name || ''; for (const x of LERNSTAND_KEYS) speicher.loeschen(x, k.id); }
+    const liste = j.kinder.filter(k => k && /^p\d+$/.test(k.id) && (!k.symbol || KinderSymbole.liste[k.symbol]));
+    if (!liste.length) liste.push({ id: 'p1', symbol: null });
+    speicher.schreiben('kinder', liste);
+    for (const k of liste) lernstandSchreiben(k.id, j.daten[k.id] || {}, namen[k.id]);
+    kindWechseln(liste.some(k => k.id === kindId) ? kindId : liste[0].id);
+  } else {
+    lernstandSchreiben(kindId, j.daten, E.name);
+    kindWechseln(kindId);
   }
-  E = Object.assign({}, STANDARD, speicher.lesen('einstellungen', {}), { name });   // Name auf diesem Gerät behalten
-  speicher.schreiben('einstellungen', E);
-  ladenSetzen(E.laden); zeigeLaden();
   lernstandNeu = null; $('lernstand-frage').hidden = true;
   LK.geaendert = LK.neueRunde = false;
   $('dlg-lehrkraft').close();
@@ -3407,7 +3686,8 @@ $('knopf-alles-loeschen').addEventListener('click', () => frageZeigen('knopf-all
 $('knopf-alles-nein').addEventListener('click', () => frageZeigen('knopf-alles-loeschen', 'alles-frage', false));
 $('knopf-alles-ja').addEventListener('click', () => {
   try { Object.keys(localStorage).filter(k => k.startsWith('kirmes-')).forEach(k => localStorage.removeItem(k)); } catch (e) { /* kein Speicher */ }
-  E = Object.assign({}, STANDARD, ausLink());
+  kindId = 'p1'; kindGewaehlt = false;
+  ladeEinstellungen(ausLink());
   ladenSetzen(E.laden); zeigeLaden();
   frageZeigen('knopf-alles-loeschen', 'alles-frage', false);
   LK.geaendert = LK.neueRunde = false;
@@ -3715,7 +3995,7 @@ $('dlg-code').addEventListener('close', () => { code = ''; eingabe = ''; scanNeu
 // Lehrkraft-Bereich: Seitenleiste mit acht Abschnitten. Jede Änderung gilt sofort und wird gespeichert.
 // Wurden Laden, Stufe oder Aufgabe geändert, beginnt nach „Fertig“ eine neue Runde.
 // Auswahl-Knöpfe: .lk-chips[data-key], Schalter: .lk-schiebe[data-key]; data-wenn blendet Zeilen ein („fest&art!=kaufen“).
-const LK = { seite: 1, aLaden: 'kirmes', aZeitraum: 7, dLaden: 'kirmes', dArt: 'waren', info: new Set(), neueRunde: false, geaendert: false, anzahl: 0 };
+const LK = { bildFuer: null, danachNeu: false, seite: 1, aLaden: 'kirmes', aZeitraum: 7, dLaden: 'kirmes', dArt: 'waren', info: new Set(), neueRunde: false, geaendert: false, anzahl: 0 };
 const LK_NEUE_RUNDE = new Set(['laden', 'fest', 'art', 'anzahl', 'betrag', 'max', 'bezahlt', 'einer', 'geld', 'runde']);
 const LADEN_KURZ = { kirmes: 'Kirmes', baeckerei: 'Bäckerei', spielwaren: 'Spielwaren' };
 const alsText = v => typeof v === 'boolean' ? (v ? '1' : '0') : String(v);
@@ -3761,7 +4041,8 @@ function lkStand(n) {
     case 5: return (E.ton ? (E.stumm ? 'Ansagen stumm' : E.stimme === 'thorsten' ? 'Thorsten' : 'Gerätestimme') : 'ohne Ton') + ' · ' + (E.taster === 'aus' ? 'Taster aus' : 'Taster an');
     case 6: return `${LADEN_KURZ[LK.aLaden]}: ${LK.anzahl ? LK.anzahl + ' Aufgaben' : 'noch nichts'}`;
     case 7: return 'Druckvorlagen · Link';
-    default: return 'Sichern · Löschen';
+    case 9: return mehrereKinder() ? `${kinder().length} Kinder · ${kindName(aktuellesKind())}` : 'ein Kind';
+    default: { const st = sicherungStand(); return st.faellig ? 'Sicherung fällig' : st.zuletzt ? `gesichert am ${new Date(st.zuletzt).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })}` : 'Sichern · Löschen'; }
   }
 }
 function zeichneStufen() {
@@ -3816,6 +4097,12 @@ function zeichneLk() {
     : 'Schilder mit Beträgen für „Gesamtbetrag aus 4 wählen“ am Tisch – 24 je Blatt.';
   aktualisiereLink();
   dlg.querySelectorAll('[data-stand]').forEach(el => { el.textContent = lkStand(+el.dataset.stand); });
+  dlg.querySelector('[data-stand="8"]').classList.toggle('warn', sicherungStand().faellig);
+  const viele = mehrereKinder();
+  $('knopf-lk-kind').hidden = !viele;
+  if (viele) $('knopf-lk-kind').innerHTML = kindBild(aktuellesKind(), 'mini') + `<span>${kindName(aktuellesKind())}</span>`;
+  $('lk-loeschen-text').textContent = viele ? `Nur für ${kindName(aktuellesKind())}. Stufen, Album und Einstellungen bleiben erhalten.` : 'Stufen, Album und Einstellungen bleiben erhalten.';
+  zeichneKinder(); zeigeSicherungHinweis();
   $('lk-runde').hidden = !LK.neueRunde;
 }
 function zeigeAuswertung() { zeigeBericht(); zeigeLernstand(); zeigeProtokoll(); }
@@ -3836,7 +4123,7 @@ function oeffneLehrkraft(seite) {
     });
     $('lk-navi').dataset.bereit = '1';
   }
-  LK.neueRunde = LK.geaendert = false;
+  LK.neueRunde = LK.geaendert = false; LK.bildFuer = null; LK.danachNeu = false;
   LK.aLaden = LK.dLaden = E.laden;
   $('e-name').value = E.name;
   $('knopf-lk-abbrechen').hidden = !$('start').hidden;   // nur während einer Übung
@@ -3949,7 +4236,10 @@ function stufeVon(id) {
   return clamp(nr, 1, LAEDEN[id].stufen.length);
 }
 function bandVon(id, nr) { const b = LADEN_INFO[id].baender; let i = 0; while (i + 1 < b.length && nr >= b[i + 1][0]) i++; return i; }
+let kindGewaehlt = false;   // beim Öffnen der App: erst „Wer übt heute?“ (bei mehreren Kindern)
+const kindWahlOffen = () => !$('kind-wahl').hidden && !$('start').hidden;
 function startSatz() {
+  if (kindWahlOffen()) return 'Wer übt heute? Tippe auf dein Bild.';
   return E.wahl ? 'Wo möchtest du einkaufen? Im Kirmes-Kiosk, in der Bäckerei oder im Spielwarenladen?' : `Tippe auf Los geht's. Heute kaufst du ${{ kirmes: 'am Kirmes-Kiosk', baeckerei: 'in der Bäckerei', spielwaren: 'im Spielwarenladen' }[E.laden]} ein.`;
 }
 function zeigeStart() {
@@ -3957,6 +4247,17 @@ function zeigeStart() {
   $('neu-chip').hidden = true;
   document.body.classList.add('auf-start');
   $('laden-titel').textContent = 'Einkaufen'; document.title = 'Kirmes-Kiosk';
+  // Mehrere Kinder: zuerst das eigene Bild antippen
+  const wahl = mehrereKinder() && !kindGewaehlt;
+  $('kind-wahl').hidden = !wahl; $('start-tresen').hidden = wahl;
+  if (wahl) {
+    $('kind-karten').innerHTML = kinder().map(k => `<button class="kind-karte" data-scan data-kind="${k.id}" aria-label="${kindName(k)}">${kindBild(k, 'gross')}<span>${kindName(k)}</span></button>`).join('');
+    const t = $('kind-wahl'); t.classList.remove('erscheint'); void t.offsetWidth; if (!vorhangLaeuft) t.classList.add('erscheint');
+    window.scrollTo(0, 0); scanNeu();
+    return;
+  }
+  $('knopf-kind').hidden = !mehrereKinder();
+  if (mehrereKinder()) $('knopf-kind').innerHTML = kindBild(aktuellesKind()) + '<span>Anderes Kind</span>';
   const frei = E.wahl, schonMal = speicher.lesen('einstellungen', null) !== null;
   $('zuletzt-titel').textContent = frei ? 'Weiter wie zuletzt' : "Los geht's";
   $('zuletzt-laden').textContent = LAEDEN[E.laden].name;
@@ -3987,10 +4288,10 @@ function vorhangAuf() {
     if (fertig) return; fertig = true;
     v.hidden = true; v.classList.remove('auf'); vorhangLaeuft = false; scanNeu();
   };
-  const karten = setTimeout(() => $('start-tresen').classList.add('erscheint'), 1100);
+  const karten = setTimeout(() => { $('start-tresen').classList.add('erscheint'); $('kind-wahl').classList.add('erscheint'); }, 1100);
   requestAnimationFrame(() => requestAnimationFrame(() => v.classList.add('auf')));
   const uhr = setTimeout(ende, 1850);
-  v.addEventListener('click', () => { clearTimeout(uhr); clearTimeout(karten); $('start-tresen').classList.add('erscheint'); ende(); }, { once: true });
+  v.addEventListener('click', () => { clearTimeout(uhr); clearTimeout(karten); $('start-tresen').classList.add('erscheint'); $('kind-wahl').classList.add('erscheint'); ende(); }, { once: true });
 }
 // Info: Anspruch der Läden und aktuelle Stufe (nur lesen, darum ohne Code)
 $('knopf-start-info').addEventListener('click', () => {
@@ -4012,9 +4313,96 @@ function ladenWaehlen(id) {
   starteRunde();
   if (!$('dlg-stufe').open) setTimeout(vorlesenAufgabe, 400);
 }
+$('kind-karten').addEventListener('click', ev => {
+  const k = ev.target.closest('[data-kind]'); if (!k) return;
+  kindWechseln(k.dataset.kind); kindGewaehlt = true; zeigeStart();
+  sage(startSatz());
+});
+$('knopf-kind').addEventListener('click', () => { kindGewaehlt = false; zeigeStart(); });
 $('laden-karten').addEventListener('click', ev => { const k = ev.target.closest('[data-laden]'); if (k) ladenWaehlen(k.dataset.laden); });
 $('knopf-zuletzt').addEventListener('click', () => ladenWaehlen(E.laden));
 $('knopf-anderer-laden').addEventListener('click', zeigeStart);
+
+// Kinder verwalten (Lehrkraft-Bereich, Abschnitt 9)
+function zeichneKinder() {
+  const liste = kinder(), viele = liste.length > 1;
+  $('lk-kinder').innerHTML = liste.map(k => {
+    const n = speicher.lesen('aufgaben', [], k.id).length, aktiv = k.id === kindId;
+    return `<div class="lk-zeile lk-kind-zeile${aktiv ? ' aktiv' : ''}">
+      ${kindBild(k, 'mittel')}
+      <span class="lk-text"><strong>${kindName(k)}</strong><small>${n ? n + ' Aufgaben' : 'noch nicht geübt'}${aktiv && viele ? ' · Die Einstellungen gelten gerade für dieses Kind.' : ''}</small></span>
+      <span class="lk-knopfreihe">
+        ${aktiv ? (viele ? '<span class="lk-marke">ausgewählt</span>' : '') : `<button class="lk-knopf" data-kind-waehlen="${k.id}">Auswählen</button>`}
+        <button class="lk-knopf" data-kind-bild="${k.id}">${k.symbol ? 'Bild ändern' : 'Bild wählen'}</button>
+        ${viele ? `<button class="lk-knopf gefahr" data-kind-loeschen="${k.id}">Löschen …</button>` : ''}
+      </span>
+      <div class="lk-frage" data-kind-frage="${k.id}" hidden>Alles von „${kindName(k)}“ löschen (Stufen, Auswertung, Album)?
+        <button class="lk-knopf gefahr voll" data-kind-ja="${k.id}">Ja, löschen</button>
+        <button class="lk-knopf" data-kind-nein="${k.id}">Nein</button>
+      </div>
+    </div>`;
+  }).join('');
+  $('knopf-kind-neu').textContent = viele ? '+ Kind hinzufügen' : '+ Weiteres Kind hinzufügen';
+  zeichneBildwahl();
+}
+// Bild wählen: für ein Kind (id) oder ein neues Kind ('neu'). Ohne Bild beim bisherigen Kind: erst dieses.
+function zeichneBildwahl() {
+  const z = LK.bildFuer, g = $('lk-bildwahl-gruppe');
+  g.hidden = !z; $('knopf-kind-neu').hidden = !!z;
+  if (!z) return;
+  const belegt = kinder().filter(k => k.id !== z).map(k => k.symbol);
+  $('lk-bildwahl-titel').textContent = z === 'neu' ? 'Welches Bild bekommt das neue Kind?'
+    : kinder().find(k => k.id === z).symbol ? `Neues Bild für „${kindName(kinder().find(k => k.id === z))}“` : 'Welches Bild bekommt das bisherige Kind?';
+  $('lk-bildwahl').innerHTML = KinderSymbole.folge.map(id => `<button class="lk-bild" data-symbol="${id}" ${belegt.includes(id) ? 'disabled' : ''} aria-label="${KinderSymbole.liste[id].name}">${kindBild({ symbol: id }, 'mittel')}<span>${KinderSymbole.liste[id].name}</span></button>`).join('');
+}
+function bildGewaehlt(symbol) {
+  const liste = kinder(), z = LK.bildFuer;
+  if (z === 'neu') {
+    const nr = Math.max(0, ...liste.map(k => +k.id.slice(1))) + 1, id = 'p' + nr;
+    liste.push({ id, symbol });
+    speicher.schreiben('kinder', liste);
+    // Das neue Kind beginnt mit den Einstellungen des gerade gewählten Kindes (ohne Namen), aber bei Stufe 1
+    speicher.schreiben('einstellungen', Object.assign({}, E, { name: '' }), id);
+    LK.bildFuer = null;
+    kindWechseln(id); kindGewaehlt = true; LK.neueRunde = true;
+  } else {
+    liste.find(k => k.id === z).symbol = symbol;
+    speicher.schreiben('kinder', liste);
+    LK.bildFuer = LK.danachNeu ? 'neu' : null; LK.danachNeu = false;
+  }
+  LK.geaendert = true;
+  nachKindWechsel();
+}
+function nachKindWechsel() {
+  LK.aLaden = LK.dLaden = E.laden;
+  $('e-name').value = E.name;
+  $('lk-fest').open = E.modus === 'fest';
+  zeichneLk(); zeigeAuswertung();
+}
+$('knopf-kind-neu').addEventListener('click', () => {
+  const ohne = kinder().find(k => !k.symbol);
+  LK.bildFuer = ohne ? ohne.id : 'neu'; LK.danachNeu = !!ohne;
+  zeichneBildwahl();
+});
+$('knopf-bildwahl-abbrechen').addEventListener('click', () => { LK.bildFuer = null; LK.danachNeu = false; zeichneBildwahl(); });
+$('knopf-lk-kind').addEventListener('click', () => zeigeLkSeite(9));
+$('lk-kinder').addEventListener('click', ev => {
+  const b = ev.target.closest('button'); if (!b) return;
+  const d = b.dataset;
+  if (d.kindWaehlen) { kindWechseln(d.kindWaehlen); kindGewaehlt = true; LK.geaendert = LK.neueRunde = true; nachKindWechsel(); }
+  else if (d.kindBild) { LK.bildFuer = d.kindBild; LK.danachNeu = false; zeichneBildwahl(); }
+  else if (d.kindLoeschen) { $('lk-kinder').querySelector(`[data-kind-frage="${d.kindLoeschen}"]`).hidden = false; b.hidden = true; }
+  else if (d.kindNein) zeichneKinder();
+  else if (d.kindJa) {
+    for (const k of LERNSTAND_KEYS) speicher.loeschen(k, d.kindJa);
+    const rest = kinder().filter(k => k.id !== d.kindJa);
+    speicher.schreiben('kinder', rest);
+    if (d.kindJa === kindId) kindWechseln(rest[0].id);
+    LK.geaendert = LK.neueRunde = true;
+    nachKindWechsel();
+  }
+});
+$('lk-bildwahl').addEventListener('click', ev => { const b = ev.target.closest('[data-symbol]'); if (b && !b.disabled) bildGewaehlt(b.dataset.symbol); });
 
 // Schwierigkeit je Laden: im Lehrkraft-Bereich unter „Laden & Schwierigkeit“. Änderungen gelten sofort.
 // Lehrkraft: Stufe auslassen bzw. wieder aufnehmen. Steht das Kind gerade auf ihr, geht es zur nächsten Stufe.

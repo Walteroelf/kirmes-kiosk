@@ -164,6 +164,11 @@ def sammle(lob_stimme):
          # Erklär-Karten beim Stufenwechsel
          'Toll gemacht! Jetzt kommt etwas Neues.', 'Das üben wir später noch einmal. Jetzt machen wir mit etwas anderem weiter.', 'Weißt du noch? Das üben wir noch einmal.', 'Du hast schon viel geschafft! Wir üben das noch ein bisschen.',
          'Jetzt du! Diese Aufgabe ist zum Probieren.')
+    # Verkäufer sein (Thorsten ist der Kunde) und mehrere Kinder
+    for a, s_ in euro + cent20:
+        teil(f'Ich gebe dir {a}.', f'Ich gebe dir {s_}.')
+    satz('Hallo!', 'Reicht das?', 'Was kostet alles zusammen?', 'Tippe auf den richtigen Preis.', 'Jetzt gib mir das Rückgeld.',
+         'Rechne die Preise zusammen.', 'Rechne den Preis und zähle das Geld vom Kunden.', 'Wer übt heute?', 'Tippe auf dein Bild.')
     # Neue Aufgabenformate: wie viel fehlt, Betrag anders legen, möglichst wenig Geld
     for a, s_ in euro + cent10:
         teil(f'Ich habe {a}.', f'Ich habe {s_}.')

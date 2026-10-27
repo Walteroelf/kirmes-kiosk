@@ -6,7 +6,7 @@
  * füllt (index.html, ansagenSpeichern). Er bleibt bei neuen Versionen erhalten.
  * Bei einer neuen Version VERSION erhöhen – dann wird alles neu geladen.
  */
-const VERSION = '4.9.2';
+const VERSION = '5.0.0';
 const CACHE = 'kirmes-kiosk-' + VERSION;
 const DATEIEN = [
   './',
@@ -15,6 +15,7 @@ const DATEIEN = [
   'worker.js',
   'geld.js',
   'aufkleber.js',
+  'symbole.js',
   'laeden/kirmes.svg',
   'laeden/baeckerei.svg',
   'laeden/spielwaren.svg',
