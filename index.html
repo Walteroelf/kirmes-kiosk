@@ -1033,6 +1033,15 @@ body.im-spiel .schild-titel { flex: 0 1 auto; flex-shrink: .2; }
 .bezahlen .kunde-geld { flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding-left: 56px; }
 .preis-fest { margin-left: auto; font-weight: 700; background: var(--gut-hell); color: var(--gut); border-radius: 14px; padding: 2px 10px; white-space: nowrap; }
 .zeig-bezahlt .kunde-bild { margin-right: 4px; }
+
+/* ===== Stufe oben in der Kopfzeile ===== */
+body.im-spiel .stufe-chip { min-width: 0; flex-shrink: 1; }
+/* iPad: Platz für den Stufennamen – der Fortschritt steht als Punkte da */
+@media (min-width: 901px) and (max-width: 1180px) { body.im-spiel #aufgabe-text { display: none; } }
+.stufe-chip { align-items: center; gap: 8px; border: none; border-radius: 20px; background: var(--laden); color: #1d3a5c; padding: 6px 14px 6px 6px; font-weight: 700; font-size: 16px; white-space: nowrap; max-width: 44vw; overflow: hidden; text-overflow: ellipsis; }
+.stufe-chip i { width: 26px; height: 26px; border-radius: 50%; background: #fff; display: grid; place-items: center; font-style: normal; font-family: var(--anzeige); flex: none; }
+.stufe-chip span { overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 760px) { .stufe-chip #stufe-chip-text { display: none; } .stufe-chip { padding-right: 6px; } }
 </style>
 </head>
 <body>
@@ -1042,6 +1051,7 @@ body.im-spiel .schild-titel { flex: 0 1 auto; flex-shrink: .2; }
     <h1 class="schild-titel" id="laden-titel">Kirmes-Kiosk</h1>
     <p class="gruss nur-spiel" id="gruss">Hallo!</p>
     <span class="platz"></span>
+    <button class="stufe-chip nur-spiel" id="stufe-chip" hidden data-scan aria-label="Stufe – antippen: Erklärung noch einmal"><i>?</i><span id="stufe-chip-text"></span></button>
     <span class="kopf-fortschritt nur-spiel"><span id="aufgabe-text">Aufgabe 1 von 10</span><span class="punkte" id="punkte" aria-hidden="true"></span></span>
     <button class="rundknopf" id="knopf-vorlesen" data-scan aria-label="Aufgabe vorlesen" title="Vorlesen">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" fill-opacity=".15"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>
@@ -1705,7 +1715,7 @@ body.im-spiel .schild-titel { flex: 0 1 auto; flex-shrink: .2; }
 <script src="symbole.js"></script>
 <script>
 'use strict';
-const VERSION = '5.0.3';
+const VERSION = '5.0.4';
 const STAND = '27.10.2026';
 
 // ---------------------------------------------------------------------------
@@ -2357,6 +2367,10 @@ function kopfHoehe() { document.documentElement.style.setProperty('--kopf', docu
 addEventListener('resize', kopfHoehe);
 function zeigeRunde() {
   $('spiel').hidden = false; $('ende').hidden = true;
+  // Stufe der Aufgabe oben (für die Lehrkraft); antippen: Erklärung noch einmal
+  const st = E.modus === 'stufen' && (aufgabe && aufgabe.regeln && STUFEN.find(x => x.id === aufgabe.regeln.stufeId) || STUFEN[S.nr - 1]);
+  $('stufe-chip').hidden = !st;
+  if (st) $('stufe-chip-text').textContent = st.titel;
   document.body.classList.add('im-spiel'); kopfHoehe();
   $('gruss').textContent = E.name ? `Hallo ${E.name}!` : 'Hallo!';
   if (mehrereKinder()) $('gruss').insertAdjacentHTML('afterbegin', kindBild(aktuellesKind(), 'mini'));
@@ -3100,6 +3114,7 @@ function stufeProbe() {
 $('knopf-stufe-zeig').addEventListener('click', stufeVormachen);
 $('knopf-stufe-nochmal').addEventListener('click', stufeVormachen);
 $('knopf-stufe-du').addEventListener('click', stufeProbe);
+$('stufe-chip').addEventListener('click', () => zeigeStufenKarte('wieder'));
 // Überspringen: ohne Vormachen und ohne Probieraufgabe gleich zur Aufgabe
 $('knopf-stufe-weg').addEventListener('click', () => { stoppeTon(); $('stufe-probe').hidden = true; $('knopf-stufe-ok').click(); });
 $('knopf-stufe-ok').addEventListener('click', () => {
@@ -4239,6 +4254,7 @@ function startSatz() {
 }
 function zeigeStart() {
   $('spiel').hidden = true; $('ende').hidden = true; $('start').hidden = false; document.body.classList.remove('im-spiel');
+  $('stufe-chip').hidden = true;
   document.body.classList.add('auf-start');
   $('laden-titel').textContent = 'Einkaufen'; document.title = 'Kirmes-Kiosk';
   // Mehrere Kinder: zuerst das eigene Bild antippen
