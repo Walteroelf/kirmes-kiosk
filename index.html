@@ -1233,7 +1233,8 @@ body.im-spiel .neu-chip { min-width: 0; flex-shrink: 1; }
     <div class="stufe-knoepfe">
       <button class="grossknopf leise" id="knopf-stufe-nochmal" data-scan-dialog hidden>Noch einmal zeigen</button>
       <button class="grossknopf zeig" id="knopf-stufe-zeig" data-scan-dialog hidden>Zeig es mir</button>
-      <button class="grossknopf zeig" id="knopf-stufe-du" data-scan-dialog hidden>Jetzt du</button>
+      <button class="grossknopf zeig" id="knopf-stufe-du" data-scan-dialog hidden>Fertig</button>
+      <button class="grossknopf leise" id="knopf-stufe-weg" data-scan-dialog hidden>Überspringen</button>
       <button class="grossknopf weiter" id="knopf-stufe-ok" data-scan-dialog>Los geht's</button>
     </div>
   </div>
@@ -1709,7 +1710,7 @@ body.im-spiel .neu-chip { min-width: 0; flex-shrink: 1; }
 <script src="symbole.js"></script>
 <script>
 'use strict';
-const VERSION = '5.0.0';
+const VERSION = '5.0.1';
 const STAND = '27.10.2026';
 
 // ---------------------------------------------------------------------------
@@ -3063,7 +3064,7 @@ function zeigeStufenKarte(wie) {
   const z = wie !== 'zurueck' && st.zeig;
   zeigTakt.forEach(clearTimeout); zeigTakt = [];
   $('stufe-zeig').hidden = true; $('stufe-probe').hidden = true; $('stufe-text').hidden = false;
-  $('knopf-stufe-zeig').hidden = !z; $('knopf-stufe-nochmal').hidden = true; $('knopf-stufe-du').hidden = true;
+  $('knopf-stufe-zeig').hidden = !z; $('knopf-stufe-weg').hidden = !z; $('knopf-stufe-nochmal').hidden = true; $('knopf-stufe-du').hidden = true;
   $('knopf-stufe-ok').hidden = !!z;
   if (S.erklaeren) { S.erklaeren = false; speicher.schreiben(stufenSchluessel(), S); }
   if (!$('dlg-stufe').open) $('dlg-stufe').showModal();
@@ -3085,7 +3086,7 @@ function stufeVormachen() {
   $('zeig-teller').hidden = !z.legen.length;
   $('zeig-rechnung').textContent = '';
   $('stufe-text').hidden = true; $('stufe-zeig').hidden = false;
-  $('knopf-stufe-zeig').hidden = true; $('knopf-stufe-nochmal').hidden = false; $('knopf-stufe-du').hidden = false;
+  $('knopf-stufe-zeig').hidden = true; $('knopf-stufe-weg').hidden = true; $('knopf-stufe-nochmal').hidden = false; $('knopf-stufe-du').hidden = false;
   const geld = [...$('zeig-teller').querySelectorAll('.zeig-geld')], schritte = Math.max(geld.length, z.rechnung.length);
   for (let i = 0; i < schritte; i++) zeigTakt.push(setTimeout(() => {
     if (geld[i]) geld[i].classList.add('da');
@@ -3094,8 +3095,9 @@ function stufeVormachen() {
   sage(z.sprich);
   scanNeu();
 }
+// „Fertig“ (auch mitten im Vormachen): Vorführung anhalten, dann die Probieraufgabe
 function stufeProbe() {
-  zeigTakt.forEach(clearTimeout); zeigTakt = [];
+  zeigTakt.forEach(clearTimeout); zeigTakt = []; stoppeTon();
   $('stufe-titel').textContent = 'Jetzt du!';
   $('dlg-stufe').querySelector('.neu-band').textContent = 'Probieraufgabe';
   $('stufe-zeig').hidden = true; $('stufe-probe').hidden = false;
@@ -3106,6 +3108,8 @@ function stufeProbe() {
 $('knopf-stufe-zeig').addEventListener('click', stufeVormachen);
 $('knopf-stufe-nochmal').addEventListener('click', stufeVormachen);
 $('knopf-stufe-du').addEventListener('click', stufeProbe);
+// Überspringen: ohne Vormachen und ohne Probieraufgabe gleich zur Aufgabe
+$('knopf-stufe-weg').addEventListener('click', () => { stoppeTon(); $('stufe-probe').hidden = true; $('knopf-stufe-ok').click(); });
 $('knopf-stufe-ok').addEventListener('click', () => {
   zeigTakt.forEach(clearTimeout); zeigTakt = [];
   // Nach dem Vormachen: Probeaufgabe – zählt nicht, Preise sichtbar, Hilfe an
