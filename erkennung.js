@@ -12,7 +12,7 @@
  *     ob die Mitte silbern und der Ring golden ist (1 €) oder umgekehrt (2 €).
  *     Einfarbig goldene Münzen sind Cent-Münzen (zählen 0 €).
  *  4. Große rechteckige Flächen = Scheine, die Farbe entscheidet:
- *     5 € grau-grün, 10 € rot, 20 € blau, 50 € orange.
+ *     5 € grau, 10 € rot, 20 € blau, 50 € orange, 100 € grün, 200 € gelb.
  *  Vorher: Weißabgleich über das Papier (gleicht Farbstich und Schatten aus).
  *  Farben werden als Median gemessen, Glanzlichter zählen nicht mit.
  *  Was golden schimmert, aber keiner Münze sicher zugeordnet werden kann,
@@ -106,35 +106,38 @@
       const i = y * w + x, P = papier(x, y);
       if (L[i] < P * (opt.sHell || 0.87) || (S[i] > 0.2 && L[i] < P * 0.98)) fgS[i] = 1;
     }
-    const rZu = Math.max(2, Math.round(medB * (opt.sZu || 0.25)));
+    const rZu = Math.max(2, Math.round(medB * (opt.sZu || 0.12)));
     fgS = erodiere(dilatiere(fgS, w, h, rZu), w, h, rZu);
     fuelleLoecher(fgS, w, h, n * 0.05);
     const rAuf = Math.round(medB * (opt.sAuf || 1.2));
+    const fgZu = fgS;
     fgS = oeffneScheibe(fgS, w, h, rAuf);
     const scheinMaske = new Uint8Array(n);
     const sk = vermesse(fgS, roh, w, h);
     for (const o of sk) {
       if (o.n < Math.max(medN * 3, n * 0.012) || o.n > n * 0.5) continue;
       // Am Bildrand (auch knapp davor, weil das Öffnen Ränder abträgt): Tisch, Unterlage – oder nur ein halber Schein.
+      // Nah am Rand ist nur dann etwas abgeschnitten, wenn die Fläche vor dem Öffnen den Bildrand berührt.
       const m = rAuf + 3;
-      if (o.rand || o.x0 <= m || o.y0 <= m || o.x1 >= w - 1 - m || o.y1 >= h - 1 - m) continue;
+      if (o.rand || randBeruehrt(fgZu, w, h, o, m, rZu + 2)) continue;
       if (o.rechteckig < 0.65 || o.seiten < 1.2 || o.seiten > 4) continue;
       if (o.dichte < 0.33) continue;  // fast nur helles Papier (z. B. Preisschild)
       // Ein Spielgeld-Schein (120 x 62 mm) ist etwa 18-mal so groß wie eine Münze.
       // Deutlich größer: wahrscheinlich zwei Scheine, die sich berühren -> nachfragen.
       if (probe.length && o.n > medN * 28) { objekte.push(Object.assign({ art: 'unklar', wert: null }, lage(o))); continue; }
-      // Zwei deutlich verschiedene Scheinfarben in einer Fläche: überlappende Scheine.
-      if (gemischteScheinfarben(rgba, roh, w, h, sk.lab, o)) { objekte.push(Object.assign({ art: 'unklar', wert: null }, lage(o))); continue; }
       const f = scheinFarbe(rgba, roh, w, h, sk.lab, o);
       if (!f) continue;
+      // Zwei deutlich verschiedene Scheinfarben in einer Fläche: überlappende Scheine.
+      // (Nicht beim gelben 200-€-Schein: Sein Gelb zählt dort als Gold, übrig bleibt das blaue Bild.)
+      if (f.wert !== 200 && gemischteScheinfarben(rgba, roh, w, h, sk.lab, o)) { objekte.push(Object.assign({ art: 'unklar', wert: null }, lage(o))); continue; }
       objekte.push(Object.assign({ art: 'schein' }, lage(o), f));
-      for (let i = 0; i < n; i++) if (sk.lab[i] === o.k) scheinMaske[i] = 1;
+      for (let i = 0; i < n; i++) if (sk.lab[i] === o.k) scheinMaske[i] = f.wert;
     }
     const scheinRand = dilatiere(scheinMaske, w, h, 2);
     for (let i = 0; i < n; i++) if (scheinRand[i]) fg[i] = 0;
     // Münzen, die auf einem Schein liegen: dort nur nach goldenen Flächen suchen
     // (1 €: goldener Ring, 2 €: goldene Mitte). Scheine sind nicht golden.
-    if (objekte.length) for (const m of muenzenAufScheinen(rgba, w, h, scheinRand, medB, medN)) objekte.push(m);
+    if (objekte.length) for (const m of muenzenAufScheinen(rgba, w, h, scheinRand, scheinMaske, medB, medN)) objekte.push(m);
 
     // --- 5. Münzen: Berührungen trennen, verschmolzene Flächen aufteilen ----
     const fg2 = oeffneScheibe(fg, w, h, Math.max(2, Math.round(medB * 0.5)));
@@ -178,11 +181,11 @@
     const summe = objekte.reduce((s, o) => s + (o.wert || 0), 0);
     const unsicher = objekte.some(o => o.art === 'unklar' || o.sicher === false);
     const erg = { objekte, summe, unsicher };
-    if (opt.debug) erg.debug = { kandidaten: kand, maske: fg2, scheine: fgS, scheinKand: sk, geteilt, medB };
+    if (opt.debug) erg.debug = { kandidaten: kand, maske: fg2, scheine: fgS, scheinKand: sk, geteilt, medB, roh, bild: rgba, fgZu };
     return erg;
   }
 
-  function muenzenAufScheinen(rgba, w, h, bereich, medB, medN) {
+  function muenzenAufScheinen(rgba, w, h, bereich, scheinWert, medB, medN) {
     const n = w * h; let gm = new Uint8Array(n);
     for (let i = 0; i < n; i++) if (bereich[i]) { const p = i * 4; if (gold(rgba[p], rgba[p + 1], rgba[p + 2]) > 0.2) gm[i] = 1; }
     const r = Math.max(1, Math.round(medB * 0.12));
@@ -193,6 +196,9 @@
     const funde = [];
     for (const o of vermesse(gm, roh, w, h)) {
       if (o.n < medN * 0.45 || o.n > medN * 1.8 || o.seiten > 2.6 || o.fuell < 0.75) continue;
+      // Nicht auf 50-, 100- und 200-€-Scheinen: Deren Druck ist selbst gelblich bis golden und silbern
+      // (Fenster, Hologramm) – das sähe aus wie Münzen. Die Aufgaben brauchen dort keine Münzen.
+      if (scheinWert[Math.round(o.y) * w + Math.round(o.x)] > 20) continue;
       const f = muenzFarbe(rgba, w, h, o);
       if (f && f.wert !== 0) { funde.push(Object.assign({ art: 'muenze', aufSchein: true }, lage(o), f, { sicher: false })); continue; }
       // Ganz golden: bei einer 2-€-Münze findet die Goldmaske nur die Mitte. Größeren Kreis prüfen:
@@ -267,6 +273,26 @@
   function istMuenzform(o) {
     return !o.rand && o.n >= o.minFlaeche && o.seiten < 2.6 && o.rechteckig > 0.66 && o.rechteckig < 0.875 &&
            o.fuell > 0.86 && o.dichte > 0.8;
+  }
+
+  // Liegt die Fläche o am Bildrand (näher als m) und läuft dort etwas am Rand entlang weiter
+  // (Tisch, Kante der Unterlage)? Geprüft wird die Linie d Pixel vor dem Rand (das Schließen der Maske
+  // trägt den äußersten Rand ab), und zwar nur links und rechts neben der Fläche: Ein Schein, der nah
+  // am Rand liegt, füllt diese Stücke nicht.
+  function randBeruehrt(maske, w, h, o, m, d) {
+    const seiten = [];
+    if (o.y0 <= m) seiten.push([d, true]); if (o.y1 >= h - 1 - m) seiten.push([h - 1 - d, true]);
+    if (o.x0 <= m) seiten.push([d, false]); if (o.x1 >= w - 1 - m) seiten.push([w - 1 - d, false]);
+    for (const [k, waagerecht] of seiten) {
+      const a0 = waagerecht ? o.x0 : o.y0, a1 = waagerecht ? o.x1 : o.y1, max = (waagerecht ? w : h) - 1;
+      let z = 0, l = 0;
+      for (let t = Math.max(0, a0 - m); t <= Math.min(max, a1 + m); t++) {
+        if (t >= a0 && t <= a1) continue;
+        l++; if (maske[waagerecht ? k * w + t : t * w + k]) z++;
+      }
+      if (l < m / 2 || z > l * 0.5) return true;
+    }
+    return false;
   }
 
   function lage(o) { return { x: o.x, y: o.y, a: o.a, b: o.b, winkel: o.winkel }; }
@@ -364,6 +390,8 @@
   }
 
   // Farbklasse eines Pixels wie bei den Scheinen; Gold (Münzen) zählt nicht.
+  // 10 € und 50 € (rot/orange) sowie 5 € und 100 € (grau/grün) sind hier je eine Klasse –
+  // sie liegen farblich zu nah beieinander. Unterschieden werden sie danach in scheinFarbe.
   function scheinKlasse(r, g, b) {
     const mx = Math.max(r, g, b), mn = Math.min(r, g, b), sat = (mx - mn) / (mx || 1);
     if (sat < 0.16) return 5;
@@ -372,13 +400,13 @@
     if (hue < 0) hue += 360;
     if (hue >= 34 && hue < 62) return 0;            // golden: Münze
     if (hue >= 330 || hue < 20) return 10;
-    if (hue < 34) return 50;
+    if (hue < 34) return 10;
     if (hue >= 190 && hue < 290) return 20;
     if (hue < 190) return 5;
     return 10;
   }
   function gemischteScheinfarben(rgba, roh, w, h, lab, o) {
-    const z = { 5: 0, 10: 0, 20: 0, 50: 0 }; let alle = 0;
+    const z = { 5: 0, 10: 0, 20: 0 }; let alle = 0;
     const R = Math.ceil(o.a * 1.3);
     for (let y = Math.max(0, Math.round(o.y - R)); y < Math.min(h, o.y + R); y += 2)
       for (let x = Math.max(0, Math.round(o.x - R)); x < Math.min(w, o.x + R); x += 2) {
@@ -387,21 +415,42 @@
         if (!k) continue; z[k]++; alle++;
       }
     if (alle < 50) return false;
-    const anteile = Object.values(z).map(v => v / alle).sort((a, b) => b - a);
-    return anteile[1] > 0.25;
+    // Jeder Schein hat auch blasse, graue Stellen (echte Fotos: bis 28 %): Grau als zweite Farbe zählt erst ab 30 %.
+    const anteile = Object.entries(z).map(([k, v]) => [+k, v / alle]).sort((a, b) => b[1] - a[1]);
+    return anteile[1][1] > (anteile[1][0] === 5 ? 0.3 : 0.25);
   }
 
-  // Mittlere Farbe der bedruckten (nicht weißen) Teile eines Scheins.
+  // Farbe der bedruckten (nicht weißen) Teile eines Scheins:
+  // 5 € grau, 10 € rot, 20 € blau, 50 € orange, 100 € grün, 200 € gelb.
+  // Rot und Orange liegen nah beieinander: Entscheidend ist, wie viele der warmen Punkte orange sind.
   function scheinFarbe(rgba, roh, w, h, lab, o) {
-    let r = 0, g = 0, b = 0, z = 0;
+    let r = 0, g = 0, b = 0, z = 0, warm = 0, orange = 0;
     const R = Math.ceil(o.a * 1.3);
     for (let y = Math.max(0, Math.round(o.y - R)); y < Math.min(h, o.y + R); y++)
       for (let x = Math.max(0, Math.round(o.x - R)); x < Math.min(w, o.x + R); x++) {
         if (lab[y * w + x] !== o.k || !roh[y * w + x]) continue;
-        const p = (y * w + x) * 4; r += rgba[p]; g += rgba[p + 1]; b += rgba[p + 2]; z++;
+        const p = (y * w + x) * 4;
+        if (Math.max(rgba[p], rgba[p + 1], rgba[p + 2]) < 70) continue;   // Schwarz (Schrift, Rahmen) hat keine Farbe
+        r += rgba[p]; g += rgba[p + 1]; b += rgba[p + 2]; z++;
+        const [hp, sp] = farbton(rgba[p], rgba[p + 1], rgba[p + 2]);
+        if (sp >= 0.16 && (hp >= 330 || hp < 50)) { warm++; if (hp >= 22 && hp < 50) orange++; }
       }
-    if (!z) return null;
-    r /= z; g /= z; b /= z;
+    if (z < 0.2 * o.n) return null;   // kaum farbige Fläche: Preisschild, Schrift
+    const [hue, sat] = farbton(r / z, g / z, b / z);
+    const anteilOrange = warm ? orange / warm : 0;
+    let wert, sicher = true;
+    if (sat < 0.16) wert = 5;                        // grau
+    else if (hue >= 290 && hue < 330) wert = 10;     // pink/magenta
+    else if (hue >= 330 || hue < 45) {               // rot oder orange
+      wert = anteilOrange >= 0.36 ? 50 : 10;           // echte Fotos: 10 € bis 0,24 · 50 € ab 0,53
+      sicher = anteilOrange < 0.3 || anteilOrange > 0.45;
+    }
+    else if (hue < 75) { wert = 200; sicher = sat >= 0.18; }   // gelb
+    else if (hue < 190) { wert = sat >= 0.2 ? 100 : 5; sicher = sat < 0.17 || sat >= 0.22; }  // grün
+    else wert = 20;                                  // blau
+    return { wert, sicher, farbton: Math.round(hue), saettigung: +sat.toFixed(2), orange: +anteilOrange.toFixed(2) };
+  }
+  function farbton(r, g, b) {
     const mx = Math.max(r, g, b), mn = Math.min(r, g, b), sat = (mx - mn) / (mx || 1);
     let hue = 0;
     if (mx !== mn) {
@@ -410,14 +459,7 @@
       else hue = 60 * ((r - g) / (mx - mn) + 4);
     }
     if (hue < 0) hue += 360;
-    let wert;
-    if (sat < 0.16) wert = 5;                        // grau
-    else if (hue >= 330 || hue < 20) wert = 10;      // rot
-    else if (hue < 45) wert = 50;                    // orange
-    else if (hue >= 190 && hue < 290) wert = 20;     // blau
-    else if (hue < 190) wert = 5;                    // grünlich-grau
-    else wert = 10;                                  // pink/magenta
-    return { wert, sicher: sat >= 0.16 || wert === 5, farbton: Math.round(hue), saettigung: +sat.toFixed(2) };
+    return [hue, sat];
   }
 
   // --- Fotoqualität ---------------------------------------------------------

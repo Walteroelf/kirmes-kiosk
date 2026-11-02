@@ -20,6 +20,7 @@ const SCHEINE = [
   { w: 20, farbe: ['#b9cff0', '#5d84c4'], akzent: '#22457e', motiv: 'fenster' },
   { w: 50, farbe: ['#f8cf98', '#e08a32'], akzent: '#8a4a10', motiv: 'tor' },
   { w: 100, farbe: ['#bfe3b4', '#5fae5a'], akzent: '#245f22', motiv: 'bogen' },
+  { w: 200, farbe: ['#f3e7a2', '#d2b93c'], akzent: '#6b5a0c', motiv: 'fenster' },
 ];
 let uid = 0;
 const id = p => p + (++uid);

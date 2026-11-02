@@ -43,7 +43,7 @@ Im Lehrkraft-Bereich ist der feste Laden unter **„Immer derselbe Laden“** (o
 
 **Bäckerei** – 20 Backwaren und Getränke von 0,40 € (Brötchen) bis 4,20 € (Vollkornbrot), alle Preise in 10-Cent-Schritten. Stufen: 1 Sache (bis 2 €) → 2 Sachen (bis 3 €) → 3 (bis 5 €) → 4 (bis 8 €) → 5 (bis 10 €) → Rückgeld von 5 € → Rückgeld von 10 € → Reicht das Geld? (5 €).
 
-Die Kamera-Erkennung kennt nur 1-€-/2-€-Münzen und 5-/10-/20-€-Scheine; darum wird in Spielwarenladen und Bäckerei das Geld immer auf dem Gerät auf den Zahlteller gezogen.
+Die Kamera-Erkennung kennt bei den Münzen nur 1 € und 2 € (Cent-Münzen werden übergangen), bei den Scheinen alle von 5 € bis 200 €; darum wird in Spielwarenladen und Bäckerei das Geld immer auf dem Gerät auf den Zahlteller gezogen.
 
 ## Auf dem iPad einrichten
 
@@ -179,8 +179,8 @@ GitHub Pages ist der Webhoster: Beim Aufruf verarbeitet GitHub wie jeder Webserv
 1. Alles, was sich vom hellen Papier abhebt, wird als Fläche ausgeschnitten.
 2. Ovale Flächen sind Münzen. **1 €**: Ring golden, Mitte silbern. **2 €**: Mitte golden, Ring silbern.
 3. Sich berührende Münzen werden an der engsten Stelle getrennt.
-4. Große rechteckige, bedruckte Flächen sind Scheine; die Farbe entscheidet: 5 € grau-grün, 10 € rot, 20 € blau, 50 € orange. Ein Schein ist etwa 18-mal so groß wie eine Münze – deutlich größere Flächen oder zwei Scheinfarben in einer Fläche gelten als „überlappende Scheine“ → neues Foto.
-5. **Münzen auf Scheinen** werden über ihre goldenen Teile gefunden.
+4. Große rechteckige, bedruckte Flächen sind Scheine; die Farbe entscheidet: 5 € grau, 10 € rot, 20 € blau, 50 € orange, 100 € grün, 200 € gelb. Rot und Orange liegen nah beieinander: Entscheidend ist, wie viel vom warmen Druck orange ist. Scheine, die eng nebeneinanderliegen, werden getrennt. Ein Schein nah am Bildrand zählt, solange nichts (Tisch, Unterlage) am Rand weiterläuft. Ein Schein ist etwa 18-mal so groß wie eine Münze – deutlich größere Flächen oder zwei Scheinfarben in einer Fläche gelten als „überlappende Scheine“ → neues Foto.
+5. **Münzen auf Scheinen** werden über ihre goldenen Teile gefunden (nur auf 5-, 10- und 20-€-Scheinen; der Druck der größeren Scheine ist selbst gelblich bis golden).
    Einfarbig goldene Kreise (gedruckte Münz-Bildchen auf der Unterlage, Cent-Münzen) werden ignoriert – die Aufgaben rechnen nur mit ganzen Euro.
    Nah fotografierte Münzen: Die App erkennt die Münzgröße und passt den Weißabgleich daran an.
 6. Farben werden als Median gemessen; Glanzlichter zählen nicht. Verdeckt Glanz die Mitte, entscheidet der Ring.
@@ -192,7 +192,7 @@ GitHub Pages ist der Webhoster: Beim Aufruf verarbeitet GitHub wie jeder Webserv
 
 **Echte Fotos:** `tests/pruefen.html` öffnen (z. B. `…/kirmes-kiosk/tests/pruefen.html`), Fotos hineinziehen. Steht der richtige Betrag im Dateinamen (`12euro.jpg`), wird automatisch verglichen. Nichts wird hochgeladen. Bitte keine Fotos mit Kindern ins Repository legen.
 
-Bisher an 15 echten Spielgeld-Fotos geprüft (14 richtig, 1-mal neues Foto, auch bei warmem, kaltem und grünlichem Licht). 10-€- und 20-€-Scheine sowie Münzen auf Scheinen sind bisher nur an künstlichen Szenen getestet.
+Bisher an 15 echten Spielgeld-Fotos geprüft (14 richtig, 1-mal neues Foto, auch bei warmem, kaltem und grünlichem Licht). Seit Version 5.1.0 zusätzlich an zwei Fotos mit allen Scheinen (5 € bis 200 €, Vorder- und Rückseiten) und allen Münzen: beide richtig (388 €, Cent übergangen); bei Ausschnitten daraus kein falsches Urteil. Münzen auf Scheinen sind bisher nur an künstlichen Szenen getestet.
 
 ## Neue Version veröffentlichen
 
