@@ -36,14 +36,14 @@ Im Lehrkraft-Bereich ist der feste Laden unter **„Immer derselbe Laden“** (o
 | Laden | Zahlenraum | Geld im Vorrat | Geld legen |
 |---|---|---|---|
 | **Kirmes-Kiosk** (`laden=kirmes`, Standard) | ganze Euro bis ca. 30 € | 1 €, 2 €, 5 €, 10 €, 20 € | fotografieren oder ziehen |
-| **Spielwarenladen** (`laden=spielwaren`) | ganze Euro bis ca. 200 € | zusätzlich 50 € und 100 € | ziehen |
+| **Spielwarenladen** (`laden=spielwaren`) | ganze Euro bis ca. 200 € | zusätzlich 50 € und 100 € | fotografieren oder ziehen |
 | **Bäckerei** (`laden=baeckerei`) | Euro und Cent bis ca. 10 € | 10 ct, 20 ct, 50 ct, 1 €, 2 €, 5 € | ziehen |
 
 **Spielwarenladen** – 20 Spielsachen von 3 € (Seifenblasen) bis 149 € (Fahrrad). Stufen: 2 Spielsachen bis 30 € → bis 60 € → 3 bis 100 € → Große Scheine (bis 150 €) → 4 bis 200 € → Rückgeld von 50 € → Rückgeld von 100 € → Reicht das Geld? (100 €).
 
 **Bäckerei** – 20 Backwaren und Getränke von 0,40 € (Brötchen) bis 4,20 € (Vollkornbrot), alle Preise in 10-Cent-Schritten. Stufen: 1 Sache (bis 2 €) → 2 Sachen (bis 3 €) → 3 (bis 5 €) → 4 (bis 8 €) → 5 (bis 10 €) → Rückgeld von 5 € → Rückgeld von 10 € → Reicht das Geld? (5 €).
 
-Die Kamera-Erkennung kennt bei den Münzen nur 1 € und 2 € (Cent-Münzen werden übergangen), bei den Scheinen alle von 5 € bis 200 €; darum wird in Spielwarenladen und Bäckerei das Geld immer auf dem Gerät auf den Zahlteller gezogen.
+Die Kamera-Erkennung kennt bei den Münzen nur 1 € und 2 € (Cent-Münzen werden übergangen), bei den Scheinen alle von 5 € bis 200 €; darum wird in der Bäckerei das Geld immer auf dem Gerät auf den Zahlteller gezogen. Im Kirmes-Kiosk und im Spielwarenladen kann fotografiert werden.
 
 ## Auf dem iPad einrichten
 

@@ -1516,7 +1516,7 @@ body.im-spiel .stufe-chip { min-width: 0; flex-shrink: 1; }
           <div class="lk-karte">
             <div class="lk-zeile wahl">
               <div class="lk-chips" data-key="geld"><button data-wert="foto">Spielgeld legen und fotografieren</button><button data-wert="ziehen">Auf dem Gerät ins Feld ziehen</button></div>
-              <span class="lk-text"><small>Fotografieren gibt es nur im Kirmes-Kiosk. In Bäckerei und Spielwarenladen wird das Geld immer gezogen.</small></span>
+              <span class="lk-text"><small>Fotografieren gibt es im Kirmes-Kiosk und im Spielwarenladen. In der Bäckerei wird das Geld immer gezogen (Cent-Münzen erkennt die Kamera nicht).</small></span>
             </div>
           </div>
         </div>
@@ -1722,7 +1722,7 @@ body.im-spiel .stufe-chip { min-width: 0; flex-shrink: 1; }
 <script src="symbole.js"></script>
 <script>
 'use strict';
-const VERSION = '5.2.0';
+const VERSION = '5.2.1';
 const STAND = '27.10.2026';
 
 // ---------------------------------------------------------------------------
@@ -2029,7 +2029,7 @@ const LAEDEN = {
             themen: ['Geld kennen', 'Zusammenrechnen', 'Geschickt legen', 'Mehrmals und Ergänzen', 'Rückgeld und Budget', 'Verkäufer sein'], geld: [1, 2, 5, 10, 20], ausschnitt: '86 0 1028 700',
             maxWahl: [5, 10, 12, 15, 20, 30], bezahltWahl: [10, 15, 20], spanne: 6, schritte: [1, 2, 10, 3],
             bereiche: [[5, 'bis 5 €'], [10, '6–10 €'], [15, '11–15 €'], [20, '16–20 €'], [Infinity, 'über 20 €']] },
-  spielwaren: { name: 'Spielwarenladen', faktor: 1, cent: false, foto: false, ordner: 'bilder/spielwaren/', farbe: '#9fd3f0', farbeRand: '#3d9ad6',
+  spielwaren: { name: 'Spielwarenladen', faktor: 1, cent: false, foto: true, ordner: 'bilder/spielwaren/', farbe: '#9fd3f0', farbeRand: '#3d9ad6',
             produkte: PRODUKTE_SPIELWAREN, stufen: STUFEN_SPIELWAREN, alt: ALT_SPIELWAREN,
             themen: ['Große Scheine kennen', 'Zusammenrechnen', 'Geschickt legen', 'Mehrmals und Ergänzen', 'Rückgeld und Budget', 'Verkäufer sein'], geld: [1, 2, 5, 10, 20, 50, 100], ausschnitt: '0 20 1090 760',
             maxWahl: [30, 50, 100, 150, 200], bezahltWahl: [20, 50, 100, 200], spanne: 40, schritte: [1, 10, 5, 20],
@@ -2444,7 +2444,7 @@ function zeigeAufgabe() {
   else if (art === 'fehlt') { bz.hidden = false; bz.innerHTML = `<span>Ich habe schon:</span>${zerlege(aufgabe.habe).map(scheinChip).join('')}<span>= ${fmt(aufgabe.habe)}</span>`; }
   else { bz.hidden = true; bz.innerHTML = ''; }
   $('hilfe-reihe').hidden = true; $('hilfe-reihe').innerHTML = '';
-  const ziehen = E.geld === 'ziehen' || !L.foto;   // Spielwaren/Bäckerei: nur ziehen
+  const ziehen = E.geld === 'ziehen' || !L.foto;   // Bäckerei: nur ziehen
   $('foto-auftrag').textContent = ziehen
     ? (aufgabe.verkauf ? 'Wie viel Rückgeld bekommt der Kunde? Zieh es auf den Teller.'
       : art === 'rueckgeld' ? 'Rechne aus, wie viel du zurückbekommst. Zieh das Rückgeld auf den Teller.'
