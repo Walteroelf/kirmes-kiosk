@@ -84,7 +84,12 @@
 
     // --- 3. Typische Münzgröße aus einem ersten Durchgang ------------------
     // Nur echte 1-/2-€-Münzen bestimmen die typische Größe – nicht gedruckte gelbe Bildchen ("ganz golden").
-    const probe = vermesse(fg, roh, w, h).filter(istMuenzform).filter(o => { const f = muenzFarbe(rgba, w, h, o); return f && f.wert !== 0; });
+    // Vorsicht vor Fehlgrößen: zwei aneinanderliegende Münzen (länglich), rund wirkende Stücke eines Scheins
+    // (Ring nicht rundherum gleich) und alles, was deutlich größer ist als die kleinsten Münzen, zählt nicht.
+    let probe = vermesse(fg, roh, w, h).filter(istMuenzform)
+      .filter(o => { const f = muenzFarbe(rgba, w, h, o); return f && f.wert !== 0; })
+      .filter(o => o.seiten < 1.45 && ringGleichmaessig(rgba, w, h, o) >= 0.85);
+    if (probe.length) { const kleinste = Math.min(...probe.map(o => o.a)); probe = probe.filter(o => o.a <= kleinste * 1.45); }
     const medB = probe.length ? median(probe.map(o => o.b)) : minDim * 0.035;
     const medN = probe.length ? median(probe.map(o => o.n)) : Math.PI * Math.pow(minDim * 0.04, 2);
     // Nah fotografiert (große Münzen): Der Weißabgleich braucht ein Fenster, das größer ist als
@@ -120,13 +125,16 @@
       // Nah am Rand ist nur dann etwas abgeschnitten, wenn die Fläche vor dem Öffnen den Bildrand berührt.
       const m = rAuf + 3;
       if (o.rand || randBeruehrt(fgZu, w, h, o, m, rZu + 2)) continue;
-      if (o.rechteckig < 0.65 || o.seiten < 1.2 || o.seiten > 4) continue;
+      if (o.rechteckig < 0.65 || o.seiten < 1.05 || o.seiten > 4) continue;
       if (o.dichte < 0.33) continue;  // fast nur helles Papier (z. B. Preisschild)
       // Ein Spielgeld-Schein (120 x 62 mm) ist etwa 18-mal so groß wie eine Münze.
       // Deutlich größer: wahrscheinlich zwei Scheine, die sich berühren -> nachfragen.
       if (probe.length && o.n > medN * 28) { objekte.push(Object.assign({ art: 'unklar', wert: null }, lage(o))); continue; }
       const f = scheinFarbe(rgba, roh, w, h, sk.lab, o);
       if (!f) continue;
+      // Fast quadratisch: Schein, dessen blasses Ende nicht erfasst wurde. Bei klarer Farbe zählt er,
+      // beim grauen 5-€-Schein ist das zu unsicher -> nachfragen statt übersehen.
+      if (o.seiten < 1.2 && f.saettigung < 0.16) { objekte.push(Object.assign({ art: 'unklar', wert: null }, lage(o))); continue; }
       // Zwei deutlich verschiedene Scheinfarben in einer Fläche: überlappende Scheine.
       // (Nicht beim gelben 200-€-Schein: Sein Gelb zählt dort als Gold, übrig bleibt das blaue Bild.)
       if (f.wert !== 200 && gemischteScheinfarben(rgba, roh, w, h, sk.lab, o)) { objekte.push(Object.assign({ art: 'unklar', wert: null }, lage(o))); continue; }
@@ -144,8 +152,10 @@
     const kand = vermesse(fg2, roh, w, h);
     let muenzen = kand.filter(istMuenzform);
     if (muenzen.length) {
-      const med = median(muenzen.map(o => o.a));
-      muenzen = muenzen.filter(o => o.a > med * 0.6 && o.a < med * 1.6);
+      // Typische Größe aus den sicheren Münzen der Probe; sonst Median aller runden Flächen.
+      // Länglich und groß: zwei sich berührende Münzen -> unten aufteilen.
+      const med = probe.length ? median(probe.map(o => o.a)) : median(muenzen.map(o => o.a));
+      muenzen = muenzen.filter(o => o.a > med * 0.6 && o.a < med * 1.6 && !(o.seiten > 1.5 && o.a > med * 1.4));
     }
     const geteilt = [], erledigt = new Set(muenzen), ignoriert = [];
     for (const o of kand) {
@@ -159,6 +169,12 @@
       const f = muenzFarbe(rgba, w, h, m);
       // Ganz golden = keine 1-/2-€-Münze: gedruckte Münz-Bildchen der Unterlage oder Cent-Münzen.
       // Die Aufgaben rechnen nur mit ganzen Euro, also nicht markieren und nicht zählen.
+      // Ausnahme: 2 € mit sehr hellem Silberring. Dann ist nur die goldene Mitte als Fläche übrig,
+      // der Rand der Münze liegt aber als feine Kante ringsum (bei 1/0,73 des Radius), dahinter Papier.
+      if (f && f.wert === 0 && kanteRingsum(roh, w, h, m, 1.25, 1.45) > 0.3 && kanteRingsum(roh, w, h, m, 1.6, 1.8) < 0.15) {
+        objekte.push(Object.assign({ art: 'muenze' }, lage(m), { a: m.a / 0.73, b: m.b / 0.73, wert: 2, sicher: true, hellerRing: true }));
+        continue;
+      }
       if (f && f.wert === 0) { ignoriert.push(lage(m)); continue; }
       if (f) objekte.push(Object.assign({ art: 'muenze' }, lage(m), f, m.geteilt ? { geteilt: true } : {}));
       else if (!m.geteilt && goldAnteil(rgba, kand.lab, m, w, h) > 0.12) objekte.push(Object.assign({ art: 'unklar', wert: null }, lage(m)));
@@ -181,7 +197,7 @@
     const summe = objekte.reduce((s, o) => s + (o.wert || 0), 0);
     const unsicher = objekte.some(o => o.art === 'unklar' || o.sicher === false);
     const erg = { objekte, summe, unsicher };
-    if (opt.debug) erg.debug = { kandidaten: kand, maske: fg2, scheine: fgS, scheinKand: sk, geteilt, medB, roh, bild: rgba, fgZu };
+    if (opt.debug) erg.debug = { kandidaten: kand, maske: fg2, scheine: fgS, scheinKand: sk, geteilt, medB, roh, bild: rgba, fgZu, probe };
     return erg;
   }
 
@@ -195,7 +211,8 @@
     const roh = new Uint8Array(n).fill(1);
     const funde = [];
     for (const o of vermesse(gm, roh, w, h)) {
-      if (o.n < medN * 0.45 || o.n > medN * 1.8 || o.seiten > 2.6 || o.fuell < 0.75) continue;
+      if (o.n < medN * 0.45 || o.n > medN * 1.8 || o.seiten > 1.6 || o.fuell < 0.75) continue;
+      if (ringGleichmaessig(rgba, w, h, o) < 0.88) continue;   // Druck des Scheins, keine Münze
       // Nicht auf 50-, 100- und 200-€-Scheinen: Deren Druck ist selbst gelblich bis golden und silbern
       // (Fenster, Hologramm) – das sähe aus wie Münzen. Die Aufgaben brauchen dort keine Münzen.
       if (scheinWert[Math.round(o.y) * w + Math.round(o.x)] > 20) continue;
@@ -379,6 +396,44 @@
     return { wert, sicher, goldInnen: +gi.toFixed(3), goldRing: +ga.toFixed(3) };
   }
 
+  // Anteil bedruckter/dunkler Punkte (roh) in einem Kreisband um die Fläche o, in Vielfachen ihres Radius.
+  function kanteRingsum(roh, w, h, o, r0, r1) {
+    const rad = (o.a + o.b) / 2, R = Math.ceil(rad * r1) + 1;
+    let z = 0, t = 0;
+    for (let dy = -R; dy <= R; dy++) for (let dx = -R; dx <= R; dx++) {
+      const q = Math.hypot(dx, dy) / rad; if (q < r0 || q > r1) continue;
+      const x = Math.round(o.x + dx), y = Math.round(o.y + dy);
+      if (x < 0 || y < 0 || x >= w || y >= h) continue;
+      t++; if (roh[y * w + x]) z++;
+    }
+    return t ? z / t : 0;
+  }
+
+  // Ist der Ring rundherum gleich (überall golden oder überall silbern)? Bei echten 1-/2-€-Münzen ja;
+  // bei rund wirkenden Stücken eines Scheins wechselt die Farbe am Rand. Rückgabe: Anteil der
+  // 8 Ringstücke, die zur Mehrheit passen (1 = ganz gleichmäßig).
+  function ringGleichmaessig(rgba, w, h, m) {
+    const c = Math.cos(m.winkel), s = Math.sin(m.winkel);
+    const stuecke = Array.from({ length: 8 }, () => []);
+    const R = Math.ceil(m.a);
+    for (let dy = -R; dy <= R; dy++) for (let dx = -R; dx <= R; dx++) {
+      const x = Math.round(m.x + dx), y = Math.round(m.y + dy);
+      if (x < 0 || y < 0 || x >= w || y >= h) continue;
+      const u = (dx * c + dy * s) / m.a, v = (-dx * s + dy * c) / m.b;
+      const rho = Math.sqrt(u * u + v * v);
+      if (rho <= RING.von || rho >= RING.bis) continue;
+      const p = (y * w + x) * 4, r = rgba[p], g = rgba[p + 1], b = rgba[p + 2];
+      const mx = Math.max(r, g, b), mn = Math.min(r, g, b);
+      if ((mx > 228 && (mx - mn) / mx < 0.16) || mx < 28) continue;
+      const k = Math.floor(((Math.atan2(v, u) + Math.PI) / (2 * Math.PI)) * 8) % 8;
+      stuecke[k].push(gold(r, g, b));
+    }
+    const werte = stuecke.filter(st => st.length >= 3).map(median);
+    if (werte.length < 5) return 0;
+    const goldig = werte.filter(g => g > 0.14).length;
+    return Math.max(goldig, werte.length - goldig) / werte.length;
+  }
+
   // Unklare Münzen über die Größe zuordnen: 2 € ist ca. 11 % größer als 1 €.
   function klaereUnsichere(objekte) {
     const s1 = objekte.filter(o => o.sicher && o.wert === 1).map(o => o.a);
@@ -442,8 +497,8 @@
     if (sat < 0.16) wert = 5;                        // grau
     else if (hue >= 290 && hue < 330) wert = 10;     // pink/magenta
     else if (hue >= 330 || hue < 45) {               // rot oder orange
-      wert = anteilOrange >= 0.36 ? 50 : 10;           // echte Fotos: 10 € bis 0,24 · 50 € ab 0,53
-      sicher = anteilOrange < 0.3 || anteilOrange > 0.45;
+      wert = anteilOrange >= 0.43 ? 50 : 10;           // echte Fotos: 10 € 0,13–0,33 · 50 € 0,54–1
+      sicher = anteilOrange < 0.38 || anteilOrange > 0.48;
     }
     else if (hue < 75) { wert = 200; sicher = sat >= 0.18; }   // gelb
     else if (hue < 190) { wert = sat >= 0.2 ? 100 : 5; sicher = sat < 0.17 || sat >= 0.22; }  // grün

@@ -18,6 +18,7 @@ h1 { margin: 0; font-size: 26px; }
 .zeile canvas { width: 160px; height: auto; border-radius: 8px; }
 .ok { color: var(--gut); font-weight: 700; } .nein { color: var(--hm); font-weight: 700; }
 .summe { font-size: 19px; font-weight: 700; }
+.knopf { justify-self: start; font: inherit; font-weight: 700; padding: 10px 18px; border-radius: 12px; border: 2px solid var(--linie); background: var(--karte); color: var(--fg); cursor: pointer; }
 @media (max-width: 520px) { .zeile { grid-template-columns: 1fr; } .zeile canvas { width: 100%; } }
 </style>
 </head>
@@ -26,6 +27,7 @@ h1 { margin: 0; font-size: 26px; }
   <h1>Erkennung prüfen</h1>
   <p class="hinweis">Fotos von eurem Spielgeld hier hineinziehen oder auswählen. Steht der richtige Betrag im Dateinamen (z. B. <code>12euro.jpg</code> oder <code>7_foto2.jpg</code>), vergleicht die Seite automatisch. Die Fotos bleiben auf diesem Gerät, nichts wird hochgeladen.</p>
   <label class="ablage" id="ablage">Fotos hierher ziehen oder <u>auswählen</u><input type="file" id="dateien" accept="image/*" multiple hidden></label>
+  <button type="button" class="knopf" id="knopf-testfotos">Alle Testfotos prüfen</button>
   <p class="summe" id="summe"></p>
   <div class="ergebnisse" id="ergebnisse"></div>
 </main>
@@ -71,6 +73,15 @@ async function pruefe(dateien) {
     ? `${mit.filter(u => u === 'richtig').length} von ${mit.length} richtig · ${mit.filter(u => u === 'neues Foto erbeten').length}× neues Foto · ${mit.filter(u => u === 'FALSCH').length}× falsch`
     : '';
 }
+// Die Testsammlung aus tests/fotos (Liste in fotos/liste.txt)
+document.getElementById('knopf-testfotos').addEventListener('click', async e => {
+  e.target.disabled = true;
+  const namen = (await (await fetch('fotos/liste.txt', { cache: 'no-store' })).text()).split('\n').map(s => s.trim()).filter(Boolean);
+  const dateien = [];
+  for (const n of namen) dateien.push(new File([await (await fetch('fotos/' + n)).blob()], n, { type: 'image/jpeg' }));
+  await pruefe(dateien);
+  e.target.disabled = false;
+});
 document.getElementById('dateien').addEventListener('change', e => pruefe([...e.target.files]));
 const ab = document.getElementById('ablage');
 ab.addEventListener('dragover', e => { e.preventDefault(); ab.classList.add('drueber'); });
