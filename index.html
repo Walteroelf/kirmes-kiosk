@@ -295,11 +295,40 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
 .kamera .leiste { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 16px;
   background: #111; min-height: calc(var(--leiste) + env(safe-area-inset-bottom, 0px)); box-sizing: border-box;
   padding: 14px max(18px, env(safe-area-inset-right, 0px)) calc(14px + env(safe-area-inset-bottom, 0px)) max(18px, env(safe-area-inset-left, 0px)); }
-.ausloeser { width: 104px; height: 104px; flex: none; border-radius: 50%; border: 8px solid #fff; background: var(--senf); }
+.ausloeser { width: 104px; height: 104px; flex: none; border-radius: 50%; border: 8px solid #fff; background: var(--senf);
+  display: flex; align-items: center; justify-content: center; padding: 0; color: #1d3a5c; }
+.ausloeser svg { width: 46px; height: 46px; pointer-events: none; }
 .ausloeser:disabled { opacity: .4; }
 .ausloeser:active { transform: scale(.94); }
 .kamera .abbrechen { background: rgba(0,0,0,.4); border: 3px solid #fff; color: #fff; border-radius: 14px; padding: 12px 16px;
   font-size: 19px; font-weight: 700; min-width: 120px; text-align: center; cursor: pointer; }
+
+/* Auslöser rechts oder links (Lehrkraft-Bereich, „Ton & Bedienung“):
+   Quer steht die Leiste senkrecht am Rand (wie bei der iPad-Kamera), hoch bleibt sie unten und der Auslöser rückt zur Seite.
+   „Mitte“ = die bisherige Leiste unten mit dem Auslöser in der Mitte. */
+.kamera[data-ausloeser="rechts"] .leiste .ausloeser { order: 3; }
+.kamera[data-ausloeser="rechts"] .leiste #knopf-kamera-app { order: 2; }
+.kamera[data-ausloeser="links"] .leiste .ausloeser { order: 0; }
+.kamera[data-ausloeser="links"] .leiste #knopf-kamera-zu { order: 3; }
+.kamera[data-ausloeser="links"] .leiste #knopf-kamera-app { order: 2; }
+@media (orientation: landscape) {
+  .kamera[data-ausloeser="rechts"], .kamera[data-ausloeser="links"] { --seite: 168px; }
+  .kamera[data-ausloeser="rechts"] video, .kamera[data-ausloeser="links"] video { top: 0; height: 100%; width: calc(100% - var(--seite)); }
+  .kamera[data-ausloeser="rechts"] video { left: 0; }
+  .kamera[data-ausloeser="links"] video { left: var(--seite); }
+  .kamera[data-ausloeser="rechts"] .rahmen-text { left: calc((100% - var(--seite)) / 2); }
+  .kamera[data-ausloeser="links"] .rahmen-text { left: calc(var(--seite) + (100% - var(--seite)) / 2); }
+  .kamera[data-ausloeser="rechts"] .rahmen-text, .kamera[data-ausloeser="links"] .rahmen-text { max-width: calc(100vw - var(--seite) - 32px); }
+  .kamera[data-ausloeser="rechts"] .leiste, .kamera[data-ausloeser="links"] .leiste {
+    top: 0; bottom: 0; width: var(--seite); min-height: 0; flex-direction: column; gap: 12px;
+    padding: max(18px, env(safe-area-inset-top, 0px)) 10px max(18px, env(safe-area-inset-bottom, 0px)); }
+  .kamera[data-ausloeser="rechts"] .leiste { left: auto; right: 0; padding-right: max(10px, env(safe-area-inset-right, 0px)); }
+  .kamera[data-ausloeser="links"] .leiste { right: auto; left: 0; padding-left: max(10px, env(safe-area-inset-left, 0px)); }
+  .kamera[data-ausloeser="rechts"] .leiste .ausloeser, .kamera[data-ausloeser="links"] .leiste .ausloeser,
+  .kamera[data-ausloeser="rechts"] .leiste #knopf-kamera-app, .kamera[data-ausloeser="links"] .leiste #knopf-kamera-app,
+  .kamera[data-ausloeser="rechts"] .leiste #knopf-kamera-zu, .kamera[data-ausloeser="links"] .leiste #knopf-kamera-zu { order: 0; }
+  .kamera[data-ausloeser="rechts"] .abbrechen, .kamera[data-ausloeser="links"] .abbrechen { min-width: 0; width: 100%; box-sizing: border-box; padding: 12px 6px; font-size: 17px; }
+}
 
 /* --- Einzeltaster: markiertes Ziel --- */
 .scan { outline: 7px solid #1f6fd1 !important; outline-offset: 5px !important; transform: scale(1.03); transition: transform .12s; }
@@ -1118,7 +1147,7 @@ body.im-spiel .stufe-chip { min-width: 0; flex-shrink: 1; }
       <span>Foto vom Geld</span>
     </button>
     <input type="file" id="kamera" accept="image/*" capture="environment" hidden>
-    <p class="tipp">Geld auf ein weißes Blatt legen · Münzen mit Abstand · kein Schatten, keine Spiegelung · von oben fotografieren</p>
+    <p class="tipp">Münzen mit Abstand · kein Schatten · von oben fotografieren</p>
     </div>
 
     <!-- Geld auf dem Gerät ziehen (statt Spielgeld fotografieren) -->
@@ -1225,7 +1254,9 @@ body.im-spiel .stufe-chip { min-width: 0; flex-shrink: 1; }
   <div class="rahmen-text" id="kamera-text">Kamera startet …</div>
   <div class="leiste">
     <button class="abbrechen" id="knopf-kamera-zu" data-scan-kamera>Zurück</button>
-    <button class="ausloeser" id="knopf-ausloesen" data-scan-kamera aria-label="Foto machen" disabled></button>
+    <button class="ausloeser" id="knopf-ausloesen" data-scan-kamera aria-label="Foto machen" disabled>
+      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15h8l3-5h14l3 5h8v24H6z"/><circle cx="24" cy="26" r="7.5"/></svg>
+    </button>
     <label class="abbrechen" for="kamera" id="knopf-kamera-app" data-scan-kamera>Kamera-App</label>
   </div>
 </div>
@@ -1565,6 +1596,15 @@ body.im-spiel .stufe-chip { min-width: 0; flex-shrink: 1; }
           </div>
         </div>
         <div class="lk-gruppe">
+          <h4>Foto-Auslöser</h4>
+          <div class="lk-karte">
+            <div class="lk-zeile wahl">
+              <span class="lk-text"><strong>Auslöser der Kamera</strong><small>Quer steht die Knopfleiste am rechten (oder linken) Rand, hoch bleibt sie unten. „Mitte“ ist die Leiste unten mit dem Auslöser in der Mitte.</small></span>
+              <div class="lk-chips" data-key="ausloeser"><button data-wert="links">Links</button><button data-wert="mitte">Mitte</button><button data-wert="rechts">Rechts</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="lk-gruppe">
           <h4>Bedienung mit einem Taster</h4>
           <div class="lk-karte">
             <div class="lk-zeile wahl">
@@ -1722,7 +1762,7 @@ body.im-spiel .stufe-chip { min-width: 0; flex-shrink: 1; }
 <script src="symbole.js"></script>
 <script>
 'use strict';
-const VERSION = '5.2.1';
+const VERSION = '5.3.0';
 const STAND = '27.10.2026';
 
 // ---------------------------------------------------------------------------
@@ -2083,7 +2123,7 @@ const STANDARD = { name: '', laden: 'kirmes', geld: 'foto', modus: 'stufen', sta
                    art: 'kaufen', anzahl: 3, betrag: 'alle', max: 15, bezahlt: 10, runde: 10, einer: 0, schild: false,
                    preise: false, hilfe: true, doppelt: true, betragzeigen: true, ton: true, kamera: true, fotos: false,
                    taster: 'aus', tempo: 2500, wahl: true, steigern: true, stimme: 'thorsten', markieren: 'hilfe', wunsch: true,
-                   mengen: 'einzeln', stumm: false };
+                   mengen: 'einzeln', stumm: false, ausloeser: 'rechts' };
 const SCHALTER = ['wunsch', 'wahl', 'steigern', 'abstieg', 'wiederholen', 'preise', 'hilfe', 'doppelt', 'betragzeigen', 'ton', 'kamera', 'fotos', 'schild'];
 // Mehrere Kinder auf einem Gerät: jedes Kind hat seinen eigenen Speicher (ohne Namen, nur ein Bild aus symbole.js).
 // Das erste Kind (p1) nutzt die bisherigen Schlüssel – so bleibt der Lernstand von vor Version 5 beim ersten Kind.
@@ -2123,6 +2163,7 @@ function ausLink() {
   if (q.has('schwierig') && ['weiter', 'zurueck', 'bleiben'].includes(q.get('schwierig'))) e.schwierig = q.get('schwierig');
   if (q.has('mengen') && ['einzeln', 'zusammen'].includes(q.get('mengen'))) e.mengen = q.get('mengen');
   if (q.has('taster') && ['aus', 'taste', 'bildschirm'].includes(q.get('taster'))) e.taster = q.get('taster');
+  if (q.has('ausloeser') && ['links', 'mitte', 'rechts'].includes(q.get('ausloeser'))) e.ausloeser = q.get('ausloeser');
   if (q.has('tempo')) e.tempo = clamp(+q.get('tempo'), 800, 8000);
   for (const k of SCHALTER) if (q.has(k)) e[k] = q.get(k) === '1';
   if (q.has('schild')) e.schild = ['1', '4', 'alle'].includes(q.get('schild'));   // auch alte Links (schild=4)
@@ -2522,7 +2563,7 @@ function rahmenAnpassen() {
   const v = $('video'), r = $('kamera-ansicht').querySelector('.rahmen');
   if (!v.videoWidth) return;
   const W = v.clientWidth, H = v.clientHeight, f = Math.min(W / v.videoWidth, H / v.videoHeight);
-  const bw = v.videoWidth * f, bh = v.videoHeight * f, x = (W - bw) / 2, y = (H - bh) / 2;
+  const bw = v.videoWidth * f, bh = v.videoHeight * f, x = (W - bw) / 2 + v.offsetLeft, y = (H - bh) / 2 + v.offsetTop;   // bei „Auslöser links“ sitzt das Video nicht ganz links
   Object.assign(r.style, { left: x + bw * 0.05 + 'px', top: y + bh * 0.05 + 'px', width: bw * 0.9 + 'px', height: bh * 0.9 + 'px' });
 }
 window.addEventListener('resize', rahmenAnpassen);
@@ -2534,6 +2575,7 @@ function kameraGehtNicht(text) {
   scanNeu();
 }
 async function oeffneKamera() {
+  $('kamera-ansicht').dataset.ausloeser = E.ausloeser;
   $('kamera-ansicht').hidden = false; document.body.style.overflow = 'hidden';
   $('knopf-ausloesen').disabled = true; kameraText('Kamera startet …');
   $('kamera-ansicht').querySelector('.rahmen').removeAttribute('style');
@@ -2557,8 +2599,8 @@ async function oeffneKamera() {
     clearTimeout(kameraWache);
     rahmenAnpassen();
     $('knopf-ausloesen').disabled = false;
-    kameraText('Das weiße Blatt in den Rahmen. Dann den gelben Knopf drücken.');
-    sage('Halte das weiße Blatt in den Rahmen. Dann drück auf den gelben Knopf.');
+    kameraText('Das ganze Geld in den Rahmen. Dann Foto machen.');
+    sage('Das ganze Geld muss in den Rahmen. Dann mach ein Foto.');
     scanNeu();
     return true;
   };
@@ -4061,7 +4103,7 @@ function lkStand(n) {
     case 2: return [`${E.runde} pro Runde`, E.wunsch && 'Wunschzettel', E.schild && 'Betrag wählen', E.doppelt && E.mengen === 'zusammen' && 'mit 2×'].filter(Boolean).join(' · ');
     case 3: return `${[E.preise, E.hilfe, E.betragzeigen && !E.schild, E.markieren !== 'nie'].filter(Boolean).length} von 4 Hilfen an`;
     case 4: return E.geld === 'foto' ? 'Spielgeld fotografieren' : 'Geld ziehen';
-    case 5: return (E.ton ? (E.stumm ? 'Ansagen stumm' : E.stimme === 'thorsten' ? 'Thorsten' : 'Gerätestimme') : 'ohne Ton') + ' · ' + (E.taster === 'aus' ? 'Taster aus' : 'Taster an');
+    case 5: return (E.ton ? (E.stumm ? 'Ansagen stumm' : E.stimme === 'thorsten' ? 'Thorsten' : 'Gerätestimme') : 'ohne Ton') + ' · ' + (E.taster === 'aus' ? 'Taster aus' : 'Taster an') + ' · Auslöser ' + E.ausloeser;
     case 6: return `${LADEN_KURZ[LK.aLaden]}: ${LK.anzahl ? LK.anzahl + ' Aufgaben' : 'noch nichts'}`;
     case 7: return 'Druckvorlagen · Link';
     case 9: return mehrereKinder() ? `${kinder().length} Kinder · ${kindName(aktuellesKind())}` : 'ein Kind';
@@ -4216,6 +4258,7 @@ function aktualisiereLink() {
   if (E.markieren !== STANDARD.markieren) q.set('markieren', E.markieren);
   if (E.schwierig !== STANDARD.schwierig) q.set('schwierig', E.schwierig);
   if (E.mengen !== STANDARD.mengen) q.set('mengen', E.mengen);
+  if (E.ausloeser !== STANDARD.ausloeser) q.set('ausloeser', E.ausloeser);
   for (const k of SCHALTER) if (!!E[k] !== STANDARD[k]) q.set(k, E[k] ? '1' : '0');
   const basis = location.protocol.startsWith('http') ? location.origin + location.pathname : 'https://walteroelf.github.io/kirmes-kiosk/';
   $('link-text').textContent = basis + '?' + q.toString();

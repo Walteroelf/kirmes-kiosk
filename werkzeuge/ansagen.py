@@ -152,7 +152,7 @@ def sammle(lob_stimme):
          'Heute kaufst du am Kirmes-Kiosk ein.', 'Heute kaufst du in der Bäckerei ein.', 'Heute kaufst du im Spielwarenladen ein.',
          'Hier stehen die Preise.', 'Rechne noch einmal.', 'Rechne zuerst alle Preise zusammen.',
          'Rechne die Preise Schritt für Schritt zusammen.', 'Tippe auf Kamera-App.',
-         'Halte das weiße Blatt in den Rahmen.', 'Dann drück auf den gelben Knopf.',
+         'Das ganze Geld muss in den Rahmen.', 'Dann mach ein Foto.',
          'Ich sehe kein Geld.', 'Leg das Geld auf ein weißes Blatt und fotografiere von oben.', 'Der Betrag stimmt.',
          'Aber du hast zu viele Ein-Euro-Münzen.', 'Tausche zwei Ein-Euro-Münzen gegen ein Zwei-Euro-Stück.',
          'Ich bin mir nicht sicher.', 'Leg die Münzen mit etwas Abstand, ohne Schatten und ohne Spiegelung.',
