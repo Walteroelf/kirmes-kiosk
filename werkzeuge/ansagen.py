@@ -183,6 +183,10 @@ def sammle(lob_stimme):
     teil('Lege 50 Cent, aber ohne die 50-Cent-Münze.')
     teil('Lege 1 Euro, aber ohne die 1-Euro-Münze.', 'Lege einen Euro, aber ohne die 1-Euro-Münze.')
     teil('Lege 2 Euro, aber ohne die 2-Euro-Münze.')
+    # Lege genauso (Bild nachlegen)
+    satz('Schau dir das Geld an.', 'Lege genau dasselbe auf den Teller.', 'Dann tippe auf Fertig.', 'Lege genau dasselbe hin und mach ein Foto.',
+         'Das ist genau gleich.', 'Das ist gleich viel Geld.', 'Aber lege genau dieselben Stücke wie im Bild.', 'Schau noch einmal genau hin.',
+         'Lege dasselbe wie im Bild.', 'Die Umrisse zeigen dir, welches Geld du brauchst.')
     # Wanduhr im Laden: „Es ist 10 Uhr 25.“ (12-Stunden-Zählung wie auf der Uhr, wie zeitSatz() in index.html)
     for h in range(1, 13):
         hs = 'ein Uhr' if h == 1 else f'{h} Uhr'

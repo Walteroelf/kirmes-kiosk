@@ -29,7 +29,7 @@ Alles läuft im Browser: kein Server, kein Konto, keine KI-Dienste. Die Fotos ve
 
 **Startbildschirm:** Beim Öffnen geht ein roter Vorhang mit dem Schild „Einkaufen!“ auf (knapp 2 Sekunden; Tippen überspringt ihn; bei „Bewegung reduzieren“ entfällt er). Dann wählt das Kind den Laden (große Karten nur mit Bild und Name) oder tippt darunter auf **„Weiter wie zuletzt“**. Der Knopf **ⓘ Info** zeigt den mathematischen Anspruch jedes Ladens und die aktuelle Stufe (ohne Code, nur zum Lesen). Im Lehrkraft-Bereich lässt sich die freie Wahl abschalten (*Laden & Schwierigkeit* → „Immer derselbe Laden“); dann gibt es nur „Los geht's“ im eingestellten Laden. Nach einer Runde führt **„Anderer Laden“** zurück zum Start.
 
-**Schwierigkeit je Laden (Lehrkraft):** Im Lehrkraft-Bereich unter *Laden & Schwierigkeit*; „Schwierigkeit festlegen (Lehrkraft)“ auf dem Startbildschirm öffnet (mit Code) direkt diesen Abschnitt. Für jeden Laden wird eine der 8 Stufen gewählt (Liste untereinander, mit Namen). Dazu: **Steigert sich** (nächste Stufe nach gelösten Aufgaben) oder **Bleibt** (übt auf der gewählten Stufe). Die Wahl gilt sofort. Mit `…?start=0` startet die App ohne Startbildschirm.
+**Schwierigkeit je Laden (Lehrkraft):** Im Lehrkraft-Bereich unter *Laden & Schwierigkeit*; „Schwierigkeit festlegen (Lehrkraft)“ auf dem Startbildschirm öffnet (mit Code) direkt diesen Abschnitt. Für jeden Laden wird eine der Stufen gewählt (Liste untereinander, mit Namen). Dazu: **Steigert sich** (nächste Stufe nach gelösten Aufgaben) oder **Bleibt** (übt auf der gewählten Stufe). Die Wahl gilt sofort. Mit `…?start=0` startet die App ohne Startbildschirm.
 
 Im Lehrkraft-Bereich ist der feste Laden unter **„Immer derselbe Laden“** (oder per Link `…?laden=…`) einstellbar. Jeder Laden hat eigene Waren, eigene Stufen, eigenen Fortschritt und eine eigene Auswertung.
 
@@ -39,7 +39,7 @@ Im Lehrkraft-Bereich ist der feste Laden unter **„Immer derselbe Laden“** (o
 | **Spielwarenladen** (`laden=spielwaren`) | ganze Euro bis ca. 200 € | zusätzlich 50 € und 100 € | fotografieren oder ziehen |
 | **Bäckerei** (`laden=baeckerei`) | Euro und Cent bis ca. 10 € | 10 ct, 20 ct, 50 ct, 1 €, 2 €, 5 € | ziehen |
 
-**Spielwarenladen** – 20 Spielsachen von 3 € (Seifenblasen) bis 149 € (Fahrrad). Stufen: 2 Spielsachen bis 30 € → bis 60 € → 3 bis 100 € → Große Scheine (bis 150 €) → 4 bis 200 € → Rückgeld von 50 € → Rückgeld von 100 € → Reicht das Geld? (100 €).
+**Spielwarenladen** – 20 Spielsachen von 3 € (Seifenblasen) bis 149 € (Fahrrad). Stufen: Lege genauso mit Scheinen (5/10/20 €, dann mit 50 und 100 €) → 2 Spielsachen bis 30 € → bis 60 € → 3 bis 100 € → Große Scheine (bis 150 €) → 4 bis 200 € → Rückgeld von 50 € → Rückgeld von 100 € → Reicht das Geld? (100 €).
 
 **Bäckerei** – 20 Backwaren und Getränke von 0,40 € (Brötchen) bis 4,20 € (Vollkornbrot), alle Preise in 10-Cent-Schritten. Stufen: 1 Sache (bis 2 €) → 2 Sachen (bis 3 €) → 3 (bis 5 €) → 4 (bis 8 €) → 5 (bis 10 €) → Rückgeld von 5 € → Rückgeld von 10 € → Reicht das Geld? (5 €).
 
@@ -87,11 +87,13 @@ Nach dem **2. Fehlversuch** erscheint *Hilfe: Preise zeigen*, nach dem **3.** *H
 
 ## Stufen in Themen
 
-Jeder Laden hat feine Stufen in 6 Themen (Kirmes 26, Bäckerei 23, Spielwaren 21). Kirmes-Kiosk:
+**Lege genauso** (neu in 5.4.0, aus den PIKAS-Ideen): Am Anfang von „Geld kennen“ zeigt die linke Karte ein Bild aus Münzen und Scheinen – ohne Preis und ohne Summe –, und das Kind legt **genau dieselben Stücke** nach. Geprüft werden die Stücke, nicht nur die Summe: Zwei 2-€-Münzen statt einer 2-€-Münze und zwei 1-€-Münzen gelten nicht, die App sagt dann „Das ist gleich viel Geld. Aber lege genau dieselben Stücke wie im Bild.“ (Fehlerart in der Auswertung: *anderes Geld gelegt*). Gilt für Ziehen und Foto. Stufen im Kirmes-Kiosk: 1-€-Münzen (2–4 Stück) → 1 € und 2 € → auch ein 5-€-Schein → ohne Umrisse (bis 20 €) → viele verschiedene (4–6 Stücke, mindestens drei Sorten). Im **Zieh-Modus** zeigen gestrichelte Umrisse auf dem Teller, wie viele Stücke und welche Größe gebraucht werden (in den ersten drei Stufen immer, danach als Hilfe nach zwei Fehlversuchen, *Hilfe: Umrisse zeigen*). Beim **Foto** gibt es als Hilfe die Anzahl je Sorte im Bild (*Hilfe: Stück für Stück*). Der Spielwarenladen hat zwei Stufen (Scheine 5/10/20 €, dann mit 50 und 100 €); die Bäckerei noch keine (Cent-Münzen). Kinder, die schon auf einer Stufe stehen, bleiben dort; neue Kinder beginnen mit „Lege genauso“.
+
+Jeder Laden hat feine Stufen in 6 Themen (Kirmes 31, Bäckerei 23, Spielwaren 23). Kirmes-Kiosk:
 
 | Thema | Stufen |
 |---|---|
-| 1 · Geld kennen | eine Sache nur mit 1-€-Münzen · mit 1 € und 2 € · auch mit 5 € |
+| 1 · Geld kennen | **Lege genauso** (5 Stufen, siehe unten) · eine Sache nur mit 1-€-Münzen · mit 1 € und 2 € · auch mit 5 € |
 | 2 · Zusammenrechnen | 2 Sachen bis 10 € · 3 Sachen bis 12 € · 3 Sachen über 10 € (Zehnerübergang) · 4 Sachen bis 15 € · 5 Sachen bis 20 € |
 | 3 · Geschickt legen | höchstens zwei 1-€-Stücke · 5 Sachen mit zwei 1-€-Stücken · größere Beträge · **mit möglichst wenig Geld** (die App prüft auch die Zahl der Stücke) · **Betrag anders legen** (z. B. 10 € ohne den 10-€-Schein – das Stück fehlt in der Schublade) |
 | 4 · Mehrmals und Ergänzen | **zweimal dasselbe** · **dreimal dasselbe** (immer mit „2×“, „3×“) · **Wie viel fehlt noch?** („Ich habe schon 3 €“, die Ware kostet 5 €) |
