@@ -195,7 +195,7 @@ def sammle(lob_stimme):
             teil(f'Es ist {h} Uhr {m}.', f'Es ist {hs} {m}.')
     # Wunschzettel: Höchstbetrag (aus Stufen und eigener Aufgabe; Rückgeld: 1 € bzw. 10 ct weniger als der Schein)
     for a, s in [euro_text(n) for n in list(range(1, 31)) + [49, 50, 60, 99, 100, 150, 199, 200]] + \
-                [cent_text(v) for v in list(range(100, 1001, 100)) + [490, 990, 1990]]:
+                [cent_text(v) for v in range(10, 2001, 10)]:   # Bäckerei: jeder Betrag in 10-ct-Schritten (z. B. „90 Cent“ beim Wunschzettel)
         teil(f'Du darfst höchstens {a} ausgeben.', f'Du darfst höchstens {s} ausgeben.')
 
     # Laden-Ansicht: „Ein Kakao kostet 1 Euro 90.“ (wie satzPreis() in index.html: Nominativ, Betrag wie sprichBetrag)
