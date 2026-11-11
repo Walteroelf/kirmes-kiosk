@@ -1405,6 +1405,15 @@ body.im-spiel .stufe-chip { min-width: 0; flex-shrink: 1; }
       <section class="lk-seite" data-seite="1">
         <h3 class="lk-seite-titel">Laden &amp; Schwierigkeit</h3>
         <div class="lk-gruppe">
+          <h4>Gesamtbetrag</h4>
+          <div class="lk-karte">
+            <label class="lk-zeile">
+              <span class="lk-text"><strong>Gesamtbetrag aus 4 wählen</strong><small>Das Kind tippt am Ende den richtigen Betrag an. Die App nennt ihn vorher nicht. Wer falsch tippt, bekommt neue Schilder (Raten lohnt sich nicht) und der Fehler zählt.</small></span>
+              <input type="checkbox" class="lk-schiebe" data-key="schild">
+            </label>
+          </div>
+        </div>
+        <div class="lk-gruppe">
           <h4>Laden beim Start</h4>
           <div class="lk-karte">
             <div class="lk-zeile wahl">
@@ -1494,10 +1503,6 @@ body.im-spiel .stufe-chip { min-width: 0; flex-shrink: 1; }
             <label class="lk-zeile">
               <span class="lk-text"><strong>Wunschzettel</strong><small>Bei jeder 3. Aufgabe sucht das Kind die Sachen im Laden selbst aus.</small></span>
               <input type="checkbox" class="lk-schiebe" data-key="wunsch">
-            </label>
-            <label class="lk-zeile">
-              <span class="lk-text"><strong>Gesamtbetrag aus 4 wählen</strong><small>Das Kind tippt am Ende den richtigen Betrag an. Die App nennt ihn vorher nicht.</small></span>
-              <input type="checkbox" class="lk-schiebe" data-key="schild">
             </label>
             <label class="lk-zeile">
               <span class="lk-text"><strong>Gleiche Sachen mehrmals</strong><small>Zum Beispiel zweimal Popcorn in einer Aufgabe.</small></span>
@@ -1769,7 +1774,7 @@ body.im-spiel .stufe-chip { min-width: 0; flex-shrink: 1; }
 <script src="symbole.js"></script>
 <script>
 'use strict';
-const VERSION = '5.4.1';
+const VERSION = '5.5.0';
 const STAND = '27.10.2026';
 
 // ---------------------------------------------------------------------------
@@ -2283,7 +2288,7 @@ function regeln() {
 const $ = id => document.getElementById(id);
 let runde = { nr: 0, ergebnisse: [] };
 let aufgabe = null;   // { art, waren, summe, bezahlt, loesung, regeln, schluessel }
-let versuche = 0, fehlversuche = 0, hilfeStufe = 0, fehlerArten = [];
+let versuche = 0, fehlversuche = 0, hilfeStufe = 0, fehlerArten = [], schildFehler = 0;   // schildFehler: falsch getippte Schilder dieser Aufgabe
 let analyse = null;   // { basis, objekte, korrigiert, qualitaet }
 let korrigieren = false, geloest = false;
 
@@ -2507,7 +2512,7 @@ function zeigeWare() {
 }
 function zeigeAufgabe() {
   zeigeRunde();
-  versuche = 0; fehlversuche = 0; hilfeStufe = 0; fehlerArten = []; geloest = false; analyse = null; korrigieren = false;
+  versuche = 0; fehlversuche = 0; hilfeStufe = 0; fehlerArten = []; schildFehler = 0; geloest = false; analyse = null; korrigieren = false;
   gefunden = new Map(); if (ladenOffen) schliesseLaden();
   zeigeWare();
   const art = aufgabe.art, n = aufgabe.waren.length;
@@ -3051,23 +3056,31 @@ $('foto').addEventListener('click', ev => {
 // ---------------------------------------------------------------------------
 // Preis-Schild wählen
 // ---------------------------------------------------------------------------
-function zeigeSchilder() {
-  const soll = aufgabe.loesung, R = aufgabe.regeln, rueck = aufgabe.art === 'rueckgeld';
+// Die vier Schilder (oder alle Werte): neu = nach einem falschen Tipp andere Ablenker, nicht dieselben wie eben
+function schildWerte(soll, R, vorher) {
+  if (R.schild === 'alle') { const w = []; for (let i = 1; i <= Math.max(R.max, soll); i++) w.push(i); return w; }
+  const [a, b, c, d] = L.schritte;   // typische "Fehler-Abstände" im jeweiligen Laden
+  const kandidaten = [soll - a, soll + a, soll - b, soll + b, soll + c, soll - c, soll + d].filter(v => v >= L.schritte[0] && v !== soll);
   let werte;
-  if (R.schild === 'alle') {
-    werte = []; for (let i = 1; i <= Math.max(R.max, soll); i++) werte.push(i);
-  } else {
-    const set = new Set([soll]);
-    const [a, b, c, d] = L.schritte;   // typische "Fehler-Abstände" im jeweiligen Laden
-    const nah = [soll - a, soll + a, soll - b, soll + b, soll + c, soll - c, soll + d].filter(v => v >= L.schritte[0]);
+  for (let versuch = 0; versuch < 20; versuch++) {
+    const set = new Set([soll]), nah = kandidaten.slice();
     while (set.size < 4 && nah.length) set.add(nah.splice(Math.floor(Math.random() * Math.min(4, nah.length)), 1)[0]);
-    werte = [...set].sort((a, b) => a - b);
+    werte = [...set].sort((x, y) => x - y);
+    // anders als die Schilder davor (mindestens zwei neue Werte), solange es genug Kandidaten gibt
+    if (!vorher || kandidaten.length < 5 || werte.filter(v => !vorher.includes(v)).length >= 2) break;
   }
+  return werte;
+}
+function zeigeSchilder(neu = false) {
+  const soll = aufgabe.loesung, R = aufgabe.regeln, rueck = aufgabe.art === 'rueckgeld';
+  const vorher = neu ? [...$('schilder').querySelectorAll('.preisschild')].map(b => +b.dataset.wert) : null;
+  const werte = schildWerte(soll, R, vorher);
   const box = $('schilder');
   box.className = 'schilder' + (R.schild === 'alle' ? ' alle' : '');
   const label = rueck ? 'Rückgeld:' : aufgabe.art === 'fehlt' ? 'Es fehlt:' : aufgabe.art === 'anders' ? 'Betrag:' : 'Gesamt-Preis:';
   box.innerHTML = werte.map(v => `<button class="preisschild" data-scan data-wert="${v}" aria-label="${sprichBetrag(v)}"><small>${label}</small><span>${fmt(v)}</span></button>`).join('');
   $('schild-auftrag').textContent = rueck ? 'Welches Schild passt zum Rückgeld?' : 'Welches Preis-Schild passt?';
+  if (neu) { scanNeu(); return; }   // nach einem falschen Tipp: nur neue Schilder, die Meldung bleibt
   $('schild-meldung').innerHTML = '';
   $('schritt-schild').hidden = false;
   $('schritt-schild').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -3075,18 +3088,14 @@ function zeigeSchilder() {
   scanNeu();
 }
 // Verkäufer: zuerst den Gesamtpreis wählen, dann das Rückgeld legen
-function naheWerte(soll) {
-  const set = new Set([soll]), [a, b, c, d] = L.schritte;   // typische "Fehler-Abstände" im jeweiligen Laden
-  const nah = [soll - a, soll + a, soll - b, soll + b, soll + c, soll - c, soll + d].filter(v => v >= L.schritte[0]);
-  while (set.size < 4 && nah.length) set.add(nah.splice(Math.floor(Math.random() * Math.min(4, nah.length)), 1)[0]);
-  return [...set].sort((a, b) => a - b);
-}
-function zeigePreisWahl() {
+function naheWerte(soll, vorher) { return schildWerte(soll, { schild: 'vier' }, vorher); }
+function zeigePreisWahl(neu = false) {
   const box = $('schilder');
+  const vorher = neu ? [...box.querySelectorAll('.preisschild')].map(b => +b.dataset.wert) : null;
   box.className = 'schilder';
-  box.innerHTML = naheWerte(aufgabe.summe).map(v => `<button class="preisschild" data-scan data-wert="${v}" aria-label="${sprichBetrag(v)}"><small>Gesamt-Preis:</small><span>${fmt(v)}</span></button>`).join('');
+  box.innerHTML = naheWerte(aufgabe.summe, vorher).map(v => `<button class="preisschild" data-scan data-wert="${v}" aria-label="${sprichBetrag(v)}"><small>Gesamt-Preis:</small><span>${fmt(v)}</span></button>`).join('');
   $('schild-auftrag').textContent = 'Was kostet alles zusammen? Tippe auf den richtigen Preis.';
-  $('schild-meldung').innerHTML = '';
+  if (!neu) $('schild-meldung').innerHTML = '';
   $('schritt-schild').hidden = false;
   scanNeu();
 }
@@ -3101,10 +3110,10 @@ function preisGewaehlt(k) {
     sage(`Richtig! Zusammen kostet es ${sprichBetrag(v)}. Jetzt gib mir das Rückgeld.`);
     setTimeout(() => { if (aufgabe && aufgabe.phase === 'rueck' && !geloest) { $('schritt-schild').hidden = true; $('schritt-foto').hidden = false; scanNeu(); } }, 1600);
   } else {
-    versuche++; fehlversuche++;
-    k.classList.add('falsch'); k.disabled = true;
+    versuche++; fehlversuche++; schildFehler++; fehlerArten.push('schildfalsch');
     $('schild-meldung').innerHTML = meldung(false, 'Schau noch mal.', 'Rechne die Preise zusammen.');
     sage('Schau noch mal. Rechne die Preise zusammen.');
+    zeigePreisWahl(true);   // andere Schilder: Wegstreichen und Durchtippen führt nicht zum Ziel
     bieteHilfe();
   }
   scanNeu();
@@ -3123,10 +3132,13 @@ $('schilder').addEventListener('click', ev => {
     $('weiter-reihe').hidden = false;
     $('weiter-reihe').scrollIntoView({ behavior: 'smooth', block: 'end' });
   } else {
-    k.classList.add('falsch'); k.disabled = true;
+    versuche++; fehlversuche++; schildFehler++; fehlerArten.push('schildfalsch');   // Raten zählt als Fehlversuch
     const wo = analyse && analyse.virtuell ? 'auf dem Teller' : 'auf dem Foto';
-    $('schild-meldung').innerHTML = meldung(false, 'Schau noch mal.', `Zähle dein Geld ${wo}.`);
+    // Ab dem 2. falschen Tipp: das gelegte Geld noch einmal zum Zählen zeigen (ohne die Summe zu nennen)
+    const zaehlen = schildFehler >= 2 && analyse && analyse.objekte ? `<div class="rechenweg"><span>Dein Geld:</span>${geldHtml(analyse.objekte.filter(o => o.wert !== null))}<span>= ?</span></div>` : '';
+    $('schild-meldung').innerHTML = meldung(false, 'Schau noch mal.', `Zähle dein Geld ${wo}.`) + zaehlen;
     sage(`Schau noch mal. Zähle dein Geld ${wo}.`);
+    if (aufgabe.regeln.schild !== 'alle') zeigeSchilder(true); else { k.classList.add('falsch'); k.disabled = true; }
   }
   scanNeu();
 });
@@ -3608,6 +3620,7 @@ const FEHLERART = {
   knapp: ['knapp verzählt', 'Geld noch einmal nachzählen lassen; Münzen sortiert hinlegen (große zuerst).'],
   fehlt_preis: ['ganzen Preis statt Rest gelegt', 'Ergänzen üben: vom Geld, das schon da ist, bis zum Preis weiterzählen.'],
   stueckelung: ['zu viele Geldstücke', 'Bündeln: gleiche Münzen zusammenfassen (zwei 1 € = ein 2 €, fünf 1 € = ein 5-€-Schein).'],
+  schildfalsch: ['falsches Schild gewählt (geraten?)', 'Den Gesamtbetrag erst selbst zählen lassen (Geld nach Größe sortieren, Stück für Stück zusammenzählen) und erst dann ein Schild wählen. Nicht durchtippen.'],
   genauso: ['anderes Geld gelegt', 'Bild und Teller Stück für Stück vergleichen: Welche Münze oder welcher Schein fehlt, welcher ist zu viel? Gleiche Stücke einander zuordnen.'],
   anders: ['anderer Fehler', ''],
 };
