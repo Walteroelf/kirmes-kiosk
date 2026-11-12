@@ -183,6 +183,9 @@ def sammle(lob_stimme):
     teil('Lege 50 Cent, aber ohne die 50-Cent-Münze.')
     teil('Lege 1 Euro, aber ohne die 1-Euro-Münze.', 'Lege einen Euro, aber ohne die 1-Euro-Münze.')
     teil('Lege 2 Euro, aber ohne die 2-Euro-Münze.')
+    # Live-Vorschau in der Kamera
+    satz('Scheine etwas auseinanderlegen.', 'Münzen mit etwas Abstand legen.', 'Mehr Licht, bitte.', 'Halte das Tablet ruhig.',
+         'Das Geld braucht einen hellen Untergrund.', 'Jetzt kannst du ein Foto machen.')
     # Lege genauso (Bild nachlegen)
     satz('Schau dir das Geld an.', 'Lege genau dasselbe auf den Teller.', 'Dann tippe auf Fertig.', 'Lege genau dasselbe hin und mach ein Foto.',
          'Das ist genau gleich.', 'Das ist gleich viel Geld.', 'Aber lege genau dieselben Stücke wie im Bild.', 'Schau noch einmal genau hin.',

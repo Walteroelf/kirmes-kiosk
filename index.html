@@ -303,6 +303,15 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
 .kamera .abbrechen { background: rgba(0,0,0,.4); border: 3px solid #fff; color: #fff; border-radius: 14px; padding: 12px 16px;
   font-size: 19px; font-weight: 700; min-width: 120px; text-align: center; cursor: pointer; }
 
+/* Live-Vorschau in der Kamera: Markierungen über dem Videobild, Hinweis unter dem Text, Auslöser grün wenn alles klar ist */
+.kamera .live { position: absolute; pointer-events: none; }
+.kamera .rahmen-text.hinweis { top: calc(70px + env(safe-area-inset-top, 0px)); font-size: 20px; }
+.kamera .rahmen-text.hinweis.gut { background: rgba(32,128,60,.94); }
+.kamera .rahmen-text.hinweis.warn { background: rgba(160,72,6,.94); }
+.ausloeser.bereit { border-color: #6fe08f; box-shadow: 0 0 0 5px rgba(111,224,143,.45); }
+@media (prefers-reduced-motion: no-preference) { .ausloeser.bereit { animation: bereit-puls 1.4s ease-in-out infinite; } }
+@keyframes bereit-puls { 50% { box-shadow: 0 0 0 11px rgba(111,224,143,.2); } }
+
 /* Lege genauso: Bild links, gestrichelte Umrisse auf dem Teller */
 .produkt.ziel-geld.genauso { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 12px 14px; }
 .produkt.ziel-geld.genauso .name { flex-basis: 100%; text-align: center; }
@@ -1256,8 +1265,10 @@ body.im-spiel .stufe-chip { min-width: 0; flex-shrink: 1; }
 <!-- Kamera mit Rahmen -->
 <div class="kamera" id="kamera-ansicht" hidden>
   <video id="video" playsinline webkit-playsinline muted autoplay></video>
+  <canvas class="live" id="live" aria-hidden="true"></canvas>
   <div class="rahmen" aria-hidden="true"></div>
   <div class="rahmen-text" id="kamera-text">Kamera startet …</div>
+  <div class="rahmen-text hinweis" id="kamera-hinweis" hidden></div>
   <div class="leiste">
     <button class="abbrechen" id="knopf-kamera-zu" data-scan-kamera>Zurück</button>
     <button class="ausloeser" id="knopf-ausloesen" data-scan-kamera aria-label="Foto machen" disabled>
@@ -1570,6 +1581,10 @@ body.im-spiel .stufe-chip { min-width: 0; flex-shrink: 1; }
               <span class="lk-text"><strong>Kamera in der App</strong><small>Mit Rahmen zum Ausrichten. Sonst öffnet sich die Kamera-App des Geräts.</small></span>
               <input type="checkbox" class="lk-schiebe" data-key="kamera">
             </label>
+            <label class="lk-zeile" data-wenn="kamera">
+              <span class="lk-text"><strong>Live-Vorschau</strong><small>Schon im Kamerabild markiert die App, was sie erkennt („2 €“ auf der Münze), und sagt zum Beispiel „Scheine etwas auseinanderlegen“. Der Auslöser leuchtet grün, wenn alles klar ist. Braucht etwas Rechenleistung des Geräts, darum ausgeschaltet.</small></span>
+              <input type="checkbox" class="lk-schiebe" data-key="live">
+            </label>
             <label class="lk-zeile">
               <span class="lk-text"><strong>Vorschaubilder speichern</strong><small>Kleine Fotos vom gelegten Geld im Protokoll, nur auf diesem Gerät.</small></span>
               <input type="checkbox" class="lk-schiebe" data-key="fotos">
@@ -1774,7 +1789,7 @@ body.im-spiel .stufe-chip { min-width: 0; flex-shrink: 1; }
 <script src="symbole.js"></script>
 <script>
 'use strict';
-const VERSION = '5.5.0';
+const VERSION = '5.6.0';
 const STAND = '27.10.2026';
 
 // ---------------------------------------------------------------------------
@@ -2153,8 +2168,8 @@ const STANDARD = { name: '', laden: 'kirmes', geld: 'foto', modus: 'stufen', sta
                    art: 'kaufen', anzahl: 3, betrag: 'alle', max: 15, bezahlt: 10, runde: 10, einer: 0, schild: false,
                    preise: false, hilfe: true, doppelt: true, betragzeigen: true, ton: true, kamera: true, fotos: false,
                    taster: 'aus', tempo: 2500, wahl: true, steigern: true, stimme: 'thorsten', markieren: 'hilfe', wunsch: true,
-                   mengen: 'einzeln', stumm: false, ausloeser: 'rechts' };
-const SCHALTER = ['wunsch', 'wahl', 'steigern', 'abstieg', 'wiederholen', 'preise', 'hilfe', 'doppelt', 'betragzeigen', 'ton', 'kamera', 'fotos', 'schild'];
+                   mengen: 'einzeln', stumm: false, ausloeser: 'rechts', live: false };
+const SCHALTER = ['wunsch', 'wahl', 'steigern', 'abstieg', 'wiederholen', 'preise', 'hilfe', 'doppelt', 'betragzeigen', 'ton', 'kamera', 'fotos', 'schild', 'live'];
 // Mehrere Kinder auf einem Gerät: jedes Kind hat seinen eigenen Speicher (ohne Namen, nur ein Bild aus symbole.js).
 // Das erste Kind (p1) nutzt die bisherigen Schlüssel – so bleibt der Lernstand von vor Version 5 beim ersten Kind.
 const GERAET_KEYS = new Set(['kinder', 'kind', 'sicherung', 'kamera-geht']);
@@ -2674,6 +2689,7 @@ async function oeffneKamera() {
     $('knopf-ausloesen').disabled = false;
     kameraText('Das ganze Geld in den Rahmen. Dann Foto machen.');
     sage('Das ganze Geld muss in den Rahmen. Dann mach ein Foto.');
+    liveStart();
     scanNeu();
     return true;
   };
@@ -2683,7 +2699,97 @@ async function oeffneKamera() {
     v.addEventListener('resize', bereit, { once: true });
   }
 }
+// ---------------------------------------------------------------------------
+// Live-Vorschau in der Kamera (optional: Lehrkraft-Bereich, Geld & Kamera)
+// Alle ~1 Sekunde wird ein verkleinertes Kamerabild im Hintergrund ausgewertet (Worker); die Markierungen liegen
+// über dem Video, Hinweise erscheinen als Text (und werden gesprochen). Nichts wird gespeichert.
+// ---------------------------------------------------------------------------
+const LIVE = { an: false, lauf: 0, schluessel: '', gleich: 0, gesprochen: '', gesprochenZeit: 0, start: 0 };
+function liveStart() {
+  if (!E.live || !worker || LIVE.an) return;   // ohne Worker würde die Auswertung die Oberfläche einfrieren; läuft sie schon, nicht noch einmal
+  LIVE.an = true; LIVE.lauf++; LIVE.schluessel = ''; LIVE.gleich = 0; LIVE.gesprochen = ''; LIVE.gesprochenZeit = 0; LIVE.start = Date.now();
+  liveSchleife(LIVE.lauf);
+}
+function liveStopp() {
+  LIVE.an = false; LIVE.lauf++;
+  const cv = $('live'); cv.getContext('2d').clearRect(0, 0, cv.width, cv.height);
+  $('kamera-hinweis').hidden = true; $('knopf-ausloesen').classList.remove('bereit');
+}
+async function liveSchleife(lauf) {
+  const v = $('video'), c = document.createElement('canvas');
+  while (LIVE.an && lauf === LIVE.lauf) {
+    const t0 = performance.now();
+    if (v.videoWidth && !v.paused && !document.hidden) {
+      const s = Math.min(1, 900 / Math.max(v.videoWidth, v.videoHeight));   // wie beim Foto: nur so zeigt die Vorschau, was das Foto ergibt
+      c.width = Math.round(v.videoWidth * s); c.height = Math.round(v.videoHeight * s);
+      try {
+        const g = c.getContext('2d', { willReadFrequently: true });
+        g.drawImage(v, 0, 0, c.width, c.height);
+        const { ergebnis, qualitaet } = await erkenneGeld(g.getImageData(0, 0, c.width, c.height), c.width, c.height);
+        if (!LIVE.an || lauf !== LIVE.lauf) return;
+        liveAuswerten(ergebnis.objekte, qualitaet, c.width, c.height);
+      } catch (e) { /* beim nächsten Bild noch einmal */ }
+    }
+    await new Promise(r => setTimeout(r, Math.max(500, (performance.now() - t0) * 0.6)));   // langsame Geräte: größere Pausen
+  }
+}
+const median1 = a => { const t = a.slice().sort((x, y) => x - y); return t.length ? t[Math.floor(t.length / 2)] : 0; };
+function liveUrteil(objekte, q, fw, fh) {
+  const unklar = objekte.some(o => o.art === 'unklar' || o.sicher === false);
+  const muenzA = median1(objekte.filter(o => o.art === 'muenze' && o.sicher !== false).map(o => o.a));
+  if (q && !q.ok && q.grund === 'dunkel') return { id: 'dunkel', text: 'Mehr Licht, bitte.', sprich: true };
+  if (q && !q.ok && q.grund === 'kein_papier') return { id: 'untergrund', text: 'Das Geld braucht einen hellen Untergrund.', sprich: true };
+  if (!objekte.length) return { id: 'leer', text: 'Leg das Geld in den Rahmen.', sprich: false };   // auch ein leerer Tisch wirkt „unscharf“ (keine Kanten)
+  if (q && !q.ok && q.grund === 'unscharf') return { id: 'ruhig', text: 'Halte das Tablet ruhig.', sprich: true };
+  if (unklar) {
+    const gross = objekte.some(o => o.art === 'unklar' && (muenzA ? o.a > muenzA * 2.2 : o.a > Math.min(fw, fh) * 0.12));
+    return gross ? { id: 'scheine', text: 'Scheine etwas auseinanderlegen.', sprich: true } : { id: 'muenzen', text: 'Münzen mit etwas Abstand legen.', sprich: true };
+  }
+  return { id: 'gut', text: 'Gut so. Jetzt Foto machen.', sprich: true, sage: 'Jetzt kannst du ein Foto machen.', gut: true };
+}
+function liveAuswerten(objekte, q, fw, fh) {
+  const u = liveUrteil(objekte, q, fw, fh);
+  const werte = objekte.map(o => (o.art === 'schein' ? 'S' : '') + (o.wert === null ? '?' : o.wert)).sort().join(',');
+  const schluessel = u.id + (u.gut ? ':' + werte : '');   // „gut“ gilt erst, wenn das Geld zweimal nacheinander gleich erkannt wurde
+  LIVE.gleich = schluessel === LIVE.schluessel ? LIVE.gleich + 1 : 1; LIVE.schluessel = schluessel;
+  liveZeichne(objekte, fw, fh);
+  const stabil = LIVE.gleich >= 2;
+  const h = $('kamera-hinweis');
+  const zeigen = stabil && (!u.gut || LIVE.gleich >= 2);
+  h.hidden = !zeigen; if (zeigen) { h.textContent = u.text; h.className = 'rahmen-text hinweis ' + (u.gut ? 'gut' : u.id === 'leer' ? '' : 'warn'); }
+  $('knopf-ausloesen').classList.toggle('bereit', !!u.gut && stabil);
+  // Sprechen: nicht gleich am Anfang (die Anweisung läuft noch), nicht öfter als alle 6 s, jeden Hinweis nur einmal hintereinander
+  const jetzt = Date.now();
+  if (stabil && u.sprich && u.id !== LIVE.gesprochen && jetzt - LIVE.start > 5000 && jetzt - LIVE.gesprochenZeit > 6000) {
+    LIVE.gesprochen = u.id; LIVE.gesprochenZeit = jetzt; sage(u.sage || u.text);
+  } else if (stabil && !u.sprich && u.id !== 'leer') LIVE.gesprochen = u.id;
+  if (u.id === 'leer') LIVE.gesprochen = '';
+}
+function liveZeichne(objekte, fw, fh) {
+  const v = $('video'), cv = $('live'), W = v.clientWidth, H = v.clientHeight;
+  if (!W || !H || !v.videoWidth) return;
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  Object.assign(cv.style, { left: v.offsetLeft + 'px', top: v.offsetTop + 'px', width: W + 'px', height: H + 'px' });
+  if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+  const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
+  const f = Math.min(W / v.videoWidth, H / v.videoHeight), bw = v.videoWidth * f, bh = v.videoHeight * f, ox = (W - bw) / 2, oy = (H - bh) / 2, k = bw / fw;
+  for (const o of objekte) {
+    const unklar = o.art === 'unklar' || o.sicher === false;
+    const farbe = o.art === 'unklar' ? '#e07b12' : o.art === 'schein' ? '#4da3ff' : o.wert === 0 ? '#c99700' : o.wert === 2 ? '#ff7a45' : '#3ddc6b';
+    const x = ox + o.x * k, y = oy + o.y * k;
+    g.save(); g.translate(x, y); g.rotate(o.winkel);
+    if (unklar) g.setLineDash([9, 6]);
+    g.lineWidth = 6; g.strokeStyle = 'rgba(0,0,0,.55)'; g.beginPath(); g.ellipse(0, 0, o.a * k * 1.05 + 2, o.b * k * 1.05 + 2, 0, 0, Math.PI * 2); g.stroke();
+    g.lineWidth = 3.5; g.strokeStyle = farbe; g.stroke();
+    g.restore();
+    const text = o.art === 'unklar' ? '?' : (o.wert === 0 ? 'ct' : `${o.wert} €`) + (o.sicher === false ? '?' : '');
+    g.font = '700 18px Andika, sans-serif'; const tw = g.measureText(text).width + 14;
+    g.fillStyle = farbe; roundRect(g, x - tw / 2, y - 14, tw, 28, 8); g.fill();
+    g.fillStyle = '#05121f'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(text, x, y + 1);
+  }
+}
 function kameraZu() {
+  liveStopp();
   clearTimeout(kameraWache);
   if (strom) strom.getTracks().forEach(t => t.stop());
   strom = null; $('video').srcObject = null;
