@@ -540,18 +540,45 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
 .album-reiter { display: flex; gap: 10px; flex-wrap: wrap; }
 .album-reiter button { border: none; border-radius: var(--r); padding: 10px 18px; font: 700 20px var(--anzeige); color: #1d3a5c; background: var(--flaeche); cursor: pointer; min-height: 52px; }
 .album-reiter button[aria-pressed="true"] { background: var(--f); }
-.album-seite { background: var(--tresen); border: 2px solid var(--linie); border-top: 10px solid var(--f); border-radius: var(--r); padding: 18px; display: grid; gap: 14px; }
+.album-seite { --m1: var(--f); --m2: var(--f); --tint: var(--tresen); --rand: var(--linie); --strich: var(--silber);
+  background: linear-gradient(180deg, var(--tint), var(--tresen) 140px); border: 2px solid var(--rand); border-top: 0; border-radius: var(--r); padding: 18px; display: grid; gap: 14px; position: relative; }
+.album-seite::before { content: ""; position: absolute; left: -2px; right: -2px; top: -10px; height: 10px; border-radius: var(--r) var(--r) 0 0; background: linear-gradient(90deg, var(--m1), var(--m2), var(--m1), var(--m2), var(--m1)); }
+.album-seite[data-m="bronze"] { --m1: #b8692a; --m2: #e6a56a; --tint: #fff6ee; --rand: #e8c4a0; --strich: #dcb48c; }
+.album-seite[data-m="silber"] { --m1: #8b96a3; --m2: #e3e9ee; --tint: #f4f7fa; --rand: #c9d2db; --strich: #b3bec9; }
+.album-seite[data-m="gold"] { --m1: #d9a400; --m2: #ffe680; --tint: #fffbe9; --rand: #ecd27a; --strich: #e6cf85; }
+:root[data-theme="dark"] .album-seite[data-m="bronze"] { --tint: #2b2118; --rand: #6b4a2c; }
+:root[data-theme="dark"] .album-seite[data-m="silber"] { --tint: #222b35; --rand: #566474; }
+:root[data-theme="dark"] .album-seite[data-m="gold"] { --tint: #2d2915; --rand: #7a6420; }
+.album-seiten { display: flex; gap: 10px; flex-wrap: wrap; }
+.album-seiten button { border: none; border-radius: var(--r); padding: 8px 16px; font: 700 18px var(--anzeige); color: #1d3a5c; background: var(--flaeche); cursor: pointer; min-height: 52px; }
+.album-seiten button[data-m="bunt"] { background: var(--f); }
+.album-seiten button[data-m="bronze"] { background: linear-gradient(135deg, #f3c9a0, #cd7f32 50%, #e8a96b); }
+.album-seiten button[data-m="silber"] { background: linear-gradient(135deg, #fff, #c0c8d0 50%, #eef2f6); }
+.album-seiten button[data-m="gold"] { background: linear-gradient(135deg, #fff3b0, #f2c230 50%, #ffe680); }
+.album-seiten button:disabled { background: var(--flaeche); color: var(--holz-hell); cursor: default; }
+.album-seiten button[aria-pressed="true"] { outline: 3px solid var(--holz); outline-offset: 1px; }
+.album-medaillen { display: flex; gap: 6px; align-items: center; }
+.album-medaillen svg { width: 34px; height: 34px; }
+.album-medaillen svg.leer { opacity: .25; filter: grayscale(1); }
+.pokal-zeile { display: flex; align-items: center; gap: 14px; border: 2px solid #ecd27a; background: #fffbe9; color: #1d3a5c; border-radius: var(--r); padding: 10px 18px; font: 700 21px var(--anzeige); }
+.pokal-zeile svg { width: 50px; height: 50px; flex: none; }
+.pokal-zeile small { display: block; font: 400 16px var(--anzeige); }
+.glanz { position: relative; width: 100%; height: 100%; }
+.glanz::after { content: ""; position: absolute; inset: 4%; border-radius: 18%; background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.75) 48%, transparent 60%); background-size: 250% 100%; animation: glanz 3.2s ease-in-out infinite; pointer-events: none; mix-blend-mode: soft-light; }
+@keyframes glanz { 0% { background-position: 130% 0; } 60%, 100% { background-position: -60% 0; } }
+.neuer-aufkleber .seite-voll { display: block; margin-top: 8px; font: 700 21px var(--anzeige); }
+.neuer-aufkleber .pokal-gross { width: 130px; height: 130px; }
 .album-seite-kopf { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
 .album-seite-kopf h2 { margin: 0; flex: 1; font: 300 30px var(--anzeige); }
 .album-seite-kopf span { font: 700 19px var(--anzeige); }
 .plaetze { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 .platz { display: grid; gap: 6px; justify-items: center; text-align: center; font-size: 16px; font-weight: 700; }
-.platz .rahmen { width: 100%; aspect-ratio: 1; border-radius: 14px; border: 3px dashed var(--silber); display: grid; place-items: center; background: var(--himmel); color: var(--silber); font: 300 34px var(--anzeige); }
+.platz .rahmen { width: 100%; aspect-ratio: 1; border-radius: 14px; border: 3px dashed var(--strich, var(--silber)); display: grid; place-items: center; background: var(--himmel); color: var(--strich, var(--silber)); font: 300 34px var(--anzeige); }
 .platz.voll .rahmen { border: none; background: none; filter: drop-shadow(0 3px 4px rgba(29,58,92,.18)); transform: rotate(var(--dreh)); }
 .platz.voll .rahmen svg { width: 100%; height: 100%; display: block; }
 .platz.neu .rahmen { animation: plopp-gross .7s cubic-bezier(.3,1.6,.5,1) .2s both; }
 @media (max-width: 560px) { .plaetze { grid-template-columns: repeat(3, 1fr); gap: 10px; } .neuer-aufkleber .aufkleber-gross { width: 120px; height: 120px; } }
-@media (prefers-reduced-motion: reduce) { .ploppen, .platz.neu .rahmen { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .ploppen, .platz.neu .rahmen, .glanz::after { animation: none; } }
 
 /* --- Knopf „Zum Laden“ und Laden-Ansicht --- */
 .zum-laden { display: inline-flex; align-items: center; gap: 10px; border: none; border-radius: var(--r); background: var(--laden); color: #1d3a5c;
@@ -1096,6 +1123,13 @@ body.im-spiel .stufe-chip { min-width: 0; flex-shrink: 1; }
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+<linearGradient id="m-bronze" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f3c9a0"/><stop offset=".35" stop-color="#cd7f32"/><stop offset=".55" stop-color="#e8a96b"/><stop offset="1" stop-color="#8c5421"/></linearGradient>
+<linearGradient id="m-silber" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".35" stop-color="#c0c8d0"/><stop offset=".55" stop-color="#eef2f6"/><stop offset="1" stop-color="#8b96a3"/></linearGradient>
+<linearGradient id="m-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3b0"/><stop offset=".35" stop-color="#f2c230"/><stop offset=".55" stop-color="#ffe680"/><stop offset="1" stop-color="#c99700"/></linearGradient>
+<symbol id="medaille" viewBox="0 0 100 100"><path d="M30 4h14l8 30H38zM70 4H56l-8 30h14z" fill="#3d9ad6"/><circle cx="50" cy="64" r="30" fill="currentColor" stroke="#4a3a1a" stroke-opacity=".5" stroke-width="3"/><circle cx="50" cy="64" r="21" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="3"/><path d="M50 49l4.5 9.5 10.5 1.4-7.6 7.2 1.9 10.4-9.3-5-9.3 5 1.9-10.4-7.6-7.2 10.5-1.4z" fill="#fff" fill-opacity=".85"/></symbol>
+<symbol id="pokal" viewBox="0 0 100 100"><path d="M22 20H8c0 16 8 28 20 30M78 20h14c0 16-8 28-20 30" fill="none" stroke="#a97c00" stroke-width="5" stroke-linejoin="round"/><path d="M22 14h56v6c0 20-10 36-28 40C32 56 22 40 22 20z" fill="url(#m-gold)" stroke="#a97c00" stroke-width="4" stroke-linejoin="round"/><path d="M46 60h8v14h-8z" fill="url(#m-gold)" stroke="#a97c00" stroke-width="3"/><rect x="30" y="74" width="40" height="12" rx="3" fill="url(#m-gold)" stroke="#a97c00" stroke-width="4"/><path d="M50 22l3.5 7.5 8 1-6 5.5 1.6 8L50 40l-7.1 3.9 1.6-8-6-5.5 8-1z" fill="#fff" fill-opacity=".9"/></symbol>
+</defs></svg>
 
 <header class="markise">
   <div class="kopf">
@@ -1254,6 +1288,8 @@ body.im-spiel .stufe-chip { min-width: 0; flex-shrink: 1; }
   <div class="laden-kopf album-kopf"><span class="laden-titel">mein album</span><button class="rundknopf stumm-knopf" aria-pressed="false" aria-label="Ansagen ausschalten" title="Ansagen aus/an"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" fill-opacity=".15"/><path d="M16.5 9.5l5 5M21.5 9.5l-5 5"/></svg></button></div>
   <div class="album-inhalt">
     <div class="album-reiter" id="album-reiter"></div>
+    <div class="pokal-zeile" id="album-pokal" hidden></div>
+    <div class="album-seiten" id="album-seiten"></div>
     <section class="album-seite" id="album-seite"></section>
   </div>
   <button class="laden-zurueck" id="knopf-album-zurueck">← Zurück</button>
@@ -1789,7 +1825,7 @@ body.im-spiel .stufe-chip { min-width: 0; flex-shrink: 1; }
 <script src="symbole.js"></script>
 <script>
 'use strict';
-const VERSION = '5.6.0';
+const VERSION = '5.7.0';
 const STAND = '27.10.2026';
 
 // ---------------------------------------------------------------------------
@@ -3400,11 +3436,15 @@ function zeigeEnde() {
   $('sterne').innerHTML = runde.ergebnisse.map(e => STERN(e.leicht)).join('');
   const neu = vergibAufkleber(), box = $('neuer-aufkleber');
   box.hidden = !neu;
-  if (neu && neu.voll) box.innerHTML = '<div><strong>Dein Album ist voll!</strong>Super gesammelt.</div>';
-  else if (neu) box.innerHTML = `<div class="aufkleber-gross ploppen">${neu.svg}</div><div><strong>Neuer Aufkleber!</strong>${neu.name} · ${neu.nr} von ${neu.von} im Album</div>`;
+  if (neu) {
+    const meldung = neu.pokal ? '<span class="seite-voll">Pokal! Alle vier Seiten sind voll. Dein Album fängt wieder von vorn an.</span>'
+      : neu.voll ? `<span class="seite-voll">${neu.seite === 'bunt' ? 'Dein Album ist voll!' : SEITE_NAME[neu.seite] + ' geschafft!'} Jetzt kommt ${neu.naechste === 'bronze' ? 'Bronze' : SEITE_NAME[neu.naechste]}.</span>` : '';
+    const bild = neu.pokal ? '<svg class="pokal-gross" aria-hidden="true"><use href="#pokal"/></svg>' : neu.svg;
+    box.innerHTML = `<div class="aufkleber-gross ploppen">${bild}</div><div><strong>${neu.pokal ? 'Du bekommst einen Pokal!' : 'Neuer Aufkleber!'}</strong>${neu.name} · ${neu.nr} von ${neu.von} ${neu.seite === 'bunt' ? 'im Album' : 'auf der ' + SEITE_NAME[neu.seite] + '-Seite'}${meldung}</div>`;
+  }
   jubel(true);
   sage(`Geschafft! ${E.name ? E.name + ', du' : 'Du'} hast alle Aufgaben geschafft.`);
-  if (neu && !neu.voll) sageDanach('Ein neuer Aufkleber für dein Album.');
+  if (neu) sageDanach(neu.pokal ? 'Pokal! Du hast alles geschafft.' : neu.voll ? (neu.seite === 'bunt' ? 'Dein Album ist voll! Jetzt kommt Bronze.' : neu.seite === 'bronze' ? 'Bronze geschafft! Jetzt kommt Silber.' : 'Silber geschafft! Jetzt kommt Gold.') : 'Ein neuer Aufkleber für dein Album.');
   window.scrollTo({ top: 0, behavior: 'smooth' });
   scanNeu();
 }
@@ -3634,7 +3674,7 @@ function scanZiele() {
   if (lehrkraftOffen()) return [];
   if (!$('kamera-ansicht').hidden) return [...document.querySelectorAll('[data-scan-kamera]')];
   if ($('dlg-stufe').open) return [...$('dlg-stufe').querySelectorAll('[data-scan-dialog]')].filter(el => !el.hidden);
-  if (albumOffen) return [...$('album-reiter').querySelectorAll('button'), $('knopf-album-zurueck')];
+  if (albumOffen) return [...$('album-reiter').querySelectorAll('button'), ...$('album-seiten').querySelectorAll('button:not(:disabled)'), $('knopf-album-zurueck')];
   if (ladenOffen) return [...$('laden-bild').querySelectorAll('.artikel:not(.zu-teuer)'), ...$('zettel').querySelectorAll('.posten, .fertig-ausgesucht'), $('knopf-laden-zurueck')];
   return [...document.querySelectorAll('[data-scan]')].filter(el => !el.disabled && el.offsetParent !== null && !el.closest('[hidden]'));
 }
@@ -4162,36 +4202,75 @@ document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && ladenOff
 // Sammelalbum: nach jeder geschafften Runde ein Aufkleber für die Seite des Ladens (12 je Laden).
 // Belohnt das Dranbleiben – unabhängig von Fehlern, ohne Punkte oder Vergleich. Aufkleber: aufkleber.js
 // ---------------------------------------------------------------------------
-const albumStand = () => Object.assign({ kirmes: 0, baeckerei: 0, spielwaren: 0 }, speicher.lesen('album', {}));
-let albumOffen = false, albumLaden = 'kirmes', albumNeu = null;
+const SEITEN = ['bunt', 'bronze', 'silber', 'gold'];
+const SEITE_NAME = { bunt: 'Seite 1', bronze: 'Bronze', silber: 'Silber', gold: 'Gold' };
+const SEITE_FARBE = { bronze: '#cd7f32', silber: '#b8c2cc', gold: '#f2c230' };
+const ALBUM_PLAETZE = 12;
+// Stand je Laden: „kirmes“ = bunte Seite 1 (wie bisher), „kirmes-bronze“ usw. = Metallseiten, „kirmes-pokal“ = Pokale
+const albumStand = () => Object.assign({}, speicher.lesen('album', {}));
+const albumSchl = (laden, seite) => seite === 'bunt' ? laden : laden + '-' + seite;
+const albumZahl = (a, laden, seite) => Math.min(a[albumSchl(laden, seite)] || 0, ALBUM_PLAETZE);
+const albumPokale = (a, laden) => a[laden + '-pokal'] || 0;
+const albumAktuelleSeite = (a, laden) => SEITEN.find(m => albumZahl(a, laden, m) < ALBUM_PLAETZE) || 'bunt';
+let albumOffen = false, albumLaden = 'kirmes', albumSeite = 'bunt', albumNeu = null;
+// Metallrahmen und Funkelsterne um einen Aufkleber (Seite 1 bleibt unverändert)
+function metallAufkleber(svg, seite) {
+  if (seite === 'bunt') return svg;
+  const id = 'm-' + seite;
+  return svg.replace('<rect x="2" y="2" width="116" height="116" rx="18" fill="#fff"/>',
+      `<rect x="2" y="2" width="116" height="116" rx="18" fill="#fffdf8" stroke="url(#${id})" stroke-width="6"/>`)
+    .replace('</svg>', `<path d="M104 10l2.5 6 6 2.5-6 2.5-2.5 6-2.5-6-6-2.5 6-2.5z" fill="url(#${id})" stroke="#6b5a3a" stroke-opacity=".6" stroke-width="1"/><path d="M14 104l1.6 4 4 1.6-4 1.6-1.6 4-1.6-4-4-1.6 4-1.6z" fill="url(#${id})"/></svg>`);
+}
+// Nach jeder geschafften Runde: ein Aufkleber auf die erste noch nicht volle Seite. Ist eine Seite voll, geht es mit der nächsten weiter;
+// nach der goldenen Seite gibt es einen Pokal und das Album beginnt von vorn.
 function vergibAufkleber() {
   if (!window.AUFKLEBER) return null;
-  const a = albumStand(), n = a[E.laden] || 0, liste = AUFKLEBER[E.laden];
-  if (n >= liste.length) return { voll: true };
-  a[E.laden] = n + 1; speicher.schreiben('album', a);
-  albumNeu = { laden: E.laden, i: n };
-  return { name: liste[n][0], svg: liste[n][1], nr: n + 1, von: liste.length };
+  const a = albumStand(), laden = E.laden, liste = AUFKLEBER[laden];
+  const seite = albumAktuelleSeite(a, laden), n = albumZahl(a, laden, seite);
+  const k = albumSchl(laden, seite);
+  a[k] = n + 1;
+  const res = { name: liste[n][0], svg: metallAufkleber(liste[n][1], seite), nr: n + 1, von: ALBUM_PLAETZE, seite, voll: n + 1 >= ALBUM_PLAETZE };
+  if (res.voll) {
+    const folge = SEITEN[SEITEN.indexOf(seite) + 1];
+    if (folge) res.naechste = folge;
+    else { SEITEN.forEach(m => { a[albumSchl(laden, m)] = 0; }); a[laden + '-pokal'] = albumPokale(a, laden) + 1; res.pokal = true; }
+  }
+  speicher.schreiben('album', a);
+  albumNeu = res.pokal ? null : { laden, seite, i: n };
+  return res;
 }
 function zeigeAlbumSeite() {
-  const a = albumStand(), liste = AUFKLEBER[albumLaden], n = Math.min(a[albumLaden] || 0, liste.length);
+  const a = albumStand(), liste = AUFKLEBER[albumLaden], seite = albumSeite, n = albumZahl(a, albumLaden, seite);
+  const gesperrt = m => SEITEN.indexOf(m) > 0 && albumZahl(a, albumLaden, SEITEN[SEITEN.indexOf(m) - 1]) < ALBUM_PLAETZE && albumZahl(a, albumLaden, m) === 0;
   $('album-reiter').innerHTML = LADEN_FOLGE.map(id => `<button style="--f:${LAEDEN[id].farbe}" aria-pressed="${id === albumLaden}" data-laden="${id}" data-scan-album>${LAEDEN[id].name}</button>`).join('');
-  $('album-seite').style.setProperty('--f', LAEDEN[albumLaden].farbe);
+  $('album-seiten').innerHTML = SEITEN.map(m => `<button data-m="${m}" data-seite="${m}" aria-pressed="${m === seite}"${gesperrt(m) ? ' disabled' : ''} data-scan-album>${m === 'bunt' ? 'Seite 1' : '✦ ' + SEITE_NAME[m]}${albumZahl(a, albumLaden, m) >= ALBUM_PLAETZE ? ' ✓' : ''}${gesperrt(m) ? ' (noch zu)' : ''}</button>`).join('');
+  $('album-seiten').style.setProperty('--f', LAEDEN[albumLaden].farbe);
+  const pk = albumPokale(a, albumLaden);
+  $('album-pokal').hidden = !pk;
+  $('album-pokal').innerHTML = pk ? `<svg aria-hidden="true"><use href="#pokal"/></svg><div>${pk === 1 ? '1 Pokal' : pk + ' Pokale'}<small>Alle vier Seiten ${pk === 1 ? 'war' : 'waren'} schon voll.</small></div>` : '';
+  const sec = $('album-seite');
+  sec.style.setProperty('--f', LAEDEN[albumLaden].farbe); sec.dataset.m = seite;
   let plaetze = '';
   liste.forEach(([name, svg], i) => {
-    const voll = i < n, neu = voll && albumNeu && albumNeu.laden === albumLaden && albumNeu.i === i;
-    plaetze += `<div class="platz${voll ? ' voll' : ''}${neu ? ' neu' : ''}" style="--dreh:${(i * 37) % 9 - 4}deg"><div class="rahmen">${voll ? svg : i + 1}</div><span>${voll ? name : '&nbsp;'}</span></div>`;
+    const voll = i < n, neu = voll && albumNeu && albumNeu.laden === albumLaden && albumNeu.seite === seite && albumNeu.i === i;
+    const bild = voll ? (seite === 'bunt' ? svg : `<div class="glanz">${metallAufkleber(svg, seite)}</div>`) : i + 1;
+    plaetze += `<div class="platz${voll ? ' voll' : ''}${neu ? ' neu' : ''}" style="--dreh:${(i * 37) % 9 - 4}deg"><div class="rahmen">${bild}</div><span>${voll ? name : '&nbsp;'}</span></div>`;
   });
-  $('album-seite').innerHTML = `<div class="album-seite-kopf"><h2>${LAEDEN[albumLaden].name}-album</h2><span>${n} von ${liste.length} Aufklebern</span></div><div class="plaetze">${plaetze}</div>`;
+  const med = ['bronze', 'silber', 'gold'].map(m => `<svg style="color:${SEITE_FARBE[m]}" class="${albumZahl(a, albumLaden, m) >= ALBUM_PLAETZE ? '' : 'leer'}" aria-hidden="true"><use href="#medaille"/></svg>`).join('');
+  sec.innerHTML = `<div class="album-seite-kopf"><h2>${LAEDEN[albumLaden].name}-album${seite === 'bunt' ? '' : ' · ' + SEITE_NAME[seite] + '-Seite'}</h2><span class="album-medaillen">${med}</span><span>${n} von ${liste.length} Aufklebern</span></div><div class="plaetze">${plaetze}</div>`;
 }
 function oeffneAlbum(laden) {
   if (!window.AUFKLEBER) return;
-  albumLaden = laden || E.laden; zeigeAlbumSeite();
+  albumLaden = laden || E.laden;
+  albumSeite = albumNeu && albumNeu.laden === albumLaden ? albumNeu.seite : albumAktuelleSeite(albumStand(), albumLaden);
+  zeigeAlbumSeite();
   $('album-ansicht').hidden = false; albumOffen = true; document.body.classList.add('laden-offen');
   albumNeu = null;   // „neu“-Animation nur beim ersten Ansehen
   scanNeu();
 }
 function schliesseAlbum() { $('album-ansicht').hidden = true; albumOffen = false; document.body.classList.remove('laden-offen'); scanNeu(); }
-$('album-reiter').addEventListener('click', ev => { const b = ev.target.closest('[data-laden]'); if (b) { albumLaden = b.dataset.laden; zeigeAlbumSeite(); scanNeu(); } });
+$('album-reiter').addEventListener('click', ev => { const b = ev.target.closest('[data-laden]'); if (b) { albumLaden = b.dataset.laden; albumSeite = albumAktuelleSeite(albumStand(), albumLaden); zeigeAlbumSeite(); scanNeu(); } });
+$('album-seiten').addEventListener('click', ev => { const b = ev.target.closest('[data-seite]'); if (b && !b.disabled) { albumSeite = b.dataset.seite; zeigeAlbumSeite(); scanNeu(); } });
 $('knopf-album').addEventListener('click', () => oeffneAlbum());
 $('knopf-album-ende').addEventListener('click', () => oeffneAlbum());
 $('knopf-album-zurueck').addEventListener('click', schliesseAlbum);

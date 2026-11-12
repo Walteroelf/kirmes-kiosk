@@ -163,6 +163,7 @@ def sammle(lob_stimme):
          'Du hast alle Aufgaben geschafft.', 'Wir üben das noch ein bisschen.', 'Du bist bereit für eine Neuerung:',
          'Tippe auf eine Sache, dann hörst du den Preis.', 'Du hast alles gefunden.',
          'Was möchtest du kaufen?', 'Das ist zu teuer.', 'Dein Korb ist voll. Tippe auf Fertig.', 'Ein neuer Aufkleber für dein Album.',
+         'Dein Album ist voll! Jetzt kommt Bronze.', 'Bronze geschafft! Jetzt kommt Silber.', 'Silber geschafft! Jetzt kommt Gold.', 'Pokal! Du hast alles geschafft.',
          'Such dir eine Sache im Laden aus.', 'Such dir zwei Sachen im Laden aus.', 'Such dir drei Sachen im Laden aus.',
          'Such dir vier Sachen im Laden aus.', 'Such dir fünf Sachen im Laden aus.',
          # Erklär-Karten beim Stufenwechsel
