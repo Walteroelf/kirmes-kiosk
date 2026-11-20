@@ -6,11 +6,12 @@
  * füllt (index.html, ansagenSpeichern). Er bleibt bei neuen Versionen erhalten.
  * Bei einer neuen Version VERSION erhöhen – dann wird alles neu geladen.
  */
-const VERSION = '5.7.0';
+const VERSION = '5.8.0';
 const CACHE = 'kirmes-kiosk-' + VERSION;
 const DATEIEN = [
   './',
   'index.html',
+  'design.css?v=3',
   'erkennung.js',
   'worker.js',
   'geld.js',
@@ -83,7 +84,6 @@ const DATEIEN = [
   'bilder/zuckerwatte.svg',
   'schriften/andika-400.woff2',
   'schriften/andika-700.woff2',
-  'schriften/grandstander.woff2',
   'icons/icon-180.png',
   'icons/icon-192.png',
   'icons/icon-512.png'
