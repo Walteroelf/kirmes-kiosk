@@ -6,58 +6,66 @@
 <title>Kirmes-Kiosk</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#ffffff">
+<meta name="theme-color" content="#4DB2E6">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Kirmes-Kiosk">
 <meta name="description" content="Einkaufen am Kirmes-Kiosk: Preise zusammenrechnen, Spielgeld legen, fotografieren – die App prüft den Betrag.">
+<link rel="stylesheet" href="design.css?v=3">
 <style>
 /* Schriften liegen in der App selbst (keine Verbindung zu Google & Co.). Lizenz: SIL Open Font License. */
 @font-face { font-family: "Andika"; font-weight: 400; font-display: swap; src: url("schriften/andika-400.woff2") format("woff2"); }
 @font-face { font-family: "Andika"; font-weight: 700; font-display: swap; src: url("schriften/andika-700.woff2") format("woff2"); }
-@font-face { font-family: "Grandstander"; font-weight: 700 900; font-display: swap; src: url("schriften/grandstander.woff2") format("woff2"); }
-/* Design nach München 1972 (Otl Aicher): helle, heitere Farben, flach, ruhig, ohne Rot und Schwarz.
+/* Gemeinsames Design (design.css Version 3): Palette, Knopf, Symbol und Fokusring kommen von dort.
+   Hier stehen nur die Namen dieser App, abgebildet auf die gemeinsamen Farben.
    Jeder Laden hat eine Leitfarbe (--laden), die sich durch Kopf, Preisschilder und Zahlteller zieht. */
 :root {
-  --blau: #3d9ad6; --hellblau: #9fd3f0; --gruen: #2f9e55; --hellgruen: #8cc63f; --gelb: #ffd200; --orange: #f39325; --silber: #c5ccd3;
-  --himmel: #f5f7f9;        /* Seitenhintergrund */
-  --tresen: #ffffff;        /* Karten */
-  --flaeche: #eef1f4;       /* ruhige Flächen (Geldvorrat, runde Knöpfe) */
-  --holz: #1d3a5c;          /* Text, Rahmen: Dunkelblau statt Schwarz */
-  --holz-hell: #5b7491;
-  --markise: #1f6fae;       /* Akzent für Bedienelemente (Blau) */
-  --markise-text: #ffffff;
-  --auf-markise: #ffffff;   /* Schrift auf Blau (dunkel: dunkle Schrift auf hellem Blau) */
-  --aus: #c5ccd3;           /* Schiebeschalter aus */
-  --senf: #9fd3f0;          /* Fläche für Knöpfe (Hellblau) */
-  --laden: #f39325; --laden-rand: #c76f0a;   /* Leitfarbe des Ladens (wird per Skript gesetzt) */
-  --gut: #2f9e55;
-  --gut-hell: #e3f3e8;
-  --hm: #c76f0a;
-  --hm-hell: #fdf0dc;
-  --linie: #dfe5ec;
+  --himmel: #EEF5FA;        /* Seitenhintergrund */
+  --tresen: #FFFFFF;        /* Karten */
+  --flaeche: #DCE7F0;       /* ruhige Flächen (Geldvorrat, runde Knöpfe) */
+  --holz: #0D2B4E;          /* Text, Rahmen: Dunkelblau statt Schwarz */
+  --holz-hell: #4A5E74;
+  --akz: var(--hellblau);   /* Akzent für Bedienelemente: Hellblau als Fläche, Schrift darauf dunkelblau */
+  --akz-text: #0067B1;      /* Blau nur als Schrift, Linie, Symbol auf Weiß */
+  --aus: #B9C1C8;           /* Schiebeschalter aus */
+  --senf: var(--hellblau);  /* Fläche für Knöpfe */
+  --laden: #F39200; --laden-rand: #C76F0A;   /* Leitfarbe des Ladens (wird per Skript gesetzt) */
+  --gut: var(--gruen);
+  --gut-text: #1E6B2A;
+  --gut-hell: color-mix(in srgb, var(--gruen) 20%, var(--tresen));
+  --hm: var(--orange);
+  --hm-text: #9A4F00;
+  --hm-hell: color-mix(in srgb, var(--orange) 18%, var(--tresen));
+  --linie: #CBD6E0;
   --teller: #ffffff;        /* Produktbilder haben weißen Grund */
-  --teller-text: #1d3a5c;
-  --schatten: none;
-  --r: 6px;
-  --schrift: "Andika", system-ui, sans-serif;
-  --anzeige: "Helvetica Neue", Helvetica, Arial, system-ui, sans-serif;   /* schlichte Groteskschrift, auf dem Gerät vorhanden */
+  --teller-text: #0D2B4E;
+  --r: var(--rundung);
+  --anzeige: var(--schrift);
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --himmel: #121c27; --tresen: #1b2735; --flaeche: #243345; --holz: #e8f0f7; --holz-hell: #9fb3c8;
-    --markise: #6bb8ea; --senf: #9fd3f0; --auf-markise: #0f2133; --aus: #3d5168;
-    --gut: #45b86b; --gut-hell: #17331f; --hm: #f3a24a; --hm-hell: #3a2914; --linie: #2c3d50; color-scheme: dark;
+    --himmel: #1D4F80; --tresen: #23598D; --flaeche: #2A6498; --holz: #E8F1F8; --holz-hell: #D6E7F5;
+    --akz-text: #B5E2FC; --aus: #3A80BC;
+    --gut-text: #BFE39A; --hm-text: #FFC266; --linie: #3A80BC; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --himmel: #121c27; --tresen: #1b2735; --flaeche: #243345; --holz: #e8f0f7; --holz-hell: #9fb3c8;
-  --markise: #6bb8ea; --senf: #9fd3f0; --auf-markise: #0f2133; --aus: #3d5168;
-  --gut: #45b86b; --gut-hell: #17331f; --hm: #f3a24a; --hm-hell: #3a2914; --linie: #2c3d50; color-scheme: dark;
+  --himmel: #1D4F80; --tresen: #23598D; --flaeche: #2A6498; --holz: #E8F1F8; --holz-hell: #D6E7F5;
+  --akz-text: #B5E2FC; --aus: #3A80BC;
+  --gut-text: #BFE39A; --hm-text: #FFC266; --linie: #3A80BC; color-scheme: dark;
 }
+
+/* Farbband wie in den anderen Apps */
+.band { display: flex; height: 12px; flex: none; }
+.band i { flex: 1; }
+.band i:nth-child(1) { background: var(--hellblau); } .band i:nth-child(2) { background: var(--blau); }
+.band i:nth-child(3) { background: var(--gruen); } .band i:nth-child(4) { background: var(--hellgruen); }
+.band i:nth-child(5) { background: var(--gelb); } .band i:nth-child(6) { background: var(--orange); }
+.band i:nth-child(7) { background: var(--silber); }
+svg.symbol { display: inline-block; }
 
 * { box-sizing: border-box; }
 html, body { margin: 0; }
@@ -71,20 +79,14 @@ body {
 [hidden] { display: none !important; }
 img { max-width: 100%; }
 button { font: inherit; color: inherit; cursor: pointer; }
-button:focus-visible, select:focus-visible, input:focus-visible { outline: 4px solid var(--senf); outline-offset: 3px; }
+/* Fokusring kommt aus design.css (Gelb innen, Dunkelblau außen) */
 
 /* Markise */
-.markise {
+.kopfzeile {
   margin-left: calc(-1 * max(16px, env(safe-area-inset-left, 0px)));
   margin-right: calc(-1 * max(16px, env(safe-area-inset-right, 0px)));
   padding-top: env(safe-area-inset-top, 0px);
-  background: repeating-linear-gradient(90deg, var(--markise) 0 56px, #fff 56px 112px);
   position: relative;
-}
-.markise::after { /* Bogenkante */
-  content: ""; position: absolute; left: 0; right: 0; bottom: -18px; height: 18px;
-  background: radial-gradient(circle at 28px 0, var(--markise) 27px, transparent 28px) 0 0 / 112px 18px repeat-x,
-              radial-gradient(circle at 84px 0, #fff 27px, transparent 28px) 0 0 / 112px 18px repeat-x;
 }
 .kopf {
   display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
@@ -93,15 +95,15 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 4px s
 .schild-titel {
   font-family: var(--anzeige); font-weight: 900; font-size: clamp(26px, 5vw, 40px); letter-spacing: .02em;
   background: var(--tresen); color: var(--holz); border: 4px solid var(--holz); border-radius: 14px;
-  padding: 2px 18px; box-shadow: 0 4px 0 var(--holz); margin: 0; line-height: 1.2;
+  padding: 2px 18px; margin: 0; line-height: 1.2;
 }
 .kopf .platz { flex: 1; }
 .rundknopf {
   width: 58px; height: 58px; border-radius: 50%; border: 3px solid var(--holz);
-  background: var(--tresen); display: grid; place-items: center; box-shadow: 0 3px 0 var(--holz);
+  background: var(--tresen); display: grid; place-items: center;
 }
 .rundknopf svg { width: 30px; height: 30px; }
-.rundknopf:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--holz); }
+.rundknopf:active { transform: translateY(2px); }
 
 main { max-width: 980px; margin: 36px auto 0; display: grid; gap: 22px; }
 
@@ -116,7 +118,7 @@ main { max-width: 980px; margin: 36px auto 0; display: grid; gap: 22px; }
 /* Ware auf dem Tresen */
 .tresen {
   background: var(--tresen); border: 4px solid var(--holz); border-radius: 22px;
-  padding: 18px; display: grid; gap: 14px; box-shadow: 0 6px 0 var(--holz);
+  padding: 18px; display: grid; gap: 14px;
 }
 .tresen-kopf { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .tresen-kopf h2 { margin: 0; font-size: 24px; font-family: var(--anzeige); flex: 1; min-width: 0; }
@@ -128,7 +130,7 @@ main { max-width: 980px; margin: 36px auto 0; display: grid; gap: 22px; }
 .produkt img { max-height: 140px; width: auto; object-fit: contain; }
 .produkt .name { font-weight: 700; font-size: 18px; text-align: center; }
 .produkt { position: relative; }
-.produkt .menge { position: absolute; top: 8px; left: 8px; min-width: 52px; padding: 2px 10px; border-radius: 22px; background: var(--markise); color: var(--auf-markise);
+.produkt .menge { position: absolute; top: 8px; left: 8px; min-width: 52px; padding: 2px 10px; border-radius: 22px; background: var(--akz); color: var(--dunkelblau);
   font: 700 26px var(--anzeige); text-align: center; }
 .preis {
   display: inline-block; margin-top: 4px; font-family: var(--anzeige); font-weight: 900; font-size: 24px;
@@ -150,18 +152,18 @@ main { max-width: 980px; margin: 36px auto 0; display: grid; gap: 22px; }
   display: flex; align-items: center; justify-content: center; gap: 14px;
   min-height: 84px; padding: 14px 26px; border-radius: 20px; border: 4px solid var(--holz);
   background: var(--senf); color: #3a2410; font-family: var(--anzeige); font-weight: 900; font-size: 28px;
-  box-shadow: 0 6px 0 var(--holz); text-align: center;
+  text-align: center;
 }
 .grossknopf svg { width: 44px; height: 44px; flex: none; }
-.grossknopf:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--holz); }
-.grossknopf.weiter { background: var(--gut); color: #fff; border-color: var(--gut); box-shadow: 0 6px 0 #1d5e25; }
+.grossknopf:active { transform: translateY(4px); }
+.grossknopf.weiter { background: var(--gut); color: var(--dunkelblau); border-color: var(--gut); }
 .grossknopf.leise { background: var(--tresen); color: var(--holz); font-size: 22px; min-height: 68px; }
 .knopfreihe { display: flex; gap: 14px; flex-wrap: wrap; }
 .knopfreihe > * { flex: 1 1 240px; }
 
 /* Ergebnis */
 .ergebnis { display: grid; gap: 14px; }
-.foto-rahmen { position: relative; border-radius: 16px; overflow: hidden; border: 3px solid var(--linie); background: #000; }
+.foto-rahmen { position: relative; border-radius: 16px; overflow: hidden; border: 3px solid var(--linie); background: var(--dunkelblau); }
 .foto-rahmen canvas { display: block; width: 100%; height: auto; touch-action: manipulation; }
 .foto-rahmen.korrigieren { border-color: var(--senf); }
 .meldung {
@@ -189,8 +191,8 @@ main { max-width: 980px; margin: 36px auto 0; display: grid; gap: 22px; }
 .schilder { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
 .schilder.alle { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 10px; }
 .preisschild {
-  background: #fff; color: #111; border: 3px solid #111; border-radius: 4px; padding: 8px 6px 4px;
-  display: grid; justify-items: center; min-height: 104px; box-shadow: 2px 3px 0 rgba(0,0,0,.15);
+  background: var(--teller); color: var(--teller-text); border: 3px solid var(--teller-text); border-radius: 4px; padding: 8px 6px 4px;
+  display: grid; justify-items: center; min-height: 104px; 
 }
 .preisschild small { font-size: 15px; }
 .preisschild span { font-family: var(--schrift); font-size: 44px; line-height: 1.1; font-variant-numeric: tabular-nums; }
@@ -201,7 +203,7 @@ main { max-width: 980px; margin: 36px auto 0; display: grid; gap: 22px; }
 
 /* Ende */
 .ende { text-align: center; display: grid; gap: 16px; justify-items: center; padding: 28px 18px; }
-.ende h2 { font-family: var(--anzeige); font-size: clamp(40px, 9vw, 72px); margin: 0; color: var(--markise); }
+.ende h2 { font-family: var(--anzeige); font-size: clamp(40px, 9vw, 72px); margin: 0; color: var(--akz-text); }
 .sterne { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
 .sterne svg { width: 44px; height: 44px; }
 
@@ -228,7 +230,7 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
   font-weight: 700; font-size: 17px; min-height: 52px;
 }
 .mittelknopf.primaer { background: var(--senf); color: #3a2410; }
-.mittelknopf.warnung { border-color: var(--markise); color: var(--markise); }
+.mittelknopf.warnung { border-color: var(--akz-text); color: var(--akz-text); }
 .protokoll { display: grid; gap: 10px; }
 .eintrag {
   display: grid; grid-template-columns: 120px 1fr; gap: 12px; align-items: center;
@@ -236,13 +238,13 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
 }
 .eintrag img { width: 120px; border-radius: 8px; display: block; }
 .eintrag .status { font-weight: 700; }
-.eintrag .status.ok { color: var(--gut); } .eintrag .status.nein { color: var(--hm); }
+.eintrag .status.ok { color: var(--gut-text); } .eintrag .status.nein { color: var(--hm-text); }
 .leer { color: var(--holz-hell); font-size: 17px; margin: 0; }
 .statistik { display: flex; gap: 18px; flex-wrap: wrap; font-size: 17px; font-variant-numeric: tabular-nums; }
 
 .lade { display: flex; align-items: center; gap: 14px; font-size: 22px; padding: 10px 0; }
 .lade::before {
-  content: ""; width: 34px; height: 34px; border-radius: 50%; border: 5px solid var(--linie); border-top-color: var(--markise);
+  content: ""; width: 34px; height: 34px; border-radius: 50%; border: 5px solid var(--linie); border-top-color: var(--akz-text);
   animation: drehen .8s linear infinite;
 }
 @keyframes drehen { to { transform: rotate(360deg); } }
@@ -261,9 +263,9 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
 }
 
 /* --- Stufen-Karte "Neu ab hier" --- */
-.neu-karte { border-color: var(--markise); }
+.neu-karte { border-color: var(--akz-text); }
 .neu-karte .dialog-inhalt { justify-items: center; text-align: center; padding: 26px 22px 30px; }
-.neu-band { background: var(--markise); color: var(--markise-text); font-family: var(--anzeige); font-weight: 900;
+.neu-band { background: var(--akz); color: var(--dunkelblau); font-family: var(--anzeige); font-weight: 900;
   font-size: 22px; border-radius: 12px; padding: 4px 16px; }
 .neu-karte h2 { font-family: var(--anzeige); font-size: clamp(30px, 6vw, 44px); margin: 0; text-wrap: balance; }
 .neu-karte p { margin: 0; font-size: 22px; max-width: 34ch; }
@@ -272,8 +274,8 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
 .bezahlen { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; font-size: 22px; font-weight: 700; }
 .bezahlen .geld.schein { min-width: 110px; height: 58px; font-size: 24px; }
 .antworten { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
-.grossknopf.ja { background: var(--gut-hell); color: var(--holz); border-color: var(--gut); box-shadow: 0 6px 0 var(--gut); }
-.grossknopf.nein { background: var(--hm-hell); color: var(--holz); border-color: var(--hm); box-shadow: 0 6px 0 var(--hm); }
+.grossknopf.ja { background: var(--gut-hell); color: var(--holz); border-color: var(--gut); }
+.grossknopf.nein { background: var(--hm-hell); color: var(--holz); border-color: var(--hm); }
 .grossknopf svg.gross { width: 52px; height: 52px; }
 
 /* --- Hilfe --- */
@@ -284,33 +286,31 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
 /* --- Kamera mit Rahmen ---
    Video liegt absolut im Hintergrund; Rahmen, Text und Knopfleiste liegen darüber.
    (Kein Raster: Safari macht die Rasterzeile sonst so hoch wie das Kamerabild.) */
-.kamera { position: fixed; inset: 0; z-index: 50; background: #000; overflow: hidden; height: 100vh; height: 100dvh; }
+.kamera { position: fixed; inset: 0; z-index: 50; background: var(--dunkelblau); overflow: hidden; height: 100vh; height: 100dvh; }
 .kamera { --leiste: 136px; }
 .kamera video { position: absolute; left: 0; top: 0; width: 100%; height: calc(100% - var(--leiste) - env(safe-area-inset-bottom, 0px)); object-fit: contain; }
 .kamera .rahmen { position: absolute; left: 10%; top: 15%; width: 80%; height: 60%; border: 5px dashed rgba(255,255,255,.9);
   border-radius: 18px; pointer-events: none; }
 .kamera .rahmen-text { position: absolute; left: 50%; transform: translateX(-50%); top: calc(14px + env(safe-area-inset-top, 0px));
-  width: max-content; max-width: calc(100vw - 32px); background: rgba(0,0,0,.7); color: #fff; font-size: 22px; font-weight: 700;
+  width: max-content; max-width: calc(100vw - 32px); background: #EEF5FA; color: var(--dunkelblau); font-size: 22px; font-weight: 700;
   padding: 8px 16px; border-radius: 12px; text-align: center; }
 .kamera .leiste { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 16px;
-  background: #111; min-height: calc(var(--leiste) + env(safe-area-inset-bottom, 0px)); box-sizing: border-box;
+  background: var(--dunkelblau); min-height: calc(var(--leiste) + env(safe-area-inset-bottom, 0px)); box-sizing: border-box;
   padding: 14px max(18px, env(safe-area-inset-right, 0px)) calc(14px + env(safe-area-inset-bottom, 0px)) max(18px, env(safe-area-inset-left, 0px)); }
 .ausloeser { width: 104px; height: 104px; flex: none; border-radius: 50%; border: 8px solid #fff; background: var(--senf);
-  display: flex; align-items: center; justify-content: center; padding: 0; color: #1d3a5c; }
+  display: flex; align-items: center; justify-content: center; padding: 0; color: var(--dunkelblau); }
 .ausloeser svg { width: 46px; height: 46px; pointer-events: none; }
 .ausloeser:disabled { opacity: .4; }
 .ausloeser:active { transform: scale(.94); }
-.kamera .abbrechen { background: rgba(0,0,0,.4); border: 3px solid #fff; color: #fff; border-radius: 14px; padding: 12px 16px;
+.kamera .abbrechen { background: #EEF5FA; border: 3px solid transparent; color: var(--dunkelblau); border-radius: 14px; padding: 12px 16px;
   font-size: 19px; font-weight: 700; min-width: 120px; text-align: center; cursor: pointer; }
 
 /* Live-Vorschau in der Kamera: Markierungen über dem Videobild, Hinweis unter dem Text, Auslöser grün wenn alles klar ist */
 .kamera .live { position: absolute; pointer-events: none; }
 .kamera .rahmen-text.hinweis { top: calc(70px + env(safe-area-inset-top, 0px)); font-size: 20px; }
-.kamera .rahmen-text.hinweis.gut { background: rgba(32,128,60,.94); }
-.kamera .rahmen-text.hinweis.warn { background: rgba(160,72,6,.94); }
-.ausloeser.bereit { border-color: #6fe08f; box-shadow: 0 0 0 5px rgba(111,224,143,.45); }
-@media (prefers-reduced-motion: no-preference) { .ausloeser.bereit { animation: bereit-puls 1.4s ease-in-out infinite; } }
-@keyframes bereit-puls { 50% { box-shadow: 0 0 0 11px rgba(111,224,143,.2); } }
+.kamera .rahmen-text.hinweis.gut { background: var(--gruen); }
+.kamera .rahmen-text.hinweis.warn { background: var(--orange); }
+.ausloeser.bereit { border-color: var(--gruen); outline: 6px solid var(--gruen); outline-offset: 0; }
 
 /* Lege genauso: Bild links, gestrichelte Umrisse auf dem Teller */
 .produkt.ziel-geld.genauso { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 12px 14px; }
@@ -384,14 +384,14 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
 .geldvorrat .vorrat-titel { grid-column: 1 / -1; margin: 0; font-weight: 700; font-size: 17px; }
 .vorrat { position: relative; border: none; background: none; padding: 4px; display: grid; place-items: center; touch-action: none; }
 .vorrat:disabled { opacity: .3; }
-.vorrat .rest { position: absolute; top: -4px; right: -4px; min-width: 28px; height: 28px; border-radius: 14px; background: var(--markise);
-  color: #fff; font-size: 15px; font-weight: 700; display: grid; place-items: center; padding: 0 6px; }
+.vorrat .rest { position: absolute; top: -4px; right: -4px; min-width: 28px; height: 28px; border-radius: 14px; background: var(--akz);
+  color: var(--dunkelblau); font-size: 15px; font-weight: 700; display: grid; place-items: center; padding: 0 6px; }
 .schein-zeile { grid-column: 1 / -1; }
 .spielgeld { display: inline-grid; place-items: center; font-family: var(--anzeige); font-weight: 900; color: #2b2b2b; user-select: none; -webkit-user-select: none; }
 .spielgeld.m1, .spielgeld.m2 { width: 74px; height: 74px; border-radius: 50%; font-size: 22px; }
-.spielgeld.m1 { background: radial-gradient(circle, #dfe2e6 0 54%, #d9a83a 56%); box-shadow: inset 0 0 0 3px #9b7a2a, 0 3px 0 rgba(0,0,0,.25); }
-.spielgeld.m2 { background: radial-gradient(circle, #e8b948 0 56%, #c9ccd1 58%); box-shadow: inset 0 0 0 3px #8d9096, 0 3px 0 rgba(0,0,0,.25); }
-.spielgeld.schein { width: 100%; max-width: 170px; height: 70px; border-radius: 8px; font-size: 26px; box-shadow: 0 3px 0 rgba(0,0,0,.25);
+.spielgeld.m1 { background: radial-gradient(circle, #dfe2e6 0 54%, #d9a83a 56%); box-shadow: inset 0 0 0 3px #9b7a2a; }
+.spielgeld.m2 { background: radial-gradient(circle, #e8b948 0 56%, #c9ccd1 58%); box-shadow: inset 0 0 0 3px #8d9096; }
+.spielgeld.schein { width: 100%; max-width: 170px; height: 70px; border-radius: 8px; font-size: 26px;
   border: 2px solid rgba(0,0,0,.18); }
 .spielgeld.s5 { background: linear-gradient(135deg, #c3cdbf, #9fae9b); }
 .spielgeld.s10 { background: linear-gradient(135deg, #f0aaa4, #d9827b); }
@@ -421,7 +421,7 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
 .ziffernblock { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 .ziffernblock button { min-height: 64px; border-radius: 14px; border: 3px solid var(--holz); background: var(--tresen); font-size: 28px; font-weight: 700; }
 .ziffernblock button.klein { font-size: 17px; }
-.code-fehler { margin: 0; min-height: 1.4em; text-align: center; color: var(--hm); font-weight: 700; }
+.code-fehler { margin: 0; min-height: 1.4em; text-align: center; color: var(--hm-text); font-weight: 700; }
 .wackeln { animation: wackeln .35s; }
 @keyframes wackeln { 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
 @media (prefers-reduced-motion: reduce) { .wackeln { animation: none; } }
@@ -433,7 +433,7 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
 .spielgeld.s50 { background: linear-gradient(135deg, #f8c98e, #e99a4c); }
 .spielgeld.s100 { background: linear-gradient(135deg, #b5e0b0, #7cc073); }
 .spielgeld.c10, .spielgeld.c20, .spielgeld.c50 { border-radius: 50%; color: #3a2a10;
-  background: radial-gradient(circle at 35% 30%, #f8e29a, #d8ac3c 70%, #b8892a); box-shadow: inset 0 0 0 3px #a07a20, 0 3px 0 rgba(0,0,0,.25); }
+  background: radial-gradient(circle at 35% 30%, #f8e29a, #d8ac3c 70%, #b8892a); box-shadow: inset 0 0 0 3px #a07a20; }
 .spielgeld.c10 { width: 56px; height: 56px; font-size: 17px; } .spielgeld.c20 { width: 62px; height: 62px; font-size: 18px; } .spielgeld.c50 { width: 68px; height: 68px; font-size: 19px; }
 .geldvorrat { grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); }
 
@@ -442,7 +442,7 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
 .geldbild svg, .geldchip svg { display: block; max-width: 100%; height: auto; }
 .vorrat.schein-zeile .geldbild svg { width: 150px; }
 .bezahlen .geldchip svg { width: 130px; }
-.zieh-geist .geldbild svg { filter: drop-shadow(0 6px 6px rgba(0,0,0,.3)); }
+
 .ablage-feld { align-items: center; }
 @media (max-width: 620px) { .vorrat.schein-zeile .geldbild svg { width: 120px; } }
 /* Startbildschirm: Laden wählen */
@@ -454,9 +454,9 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
 .laden-karte {
   display: grid; gap: 10px; align-content: start; text-align: left; font: inherit; color: var(--holz); cursor: pointer;
   background: var(--tresen); border: 4px solid var(--karte, var(--holz)); border-radius: 20px; padding: 14px 14px 16px;
-  box-shadow: 0 6px 0 var(--karte, var(--holz));
+ 
 }
-.laden-karte:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--karte, var(--holz)); }
+.laden-karte:active { transform: translateY(4px); }
 .laden-karte .karte-bilder { display: flex; justify-content: center; align-items: flex-end; gap: 4px; background: var(--teller); border-radius: 14px; padding: 12px 6px; height: 150px; }
 .laden-karte .karte-bilder img { height: 124px; width: auto; max-width: 33%; object-fit: contain; }
 .laden-karte .karte-name { font-family: var(--anzeige); font-weight: 900; font-size: 30px; color: var(--karte, var(--holz)); text-align: center; }
@@ -484,8 +484,8 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
     repeating-linear-gradient(90deg, #6e0b10 0, #a3161b 16px, #d1302c 30px, #e04a40 36px, #b81e21 48px, #7d0f13 64px);
   transition: transform 1.1s cubic-bezier(.65,0,.35,1) .45s;
 }
-.vorhang-teil.links { left: 0; border-right: 7px solid #e4b23c; box-shadow: 6px 0 14px rgba(0,0,0,.35); }
-.vorhang-teil.rechts { right: 0; border-left: 7px solid #e4b23c; box-shadow: -6px 0 14px rgba(0,0,0,.35); }
+.vorhang-teil.links { left: 0; border-right: 7px solid #e4b23c; }
+.vorhang-teil.rechts { right: 0; border-left: 7px solid #e4b23c; }
 .vorhang-blende {
   position: absolute; left: 0; right: 0; top: 0; height: 64px;
   background: linear-gradient(180deg, #8f1217, #c0241f); border-bottom: 5px solid #e4b23c;
@@ -506,7 +506,7 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
 @media (prefers-reduced-motion: reduce) { .vorhang { display: none; } .start.erscheint * { animation: none !important; } }
 
 /* --- Druckvorlagen (A4) --- */
-#druckbogen { color: #1d3a5c; font-family: var(--schrift); }
+#druckbogen { color: var(--dunkelblau); font-family: var(--schrift); }
 #druckbogen .blatt { break-after: page; page-break-after: always; }
 #druckbogen .blatt-kopf { font: 300 11pt var(--anzeige); color: #5b7491; display: flex; justify-content: space-between; margin-bottom: 3mm; }
 #druckbogen .raster { display: grid; }
@@ -528,17 +528,16 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
   color: var(--holz); font: 700 22px var(--anzeige); min-height: 64px; cursor: pointer; }
 .album-knopf svg, #knopf-album-ende svg { width: 30px; height: 30px; }
 .neuer-aufkleber { display: flex; align-items: center; gap: 18px; justify-content: center; flex-wrap: wrap; font-size: 20px; }
-.neuer-aufkleber .aufkleber-gross { width: 150px; height: 150px; filter: drop-shadow(0 6px 8px rgba(29,58,92,.25)); }
+.neuer-aufkleber .aufkleber-gross { width: 150px; height: 150px;; }
 .neuer-aufkleber .aufkleber-gross svg { width: 100%; height: 100%; display: block; }
 .neuer-aufkleber strong { display: block; font: 700 26px var(--anzeige); }
 .ploppen { animation: plopp-gross .6s cubic-bezier(.3,1.6,.5,1) both; }
 @keyframes plopp-gross { from { transform: scale(.2) rotate(-25deg); opacity: 0; } to { transform: none; opacity: 1; } }
 .album-ansicht { z-index: 46; }
 .album-kopf::after { background: linear-gradient(90deg, #f39325 0 33.3%, #ffd200 0 66.6%, #9fd3f0 0); }
-.album-kopf { box-shadow: none; }
 .album-inhalt { flex: 1; min-height: 0; overflow-y: auto; padding: 22px max(16px, env(safe-area-inset-left, 0px)) 16px; display: grid; gap: 14px; align-content: start; max-width: 980px; width: 100%; margin: 0 auto; }
 .album-reiter { display: flex; gap: 10px; flex-wrap: wrap; }
-.album-reiter button { border: none; border-radius: var(--r); padding: 10px 18px; font: 700 20px var(--anzeige); color: #1d3a5c; background: var(--flaeche); cursor: pointer; min-height: 52px; }
+.album-reiter button { border: none; border-radius: var(--r); padding: 10px 18px; font: 700 20px var(--anzeige); color: var(--dunkelblau); background: var(--flaeche); cursor: pointer; min-height: 52px; }
 .album-reiter button[aria-pressed="true"] { background: var(--f); }
 .album-seite { --m1: var(--f); --m2: var(--f); --tint: var(--tresen); --rand: var(--linie); --strich: var(--silber);
   background: linear-gradient(180deg, var(--tint), var(--tresen) 140px); border: 2px solid var(--rand); border-top: 0; border-radius: var(--r); padding: 18px; display: grid; gap: 14px; position: relative; }
@@ -550,7 +549,7 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
 :root[data-theme="dark"] .album-seite[data-m="silber"] { --tint: #222b35; --rand: #566474; }
 :root[data-theme="dark"] .album-seite[data-m="gold"] { --tint: #2d2915; --rand: #7a6420; }
 .album-seiten { display: flex; gap: 10px; flex-wrap: wrap; }
-.album-seiten button { border: none; border-radius: var(--r); padding: 8px 16px; font: 700 18px var(--anzeige); color: #1d3a5c; background: var(--flaeche); cursor: pointer; min-height: 52px; }
+.album-seiten button { border: none; border-radius: var(--r); padding: 8px 16px; font: 700 18px var(--anzeige); color: var(--dunkelblau); background: var(--flaeche); cursor: pointer; min-height: 52px; }
 .album-seiten button[data-m="bunt"] { background: var(--f); }
 .album-seiten button[data-m="bronze"] { background: linear-gradient(135deg, #f3c9a0, #cd7f32 50%, #e8a96b); }
 .album-seiten button[data-m="silber"] { background: linear-gradient(135deg, #fff, #c0c8d0 50%, #eef2f6); }
@@ -560,7 +559,7 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
 .album-medaillen { display: flex; gap: 6px; align-items: center; }
 .album-medaillen svg { width: 34px; height: 34px; }
 .album-medaillen svg.leer { opacity: .25; filter: grayscale(1); }
-.pokal-zeile { display: flex; align-items: center; gap: 14px; border: 2px solid #ecd27a; background: #fffbe9; color: #1d3a5c; border-radius: var(--r); padding: 10px 18px; font: 700 21px var(--anzeige); }
+.pokal-zeile { display: flex; align-items: center; gap: 14px; border: 2px solid #ecd27a; background: #fffbe9; color: var(--dunkelblau); border-radius: var(--r); padding: 10px 18px; font: 700 21px var(--anzeige); }
 .pokal-zeile svg { width: 50px; height: 50px; flex: none; }
 .pokal-zeile small { display: block; font: 400 16px var(--anzeige); }
 .glanz { position: relative; width: 100%; height: 100%; }
@@ -574,14 +573,14 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
 .plaetze { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 .platz { display: grid; gap: 6px; justify-items: center; text-align: center; font-size: 16px; font-weight: 700; }
 .platz .rahmen { width: 100%; aspect-ratio: 1; border-radius: 14px; border: 3px dashed var(--strich, var(--silber)); display: grid; place-items: center; background: var(--himmel); color: var(--strich, var(--silber)); font: 300 34px var(--anzeige); }
-.platz.voll .rahmen { border: none; background: none; filter: drop-shadow(0 3px 4px rgba(29,58,92,.18)); transform: rotate(var(--dreh)); }
+.platz.voll .rahmen { border: none; background: none; transform: rotate(var(--dreh)); }
 .platz.voll .rahmen svg { width: 100%; height: 100%; display: block; }
 .platz.neu .rahmen { animation: plopp-gross .7s cubic-bezier(.3,1.6,.5,1) .2s both; }
 @media (max-width: 560px) { .plaetze { grid-template-columns: repeat(3, 1fr); gap: 10px; } .neuer-aufkleber .aufkleber-gross { width: 120px; height: 120px; } }
 @media (prefers-reduced-motion: reduce) { .ploppen, .platz.neu .rahmen, .glanz::after { animation: none; } }
 
 /* --- Knopf „Zum Laden“ und Laden-Ansicht --- */
-.zum-laden { display: inline-flex; align-items: center; gap: 10px; border: none; border-radius: var(--r); background: var(--laden); color: #1d3a5c;
+.zum-laden { display: inline-flex; align-items: center; gap: 10px; border: none; border-radius: var(--r); background: var(--laden); color: var(--dunkelblau);
   font-family: var(--anzeige); font-weight: 700; font-size: 21px; padding: 8px 18px 8px 12px; min-height: 64px; cursor: pointer; }
 .zum-laden:active { transform: translateY(2px); filter: brightness(.95); }
 .wunsch-hinweis { grid-column: 1 / -1; font: 700 22px var(--anzeige); padding: 18px; border: 3px dashed var(--laden-rand); border-radius: var(--r); text-align: center; }
@@ -593,18 +592,18 @@ dialog::backdrop { background: rgba(20, 15, 10, .55); }
 .wunsch-grenze { display: block; margin-top: 6px; font-size: 20px; font-weight: 400; }
 .wunsch-grenze b { font-weight: 700; }
 .korb-leer { color: var(--holz-hell); font-size: 17px; }
-.fertig-ausgesucht { margin-left: auto; border: none; border-radius: var(--r); background: var(--gut); color: #fff; font: 700 20px var(--anzeige); padding: 12px 20px; min-height: 56px; cursor: pointer; white-space: nowrap; }
+.fertig-ausgesucht { margin-left: auto; border: none; border-radius: var(--r); background: var(--gut); color: var(--dunkelblau); font: 700 20px var(--anzeige); padding: 12px 20px; min-height: 56px; cursor: pointer; white-space: nowrap; }
 .zum-laden svg { width: 44px; height: 44px; display: block; }
 .laden-ansicht { position: fixed; inset: 0; z-index: 45; background: var(--himmel); display: flex; flex-direction: column; }
 body.laden-offen { overflow: hidden; }
-.laden-kopf { display: flex; align-items: center; gap: 12px; background: var(--tresen); position: relative; box-shadow: inset 14px 0 0 var(--laden);
+.laden-kopf { display: flex; align-items: center; gap: 12px; background: linear-gradient(90deg, var(--laden) 0 14px, var(--tresen) 14px); position: relative;
   padding: calc(10px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 10px max(30px, env(safe-area-inset-left, 0px)); }
 .laden-kopf::after { content: ""; position: absolute; left: 0; right: 0; bottom: -8px; height: 8px; background: var(--laden); z-index: 1; }
 .laden-titel { flex: 1; font-family: var(--anzeige); font-weight: 300; font-size: clamp(24px, 4vw, 34px); color: var(--holz); }
 .laden-bild { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; background: var(--himmel); }
 .laden-bild svg { display: block; width: 100%; height: 100%; }
-.laden-svg .preis { font: 700 15px var(--anzeige); fill: #1d3a5c; }
-.laden-svg .ladenschild { font: 700 25px var(--anzeige); fill: #1d3a5c; letter-spacing: .5px; }
+.laden-svg .preis { font: 700 15px var(--anzeige); fill: var(--dunkelblau); }
+.laden-svg .ladenschild { font: 700 25px var(--anzeige); fill: var(--dunkelblau); letter-spacing: .5px; }
 .laden-svg .ladenschild.gross { font-size: 32px; } .laden-svg .ladenschild.klein { font-size: 22px; }
 .laden-svg .kuehltext { font: 300 22px var(--anzeige); fill: #9fd3f0; }
 .laden-svg .artikel { cursor: pointer; }
@@ -616,7 +615,7 @@ body.laden-offen { overflow: hidden; }
 .laden-svg .schild.leuchtet rect:last-of-type { animation: blinken 1s ease-in-out 2; }
 @keyframes blinken { 50% { fill: #ffd200; } }
 @media (prefers-reduced-motion: reduce) { .laden-svg .artikel.leuchtet image, .laden-svg .schild.leuchtet rect { animation: none; } }
-.laden-svg .anzahl { font: 700 16px var(--anzeige); fill: #fff; }
+.laden-svg .anzahl { font: 700 16px var(--anzeige); fill: #0D2B4E; }
 .laden-svg .uhr, .laden-svg .lampe { cursor: pointer; }
 .laden-svg .uhr.leuchtet > circle:first-child { fill: #ffd200; }
 .laden-svg .licht { opacity: 0; transition: opacity .4s; mix-blend-mode: screen; }
@@ -633,8 +632,8 @@ body.laden-offen { overflow: hidden; }
 .posten .haken { width: 30px; height: 30px; flex: none; border-radius: 50%; border: 3px solid var(--silber); display: grid; place-items: center; }
 .posten.gefunden { border-color: var(--gut); background: var(--gut-hell); }
 .posten.gefunden .haken { background: var(--gut); border-color: var(--gut); }
-.posten.gefunden .haken::after { content: ""; width: 7px; height: 13px; border: solid #fff; border-width: 0 4px 4px 0; transform: rotate(45deg) translate(-1px, -2px); }
-.alles { font: 700 19px var(--anzeige); color: var(--gut); margin-left: auto; }
+.posten.gefunden .haken::after { content: ""; width: 7px; height: 13px; border: solid var(--dunkelblau); border-width: 0 4px 4px 0; transform: rotate(45deg) translate(-1px, -2px); }
+.alles { font: 700 19px var(--anzeige); color: var(--gut-text); margin-left: auto; }
 /* Viele Posten (ab 4): schmaler, damit der Zettel in einer Zeile bleibt */
 .zettel.eng { gap: 8px; }
 .zettel.eng .zettel-titel > span { display: none; }
@@ -644,7 +643,7 @@ body.laden-offen { overflow: hidden; }
 .zettel.eng .posten .was small { font-size: 14px; }
 .zettel.eng .posten .haken { width: 24px; height: 24px; }
 .zettel.eng .alles { font-size: 16px; }
-.laden-zurueck { border: none; background: var(--hellblau); color: #1d3a5c; font: 700 22px var(--anzeige); min-height: 64px;
+.laden-zurueck { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: none; background: var(--hellblau); color: var(--dunkelblau); font: 700 22px var(--anzeige); min-height: 64px;
   padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)); cursor: pointer; }
 .tresen-kopf h2 { flex: 1 1 260px; }
 @media (max-width: 620px) {
@@ -655,30 +654,30 @@ body.laden-offen { overflow: hidden; }
 }
 
 /* ===== Design „München 72“: flache Flächen, kleine Rundungen, keine Schatten, Leitfarbe je Laden ===== */
-.markise { background: var(--tresen); box-shadow: inset 14px 0 0 var(--laden); }
-.markise::after { bottom: -8px; height: 8px; background: var(--laden); }
-body.auf-start .markise { box-shadow: none; }
-body.auf-start .markise::after { background: linear-gradient(90deg, var(--orange) 0 33.3%, var(--gelb) 0 66.6%, var(--hellblau) 0); }
+.kopfzeile { background: linear-gradient(90deg, var(--laden) 0 14px, var(--tresen) 14px); }
+.kopfzeile::after { content: ""; position: absolute; left: 0; right: 0; bottom: -8px; height: 8px; background: var(--laden); }
+body.auf-start .kopfzeile { background: var(--tresen); }
+body.auf-start .kopfzeile::after { display: none; }
 .schild-titel { background: none; border: none; box-shadow: none; padding: 0 0 0 6px; font-family: var(--anzeige); font-weight: 300;
   letter-spacing: .01em; color: var(--holz); font-size: clamp(28px, 4.6vw, 40px); }
-.rundknopf { border: none; border-radius: var(--r); background: var(--flaeche); color: var(--markise); box-shadow: none; width: 54px; height: 54px; }
+.rundknopf { border: none; border-radius: var(--r); background: var(--flaeche); color: var(--akz-text); box-shadow: none; width: 54px; height: 54px; }
 .rundknopf:active { transform: none; box-shadow: none; filter: brightness(.95); }
-.stumm-knopf[aria-pressed="true"] { background: var(--hm); color: #fff; }
+.stumm-knopf[aria-pressed="true"] { background: var(--hm); color: var(--dunkelblau); }
 main { margin-top: 30px; }
 .gruss { font-family: var(--anzeige); font-weight: 400; }
 .punkt { border: none; width: 16px; height: 16px; background: var(--flaeche); }
-.punkt.jetzt { background: var(--markise); border: none; }
+.punkt.jetzt { background: var(--akz); border: none; }
 .punkt.fertig { background: var(--gut); border: none; }
 .tresen { border: 2px solid var(--linie); border-radius: var(--r); box-shadow: none; }
 .tresen-kopf h2, .schritt h3, .abschnitt h3, .dialog-kopf h2 { font-family: var(--anzeige); font-weight: 700; }
 .produkt { border: 2px solid var(--linie); border-radius: var(--r); }
-.preis { font-family: var(--anzeige); font-weight: 700; background: var(--laden); color: #1d3a5c; border: none; border-radius: 3px; padding: 1px 12px; }
+.preis { font-family: var(--anzeige); font-weight: 700; background: var(--laden); color: var(--dunkelblau); border: none; border-radius: 3px; padding: 1px 12px; }
 .schritt { border: 2px solid var(--linie); border-radius: var(--r); }
-.nr { background: var(--laden); color: #1d3a5c; font-family: var(--anzeige); font-weight: 700; }
-.grossknopf { border: none; border-radius: var(--r); box-shadow: none; background: var(--senf); color: #1d3a5c;
+.nr { background: var(--laden); color: var(--dunkelblau); font-family: var(--anzeige); font-weight: 700; }
+.grossknopf { border: none; border-radius: var(--r); box-shadow: none; background: var(--senf); color: var(--dunkelblau);
   font-family: var(--anzeige); font-weight: 700; font-size: 26px; }
 .grossknopf:active { transform: translateY(2px); box-shadow: none; filter: brightness(.95); }
-.grossknopf.weiter { background: var(--gut); color: #fff; box-shadow: none; }
+.grossknopf.weiter { background: var(--gut); color: var(--dunkelblau); }
 .grossknopf.leise { background: var(--tresen); color: var(--holz); border: 2px solid var(--linie); }
 .grossknopf.ja { background: var(--gut-hell); color: var(--holz); border: 3px solid var(--gut); box-shadow: none; }
 .grossknopf.nein { background: var(--hm-hell); color: var(--holz); border: 3px solid var(--hm); box-shadow: none; }
@@ -693,12 +692,12 @@ main { margin-top: 30px; }
 dialog { border: 2px solid var(--linie); border-radius: 10px; }
 dialog::backdrop { background: rgba(29, 58, 92, .45); }
 .dialog-kopf { border-bottom: 2px solid var(--linie); }
-.mittelknopf { border: 2px solid var(--markise); color: var(--markise); border-radius: var(--r); background: var(--tresen); }
-.mittelknopf.primaer { background: var(--markise); color: var(--markise-text); }
-.mittelknopf.warnung { border-color: var(--hm); color: var(--hm); }
+.mittelknopf { border: 2px solid var(--akz-text); color: var(--akz-text); border-radius: var(--r); background: var(--tresen); }
+.mittelknopf.primaer { background: var(--akz); color: var(--dunkelblau); }
+.mittelknopf.warnung { border-color: var(--hm); color: var(--hm-text); }
 .eintrag { border-radius: var(--r); }
 .neu-karte { border-color: var(--laden); }
-.neu-band { background: var(--laden); color: #1d3a5c; font-family: var(--anzeige); font-weight: 700; border-radius: 3px; }
+.neu-band { background: var(--laden); color: var(--dunkelblau); font-family: var(--anzeige); font-weight: 700; border-radius: 3px; }
 .neu-karte h2, .code-woerter, .start-frage { font-family: var(--anzeige); }
 .neu-karte h2 { font-weight: 700; }
 .geldvorrat { background: var(--flaeche); border: none; border-radius: var(--r); }
@@ -709,11 +708,11 @@ dialog::backdrop { background: rgba(29, 58, 92, .45); }
 .ausloeser { background: var(--hellblau); }
 /* Startseite: Karten ganz in der Leitfarbe ihres Ladens */
 .start-frage { font-weight: 300; }
-.laden-karte { background: var(--karte); border: none; border-radius: var(--r); box-shadow: none; padding: 10px 10px 12px; gap: 8px; color: #1d3a5c; }
+.laden-karte { background: var(--karte); border: none; border-radius: var(--r); box-shadow: none; padding: 10px 10px 12px; gap: 8px; color: var(--dunkelblau); }
 .laden-karte:active { transform: translateY(2px); box-shadow: none; filter: brightness(.96); }
 .laden-karte .karte-bilder { border-radius: 3px; }
-.laden-karte .karte-name { font-family: var(--anzeige); font-weight: 700; font-size: 26px; color: #1d3a5c; }
-.info-i { background: var(--markise); color: var(--markise-text); font-family: var(--anzeige); font-style: normal; }
+.laden-karte .karte-name { font-family: var(--anzeige); font-weight: 700; font-size: 26px; color: var(--dunkelblau); }
+.info-i { background: var(--akz); color: var(--dunkelblau); font-family: var(--anzeige); font-style: normal; }
 .info-laden { border-left-width: 8px; }
 .info-laden h3 { font-family: var(--anzeige); color: var(--holz); }
 .info-laden .karte-stufe { background: var(--flaeche); border-radius: 3px; }
@@ -722,8 +721,8 @@ dialog::backdrop { background: rgba(29, 58, 92, .45); }
 @keyframes einblenden { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 /* Vorhang aus Farbstreifen */
 .vorhang-teil.links, .vorhang-teil.rechts { border: none; box-shadow: none; }
-.vorhang-teil.links { background: linear-gradient(90deg, var(--blau) 0 20%, var(--hellblau) 0 40%, var(--hellgruen) 0 60%, var(--gelb) 0 80%, var(--orange) 0); }
-.vorhang-teil.rechts { background: linear-gradient(90deg, var(--orange) 0 20%, var(--gelb) 0 40%, var(--hellgruen) 0 60%, var(--hellblau) 0 80%, var(--blau) 0); }
+.vorhang-teil.links { background: linear-gradient(90deg, var(--silber) 0 20%, var(--hellblau) 0 40%, var(--hellgruen) 0 60%, var(--gelb) 0 80%, var(--orange) 0); }
+.vorhang-teil.rechts { background: linear-gradient(90deg, var(--orange) 0 20%, var(--gelb) 0 40%, var(--hellgruen) 0 60%, var(--hellblau) 0 80%, var(--silber) 0); }
 .vorhang-blende { display: none; }
 @media (max-width: 520px) {
   .kopf { flex-wrap: nowrap; gap: 8px; }
@@ -731,7 +730,7 @@ dialog::backdrop { background: rgba(29, 58, 92, .45); }
   .rundknopf { width: 46px; height: 46px; flex: none; }
   .rundknopf svg { width: 26px; height: 26px; }
 }
-.vorhang-schild { background: #fff; color: #1d3a5c; border-radius: var(--r); padding: 10px 40px; font-size: clamp(36px, 7vw, 60px); transform: translate(-50%, -50%); font-weight: 700; }
+.vorhang-schild { background: #fff; color: var(--dunkelblau); border-radius: var(--r); padding: 10px 40px; font-size: clamp(36px, 7vw, 60px); transform: translate(-50%, -50%); font-weight: 700; }
 .vorhang.auf .vorhang-schild { transform: translate(-50%, -50%) scale(.9); opacity: 0; }
 /* Lehrkraft-Bereich: Seitenleiste mit Abschnitten (wie die iPad-Einstellungen), rechts der Inhalt.
    Auf schmalen Geräten erst die Liste, dann der Abschnitt mit „‹ Übersicht“. Änderungen gelten sofort. */
@@ -739,8 +738,8 @@ dialog::backdrop { background: rgba(29, 58, 92, .45); }
 #dlg-lehrkraft[open] { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; grid-template-columns: minmax(0, 1fr); }
 .lk-kopf { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 2px solid var(--linie); background: var(--tresen); }
 .lk-kopf h2 { flex: 1; margin: 0; min-width: 0; font-family: var(--anzeige); font-weight: 700; font-size: 24px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.lk-zurueck { display: none; border: none; background: none; color: var(--markise); font-weight: 700; font-size: 17px; padding: 8px 4px; min-height: 44px; white-space: nowrap; }
-.lk-fertig { border: none; background: var(--markise); color: var(--auf-markise); border-radius: var(--r); font-weight: 700; font-size: 18px; padding: 10px 26px; min-height: 48px; }
+.lk-zurueck { display: none; border: none; background: none; color: var(--akz-text); font-weight: 700; font-size: 17px; padding: 8px 4px; min-height: 44px; white-space: nowrap; }
+.lk-fertig { border: none; background: var(--akz); color: var(--dunkelblau); border-radius: var(--r); font-weight: 700; font-size: 18px; padding: 10px 26px; min-height: 48px; }
 .lk-koerper { display: grid; grid-template-columns: 272px minmax(0, 1fr); min-height: 0; }
 .lk-navi { overflow: auto; border-right: 2px solid var(--linie); padding: 8px 10px 16px; display: flex; flex-direction: column; gap: 2px; background: var(--tresen); }
 .lk-navi-gruppe { margin: 14px 10px 4px; font-size: 13px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--holz-hell); }
@@ -751,19 +750,19 @@ dialog::backdrop { background: rgba(29, 58, 92, .45); }
 .lk-punkt-name, .lk-punkt-stand { hyphens: auto; -webkit-hyphens: auto; overflow-wrap: break-word; }   /* nie zusammendrücken – sonst überlappen die Einträge, wenn die Leiste zu kurz ist */
 .lk-punkt { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 12px; align-items: center; text-align: left;
   border: none; background: none; padding: 9px 10px; border-radius: var(--r); color: var(--holz); min-height: 58px; }
-.lk-punkt svg { width: 26px; height: 26px; color: var(--markise); }
+.lk-punkt svg { width: 26px; height: 26px; color: var(--akz-text); }
 .lk-punkt-name { display: block; font-weight: 700; font-size: 17px; line-height: 1.25; }
 .lk-punkt-stand { display: block; font-size: 14px; color: var(--holz-hell); line-height: 1.3; margin-top: 1px; }
 .lk-pfeil { display: none; color: var(--holz-hell); font-size: 24px; line-height: 1; }
-.lk-punkt[aria-current="page"] { background: var(--markise); color: var(--auf-markise); }
-.lk-punkt[aria-current="page"] svg, .lk-punkt[aria-current="page"] .lk-punkt-stand { color: var(--auf-markise); }
+.lk-punkt[aria-current="page"] { background: var(--akz); color: var(--dunkelblau); }
+.lk-punkt[aria-current="page"] svg, .lk-punkt[aria-current="page"] .lk-punkt-stand { color: var(--dunkelblau); }
 .lk-punkt[aria-current="page"] .lk-punkt-stand { opacity: .85; }
 .lk-inhalt { overflow: auto; -webkit-overflow-scrolling: touch; background: var(--himmel); padding: 18px 22px 30px; }
 .lk-seite { display: grid; gap: 20px; max-width: 640px; }
 .lk-seite-titel { margin: 0; font-family: var(--anzeige); font-weight: 700; font-size: 26px; }
 .lk-gruppe { display: grid; gap: 8px; }
 .lk-gruppe > h4 { margin: 0 4px; font-size: 13px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--holz-hell); }
-.lk-gruppe.gefahr > h4 { color: var(--hm); }
+.lk-gruppe.gefahr > h4 { color: var(--hm-text); }
 .lk-gruppe-hinweis { margin: 0 4px; font-size: 15px; color: var(--holz-hell); }
 .lk-karte { background: var(--tresen); border: 2px solid var(--linie); border-radius: var(--r); display: grid; }
 .lk-zeile { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px 16px; padding: 12px 14px; font-size: 17px; }
@@ -773,20 +772,20 @@ label.lk-zeile { cursor: pointer; }
 .lk-text { display: grid; gap: 2px; min-width: 0; }
 .lk-text strong { font-weight: 700; }
 .lk-text small { font-size: 15px; color: var(--holz-hell); line-height: 1.35; }
-.lk-immer { font-size: 14px; font-weight: 700; color: var(--gut); white-space: nowrap; }
+.lk-immer { font-size: 14px; font-weight: 700; color: var(--gut-text); white-space: nowrap; }
 /* Schiebeschalter */
 .lk-schiebe { appearance: none; -webkit-appearance: none; margin: 0; flex: none; width: 54px; height: 32px; border-radius: 16px; background: var(--aus); position: relative; cursor: pointer; transition: background .15s; }
-.lk-schiebe::after { content: ""; position: absolute; top: 3px; left: 3px; width: 26px; height: 26px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0, 0, 0, .25); transition: transform .15s; }
-.lk-schiebe:checked { background: var(--markise); }
-.lk-schiebe:checked::after { transform: translateX(22px); }
+.lk-schiebe::after { content: ""; position: absolute; top: 3px; left: 3px; width: 26px; height: 26px; border-radius: 50%; background: #fff; transition: transform .15s; }
+.lk-schiebe:checked { background: var(--akz); }
+.lk-schiebe:checked::after { transform: translateX(22px); background: var(--dunkelblau); }
 .lk-schiebe:disabled { opacity: .4; cursor: default; }
 /* Auswahl-Knöpfe */
 .lk-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .lk-chips button { font-size: 16px; font-weight: 700; min-height: 44px; padding: 8px 14px; border-radius: var(--r); border: 2px solid var(--linie); background: var(--tresen); color: var(--holz); }
-.lk-chips button[aria-pressed="true"] { background: var(--markise); border-color: var(--markise); color: var(--auf-markise); }
+.lk-chips button[aria-pressed="true"] { background: var(--akz); border-color: var(--akz-text); color: var(--dunkelblau); }
 .lk-laden-chips button { display: inline-flex; align-items: center; gap: 8px; border-color: var(--c); }
 .lk-laden-chips button::before { content: ""; width: 12px; height: 12px; border-radius: 50%; background: var(--c); }
-.lk-laden-chips button[aria-pressed="true"] { background: var(--c); border-color: var(--c); color: #1d3a5c; }
+.lk-laden-chips button[aria-pressed="true"] { background: var(--c); border-color: var(--c); color: var(--dunkelblau); }
 .lk-laden-chips button[aria-pressed="true"]::before { background: #fff; }
 .lk-chips-paar { display: flex; flex-wrap: wrap; gap: 10px 18px; }
 /* Stufe je Laden */
@@ -803,44 +802,44 @@ label.lk-zeile { cursor: pointer; }
 .lk-band { text-align: left; border: 2px solid var(--linie); border-radius: var(--r); background: var(--tresen); padding: 8px 10px; display: grid; gap: 2px; color: var(--holz); align-content: start; }
 .lk-band strong { font-family: var(--anzeige); font-size: 18px; }
 .lk-band span { font-size: 14px; color: var(--holz-hell); line-height: 1.3; }
-.lk-band[aria-pressed="true"] { border-color: var(--rand); box-shadow: inset 0 0 0 2px var(--rand); background: var(--himmel); background: color-mix(in srgb, var(--c) 16%, var(--tresen)); }
+.lk-band[aria-pressed="true"] { border-color: var(--holz); outline: 2px solid var(--holz); outline-offset: -4px; background: var(--himmel); background: color-mix(in srgb, var(--c) 16%, var(--tresen)); }
 .lk-sk-hinweis { margin: 2px 0 0; font-size: 14px; font-weight: 700; color: var(--holz-hell); }
 .lk-sk-stufen { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; }   /* eine Spalte, Stufe 1 oben */
 .lk-stufe { display: flex; align-items: center; gap: 8px; text-align: left; border: 2px solid var(--linie); border-radius: var(--r); background: var(--tresen); color: var(--holz);
   padding: 4px 8px 4px 5px; font-size: 15px; line-height: 1.2; min-height: 42px; }
 .lk-stufe b { flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--flaeche); font-family: var(--anzeige); }
-.lk-stufe[aria-pressed="true"] { border-color: var(--rand); box-shadow: inset 0 0 0 2px var(--rand); }
-.lk-stufe[aria-pressed="true"] b { background: var(--c); color: #1d3a5c; }
+.lk-stufe[aria-pressed="true"] { border-color: var(--holz); outline: 2px solid var(--holz); outline-offset: -4px; }
+.lk-stufe[aria-pressed="true"] b { background: var(--c); color: var(--dunkelblau); }
 .lk-sk-genau { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px; font-size: 15px; font-weight: 700; }
 .lk-feld { font: inherit; font-size: 16px; padding: 8px 10px; border-radius: var(--r); border: 2px solid var(--linie); background: var(--himmel); color: var(--holz); min-height: 44px; width: 100%; }
 .lk-von-bis { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .lk-von-bis .lk-feld { width: auto; min-width: 110px; }
 /* „i“ für längere Erklärungen */
-.lk-i { flex: none; width: 32px; height: 32px; border-radius: 50%; border: none; background: var(--flaeche); color: var(--markise); font-family: Georgia, serif; font-style: italic; font-weight: 700; font-size: 18px; }
-.lk-i[aria-expanded="true"] { background: var(--markise); color: var(--auf-markise); }
+.lk-i { flex: none; width: 32px; height: 32px; border-radius: 50%; border: none; background: var(--flaeche); color: var(--akz-text); font-family: Georgia, serif; font-style: italic; font-weight: 700; font-size: 18px; }
+.lk-i[aria-expanded="true"] { background: var(--akz); color: var(--dunkelblau); }
 .lk-info { margin: 0; font-size: 15px; line-height: 1.45; background: var(--himmel); border-radius: var(--r); padding: 10px 12px; }
 /* Aufklappbereich „Eigene Aufgabe“ */
 .lk-aufklapp { gap: 0; }
 .lk-aufklapp > summary { list-style: none; cursor: pointer; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; padding: 12px 14px; background: var(--tresen); border: 2px solid var(--linie); border-radius: var(--r); font-weight: 700; }
 .lk-aufklapp > summary::-webkit-details-marker { display: none; }
-.lk-aufklapp > summary::before { content: "›"; display: inline-block; width: 12px; color: var(--markise); font-size: 22px; line-height: 1; transition: transform .15s; }
+.lk-aufklapp > summary::before { content: "›"; display: inline-block; width: 12px; color: var(--akz-text); font-size: 22px; line-height: 1; transition: transform .15s; }
 .lk-aufklapp[open] > summary::before { transform: rotate(90deg); }
 .lk-aufklapp > summary small { font-weight: 400; font-size: 15px; color: var(--holz-hell); }
 .lk-aufklapp[open] > summary { border-radius: var(--r) var(--r) 0 0; }
 .lk-aufklapp > .lk-karte { border-top: none; border-radius: 0 0 var(--r) var(--r); }
 /* Knöpfe */
 .lk-knopf { display: inline-flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; min-height: 44px; padding: 8px 16px; border-radius: var(--r);
-  border: 2px solid var(--markise); color: var(--markise); background: var(--tresen); white-space: nowrap; cursor: pointer; }
-.lk-knopf.primaer { background: var(--markise); color: var(--auf-markise); }
-.lk-knopf.gefahr { border-color: var(--hm); color: var(--hm); }
-.lk-knopf.gefahr.voll { background: var(--hm); color: #fff; }
+  border: 2px solid var(--akz-text); color: var(--akz-text); background: var(--tresen); white-space: nowrap; cursor: pointer; }
+.lk-knopf.primaer { background: var(--akz); color: var(--dunkelblau); }
+.lk-knopf.gefahr { border-color: var(--hm); color: var(--hm-text); }
+.lk-knopf.gefahr.voll { background: var(--hm); color: var(--dunkelblau); }
 .lk-knopfreihe { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .lk-frage { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-weight: 700; grid-column: 1 / -1; }
 /* Auswertung, Lernstand, Protokoll */
 #bericht .zusammenfassung { font-size: 16px; line-height: 1.5; }
 #bericht .tabelle { font-size: 15px; }
 .lk-tipp { border-left: 6px solid var(--hm); background: var(--hm-hell); padding: 8px 12px; border-radius: var(--r); display: grid; gap: 2px; font-size: 15px; }
-.lk-mehr > summary { cursor: pointer; font-weight: 700; color: var(--markise); font-size: 15px; }
+.lk-mehr > summary { cursor: pointer; font-weight: 700; color: var(--akz-text); font-size: 15px; }
 .lk-mehr[open] > summary { margin-bottom: 10px; }
 .lk-mehr > .tabelle-huelle + .tabelle-huelle { margin-top: 12px; }
 .lk-ls { display: grid; grid-template-columns: 8px minmax(0, 1fr); gap: 12px; }
@@ -852,7 +851,7 @@ label.lk-zeile { cursor: pointer; }
 .lk-datenschutz { margin: 0; padding: 12px 14px 12px 32px; display: grid; gap: 4px; font-size: 15px; }
 .lk-fuss { margin: 0 4px; }
 .lk-runde { display: flex; align-items: center; gap: 10px; padding: 10px 16px; background: var(--hm-hell); border-top: 2px solid var(--linie); font-size: 15px; }
-.lk-runde svg { width: 22px; height: 22px; flex: none; color: var(--hm); }
+.lk-runde svg { width: 22px; height: 22px; flex: none; color: var(--hm-text); }
 /* iPad hoch: schmalere Seitenleiste, Stufen untereinander */
 @media (max-width: 900px) {
   .lk-koerper { grid-template-columns: 236px minmax(0, 1fr); }
@@ -871,7 +870,7 @@ label.lk-zeile { cursor: pointer; }
   .lk-punkt { grid-template-columns: 28px minmax(0, 1fr) auto; border-radius: 0; border-bottom: 1px solid var(--linie); }
   .lk-pfeil { display: block; }
   .lk-punkt[aria-current="page"] { background: none; color: var(--holz); }
-  .lk-punkt[aria-current="page"] svg { color: var(--markise); }
+  .lk-punkt[aria-current="page"] svg { color: var(--akz-text); }
   .lk-punkt[aria-current="page"] .lk-punkt-stand { color: var(--holz-hell); opacity: 1; }
   .lk-punkt-stand { font-size: 14px; }
   #dlg-lehrkraft.detail .lk-zurueck { display: inline-flex; align-items: center; }
@@ -899,13 +898,13 @@ body.im-spiel .nur-spiel { display: flex; }
 .ablage-feld { min-height: 240px; border: 3px solid var(--laden); border-radius: 22px; align-content: center; justify-content: center; gap: 10px; padding: 16px;
   background: var(--flaeche);
   background: radial-gradient(ellipse at center, #fff 0 55%, transparent 56%), color-mix(in srgb, var(--laden) 14%, #fff); }
-.ablage-feld.drueber { border-color: var(--gut); box-shadow: inset 0 0 0 4px var(--gut);
+.ablage-feld.drueber { border-color: var(--gut); outline: 4px solid var(--gut); outline-offset: -8px;
   background: radial-gradient(ellipse at center, #fff 0 55%, transparent 56%), var(--gut-hell); }
 .ablage-leer { font-family: var(--anzeige); color: #8a97a6; }
 .geldbild svg { display: block; }
 .geldvorrat { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; padding: 8px; background: var(--flaeche); border: none; border-radius: 12px; }
 .geldvorrat .vorrat-titel { display: none; }
-.vorrat { height: 94px; min-width: 94px; padding: 4px 8px; border-radius: 10px; background: var(--tresen); box-shadow: inset 0 -3px 0 var(--linie); }
+.vorrat { height: 94px; min-width: 94px; padding: 4px 8px; border-radius: 10px; background: var(--tresen); border-bottom: 3px solid var(--linie); }
 .vorrat.schein-zeile { min-width: 152px; grid-column: auto; }
 .vorrat.schein-zeile .geldbild svg, .stueck .geldbild svg { width: auto; }
 #zieh-teil .knopfreihe { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; }
@@ -916,7 +915,7 @@ body.im-spiel .nur-spiel { display: flex; }
 /* Rückmeldung auf dem Teller */
 .teller-meldung { position: absolute; inset: 0; z-index: 3; display: grid; place-content: center; justify-items: center; gap: 14px; padding: 16px;
   background: rgba(255, 255, 255, .93); border-radius: 19px; text-align: center; }
-.teller-meldung .meldung { flex-direction: column; align-items: center; text-align: center; gap: 8px; padding: 0; color: #1d3a5c;
+.teller-meldung .meldung { flex-direction: column; align-items: center; text-align: center; gap: 8px; padding: 0; color: var(--dunkelblau);
   background: none !important; border: none !important; font-size: 19px; }
 .teller-meldung .meldung strong { font-size: 30px; }
 .teller-meldung .meldung .symbol { width: 72px; height: 72px; }
@@ -1020,12 +1019,12 @@ body.im-spiel .schild-titel { flex: 0 1 auto; flex-shrink: .2; }
 .lk-thema > summary::-webkit-details-marker { display: none; }
 .lk-thema .lk-sk-stufen { padding: 0 10px 10px; }
 .lk-zeichen { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; flex: none; background: var(--flaeche); font-size: 14px; font-family: var(--anzeige); }
-.lk-thema.fertig .lk-zeichen { background: var(--gut); color: #fff; }
-.lk-thema.aktiv .lk-zeichen { background: var(--c); color: #1d3a5c; }
+.lk-thema.fertig .lk-zeichen { background: var(--gut); color: var(--dunkelblau); }
+.lk-thema.aktiv .lk-zeichen { background: var(--c); color: var(--dunkelblau); }
 .lk-stand { margin-left: auto; font-weight: 400; font-size: 14px; color: var(--holz-hell); white-space: nowrap; }
 .lk-thema.leer { display: flex; align-items: center; gap: 10px; padding: 8px 10px; font-weight: 700; color: var(--holz-hell); border-style: dashed; }
 .lk-stufe b { min-width: 34px; width: auto; border-radius: 13px; padding: 0 4px; font-size: 13px; }
-.lk-ok { margin-left: auto; color: var(--gut); font-weight: 700; }
+.lk-ok { margin-left: auto; color: var(--gut-text); font-weight: 700; }
 /* ===== Neu-Hinweis, Probeaufgabe ===== */
 .probe-marke { display: inline-block; font-size: 15px; background: var(--hm-hell); border: 2px solid var(--hm); border-radius: 3px; padding: 0 8px; vertical-align: 3px; }
 /* ===== Erklär-Karte: Vormachen ===== */
@@ -1043,7 +1042,7 @@ body.im-spiel .schild-titel { flex: 0 1 auto; flex-shrink: .2; }
 .stufe-probe { margin: 0; background: var(--hm-hell); border-left: 6px solid var(--hm); border-radius: var(--r); padding: 8px 12px; font-size: 18px; text-align: left; }
 .stufe-knoepfe { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
 .stufe-knoepfe .grossknopf { min-height: 64px; font-size: 22px; padding: 8px 28px; }
-.grossknopf.zeig { background: var(--hellblau); color: #1d3a5c; }
+.grossknopf.zeig { background: var(--hellblau); color: var(--dunkelblau); }
 @media (prefers-reduced-motion: reduce) { .zeig-geld { transition: none; } }
 
 /* ===== Neue Aufgabenformate ===== */
@@ -1056,18 +1055,18 @@ body.im-spiel .schild-titel { flex: 0 1 auto; flex-shrink: .2; }
 .lk-stufe-zeile { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; align-items: stretch; }
 .lk-stufe-zeile.aus .lk-stufe { opacity: .45; }
 .lk-stand-punkt { margin-left: auto; flex: none; font-size: 12px; font-weight: 700; border-radius: 10px; padding: 1px 8px; white-space: nowrap; }
-.lk-stand-punkt.sicher { background: var(--gut-hell); color: var(--gut); }
-.lk-stand-punkt.aufbau { background: #fff6cc; color: #8a6d00; }
-.lk-stand-punkt.schwierig { background: var(--hm-hell); color: var(--hm); }
+.lk-stand-punkt.sicher { background: var(--gut-hell); color: var(--gut-text); }
+.lk-stand-punkt.aufbau { background: color-mix(in srgb, var(--gelb) 30%, var(--tresen)); color: var(--holz); }
+.lk-stand-punkt.schwierig { background: var(--hm-hell); color: var(--hm-text); }
 .lk-stand-punkt.ausgelassen { background: var(--flaeche); color: var(--holz-hell); }
 .lk-auslassen { border: 2px solid var(--linie); border-radius: var(--r); background: var(--tresen); color: var(--holz-hell); font-size: 13px; font-weight: 700; padding: 2px 8px; min-width: 84px; }
-.lk-auslassen[aria-pressed="true"] { border-color: var(--markise); color: var(--markise); }
+.lk-auslassen[aria-pressed="true"] { border-color: var(--akz-text); color: var(--akz-text); }
 .lk-stand-zeile { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .lk-stand-zeile .lk-stand-punkt { margin-left: 0; }
-.wiederholung { margin: 0; order: -1; background: #e8f4fb; border-left: 6px solid var(--hellblau); border-radius: var(--r); padding: 6px 12px; font-weight: 700; font-size: 17px; }
+.wiederholung { margin: 0; order: -1; background: color-mix(in srgb, var(--hellblau) 20%, var(--tresen)); border-left: 6px solid var(--hellblau); border-radius: var(--r); padding: 6px 12px; font-weight: 700; font-size: 17px; }
 
 /* ===== Mehrere Kinder: Bilder ===== */
-.kind-bild { display: inline-grid; place-items: center; flex: none; width: 44px; height: 44px; border-radius: 12px; background: var(--kachel); color: #1d3a5c; font-weight: 700; }
+.kind-bild { display: inline-grid; place-items: center; flex: none; width: 44px; height: 44px; border-radius: 12px; background: var(--kachel); color: var(--dunkelblau); font-weight: 700; }
 .kind-bild svg { width: 84%; height: 84%; }
 .kind-bild.mini { width: 34px; height: 34px; border-radius: 9px; vertical-align: middle; margin-right: 8px; }
 .kind-bild.mittel { width: 56px; height: 56px; border-radius: 14px; }
@@ -1085,31 +1084,31 @@ body.im-spiel .schild-titel { flex: 0 1 auto; flex-shrink: .2; }
 .lk-kind-zeile { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 14px; align-items: center; }
 .lk-kind-zeile .lk-knopfreihe, .lk-kind-zeile .lk-frage { grid-column: 1 / -1; }
 .lk-kind-zeile.aktiv { background: color-mix(in srgb, var(--hellblau) 18%, transparent); }
-.lk-marke { display: inline-block; border-radius: 14px; background: var(--markise); color: var(--auf-markise); font-weight: 700; font-size: 14px; padding: 4px 12px; }
+.lk-marke { display: inline-block; border-radius: 14px; background: var(--akz); color: var(--dunkelblau); font-weight: 700; font-size: 14px; padding: 4px 12px; }
 .lk-bildwahl { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 10px; padding: 12px; }
 .lk-bild { display: grid; justify-items: center; gap: 4px; border: 2px solid var(--linie); border-radius: 14px; background: var(--tresen); padding: 8px 4px; font-weight: 700; font-size: 14px; color: var(--holz); }
 .lk-bild:disabled { opacity: .3; }
 /* ===== Erinnerung: sichern ===== */
 .lk-sicherung { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; max-width: 640px; margin-bottom: 18px;
   border-left: 6px solid var(--hm); background: var(--hm-hell); border-radius: var(--r); padding: 10px 12px; }
-.lk-sicherung svg { width: 28px; height: 28px; color: var(--hm); }
+.lk-sicherung svg { width: 28px; height: 28px; color: var(--hm-text); }
 .lk-sicherung strong { display: block; }
 .lk-sicherung small { display: block; font-size: 14px; }
 @media (max-width: 560px) { .lk-sicherung { grid-template-columns: auto minmax(0, 1fr); } .lk-sicherung .lk-knopf { grid-column: 1 / -1; } }
-.lk-punkt-stand.warn { color: var(--hm); font-weight: 700; }
-.lk-punkt[aria-current="page"] .lk-punkt-stand.warn { color: var(--auf-markise); }
+.lk-punkt-stand.warn { color: var(--hm-text); font-weight: 700; }
+.lk-punkt[aria-current="page"] .lk-punkt-stand.warn { color: var(--dunkelblau); }
 /* ===== Verkäufer sein ===== */
 .kunde-bild { display: inline-grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; background: var(--teller, #fff); flex: none; }
 .kunde-bild svg { width: 40px; height: 40px; }
 .bezahlen .kunde-geld { flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding-left: 56px; }
-.preis-fest { margin-left: auto; font-weight: 700; background: var(--gut-hell); color: var(--gut); border-radius: 14px; padding: 2px 10px; white-space: nowrap; }
+.preis-fest { margin-left: auto; font-weight: 700; background: var(--gut-hell); color: var(--gut-text); border-radius: 14px; padding: 2px 10px; white-space: nowrap; }
 .zeig-bezahlt .kunde-bild { margin-right: 4px; }
 
 /* ===== Stufe oben in der Kopfzeile ===== */
 body.im-spiel .stufe-chip { min-width: 0; flex-shrink: 1; }
 /* iPad: Platz für den Stufennamen – der Fortschritt steht als Punkte da */
 @media (min-width: 901px) and (max-width: 1180px) { body.im-spiel #aufgabe-text { display: none; } }
-.stufe-chip { align-items: center; gap: 8px; border: none; border-radius: 20px; background: var(--laden); color: #1d3a5c; padding: 6px 14px 6px 6px; font-weight: 700; font-size: 16px; white-space: nowrap; max-width: 44vw; overflow: hidden; text-overflow: ellipsis; }
+.stufe-chip { align-items: center; gap: 8px; border: none; border-radius: 20px; background: var(--laden); color: var(--dunkelblau); padding: 6px 14px 6px 6px; font-weight: 700; font-size: 16px; white-space: nowrap; max-width: 44vw; overflow: hidden; text-overflow: ellipsis; }
 .stufe-chip i { width: 26px; height: 26px; border-radius: 50%; background: #fff; display: grid; place-items: center; font-style: normal; font-family: var(--anzeige); flex: none; }
 .stufe-chip span { overflow: hidden; text-overflow: ellipsis; }
 @media (max-width: 760px) { .stufe-chip #stufe-chip-text { display: none; } .stufe-chip { padding-right: 6px; } }
@@ -1120,9 +1119,16 @@ body.im-spiel .stufe-chip { min-width: 0; flex-shrink: 1; }
 .budget-schein strong { font: 700 30px var(--anzeige); color: var(--holz); white-space: nowrap; }
 .budget-schein.klein { grid-auto-flow: column; align-items: center; gap: 8px; margin: 0; padding: 4px 10px; border-width: 2px; flex: none; }
 .budget-schein.klein strong { font-size: 20px; }
+
+/* Symbole in Knöpfen */
+.laden-zurueck .symbol { width: 1.2em; height: 1.2em; }
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+<symbol id="i-pfeil-links" viewBox="0 0 24 24"><path d="M19.5 12h-15M11 5.5 4.5 12l6.5 6.5"/></symbol>
+<symbol id="i-haken" viewBox="0 0 24 24"><path d="M4.5 12.5 10 18 19.5 6.5"/></symbol>
+</svg>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
 <linearGradient id="m-bronze" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f3c9a0"/><stop offset=".35" stop-color="#cd7f32"/><stop offset=".55" stop-color="#e8a96b"/><stop offset="1" stop-color="#8c5421"/></linearGradient>
 <linearGradient id="m-silber" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".35" stop-color="#c0c8d0"/><stop offset=".55" stop-color="#eef2f6"/><stop offset="1" stop-color="#8b96a3"/></linearGradient>
@@ -1131,7 +1137,8 @@ body.im-spiel .stufe-chip { min-width: 0; flex-shrink: 1; }
 <symbol id="pokal" viewBox="0 0 100 100"><path d="M22 20H8c0 16 8 28 20 30M78 20h14c0 16-8 28-20 30" fill="none" stroke="#a97c00" stroke-width="5" stroke-linejoin="round"/><path d="M22 14h56v6c0 20-10 36-28 40C32 56 22 40 22 20z" fill="url(#m-gold)" stroke="#a97c00" stroke-width="4" stroke-linejoin="round"/><path d="M46 60h8v14h-8z" fill="url(#m-gold)" stroke="#a97c00" stroke-width="3"/><rect x="30" y="74" width="40" height="12" rx="3" fill="url(#m-gold)" stroke="#a97c00" stroke-width="4"/><path d="M50 22l3.5 7.5 8 1-6 5.5 1.6 8L50 40l-7.1 3.9 1.6-8-6-5.5 8-1z" fill="#fff" fill-opacity=".9"/></symbol>
 </defs></svg>
 
-<header class="markise">
+<header class="kopfzeile">
+  <div class="band" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
   <div class="kopf">
     <h1 class="schild-titel" id="laden-titel">Kirmes-Kiosk</h1>
     <p class="gruss nur-spiel" id="gruss">Hallo!</p>
@@ -1280,7 +1287,7 @@ body.im-spiel .stufe-chip { min-width: 0; flex-shrink: 1; }
     <button class="rundknopf stumm-knopf" aria-pressed="false" aria-label="Ansagen ausschalten" title="Ansagen aus/an"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" fill-opacity=".15"/><path d="M16.5 9.5l5 5M21.5 9.5l-5 5"/></svg></button>
   </div>
   <div class="laden-bild" id="laden-bild"></div>
-  <div class="laden-leiste"><div class="zettel" id="zettel"></div><button class="laden-zurueck" id="knopf-laden-zurueck">← Zurück</button></div>
+  <div class="laden-leiste"><div class="zettel" id="zettel"></div><button class="laden-zurueck" id="knopf-laden-zurueck"><svg class="symbol" aria-hidden="true"><use href="#i-pfeil-links"/></svg> Zurück</button></div>
 </div>
 
 <!-- Sammelalbum -->
@@ -1292,7 +1299,7 @@ body.im-spiel .stufe-chip { min-width: 0; flex-shrink: 1; }
     <div class="album-seiten" id="album-seiten"></div>
     <section class="album-seite" id="album-seite"></section>
   </div>
-  <button class="laden-zurueck" id="knopf-album-zurueck">← Zurück</button>
+  <button class="laden-zurueck" id="knopf-album-zurueck"><svg class="symbol" aria-hidden="true"><use href="#i-pfeil-links"/></svg> Zurück</button>
 </div>
 
 <!-- Druckvorlagen (nur beim Drucken sichtbar) -->
@@ -2145,17 +2152,17 @@ const SPRECH = {
 const ZAHL_SPRECH = ['', 'eins', 'zwei', 'drei', 'vier', 'fünf', 'sechs'];
 
 const LAEDEN = {
-  kirmes: { name: 'Kirmes-Kiosk', faktor: 1, cent: false, foto: true, ordner: 'bilder/', farbe: '#f39325', farbeRand: '#c76f0a',
+  kirmes: { name: 'Kirmes-Kiosk', faktor: 1, cent: false, foto: true, ordner: 'bilder/', farbe: '#F39200', farbeRand: '#C76F0A',
             produkte: PRODUKTE_KIRMES, stufen: STUFEN_KIRMES, alt: ALT_KIRMES,
             themen: ['Geld kennen', 'Zusammenrechnen', 'Geschickt legen', 'Mehrmals und Ergänzen', 'Rückgeld und Budget', 'Verkäufer sein'], geld: [1, 2, 5, 10, 20], ausschnitt: '86 0 1028 700',
             maxWahl: [5, 10, 12, 15, 20, 30], bezahltWahl: [10, 15, 20], spanne: 6, schritte: [1, 2, 10, 3],
             bereiche: [[5, 'bis 5 €'], [10, '6–10 €'], [15, '11–15 €'], [20, '16–20 €'], [Infinity, 'über 20 €']] },
-  spielwaren: { name: 'Spielwarenladen', faktor: 1, cent: false, foto: true, ordner: 'bilder/spielwaren/', farbe: '#9fd3f0', farbeRand: '#3d9ad6',
+  spielwaren: { name: 'Spielwarenladen', faktor: 1, cent: false, foto: true, ordner: 'bilder/spielwaren/', farbe: '#4DB2E6', farbeRand: '#0067B1',
             produkte: PRODUKTE_SPIELWAREN, stufen: STUFEN_SPIELWAREN, alt: ALT_SPIELWAREN,
             themen: ['Große Scheine kennen', 'Zusammenrechnen', 'Geschickt legen', 'Mehrmals und Ergänzen', 'Rückgeld und Budget', 'Verkäufer sein'], geld: [1, 2, 5, 10, 20, 50, 100], ausschnitt: '0 20 1090 760',
             maxWahl: [30, 50, 100, 150, 200], bezahltWahl: [20, 50, 100, 200], spanne: 40, schritte: [1, 10, 5, 20],
             bereiche: [[20, 'bis 20 €'], [50, '21–50 €'], [100, '51–100 €'], [150, '101–150 €'], [Infinity, 'über 150 €']] },
-  baeckerei: { name: 'Bäckerei', faktor: 100, cent: true, foto: false, ordner: 'bilder/baeckerei/', farbe: '#ffd200', farbeRand: '#c9a400',
+  baeckerei: { name: 'Bäckerei', faktor: 100, cent: true, foto: false, ordner: 'bilder/baeckerei/', farbe: '#FFD100', farbeRand: '#B89A00',
             produkte: PRODUKTE_BAECKEREI, stufen: STUFEN_BAECKEREI, alt: ALT_BAECKEREI,
             themen: ['Euro und Cent kennen', 'Zusammenrechnen', 'Geschickt legen', 'Mehrmals und Ergänzen', 'Rückgeld und Budget', 'Verkäufer sein'], geld: [10, 20, 50, 100, 200, 500], ausschnitt: '20 16 1150 720',
             maxWahl: [2, 3, 5, 8, 10], bezahltWahl: [5, 10, 20], spanne: 250, schritte: [10, 50, 100, 20],
@@ -2513,7 +2520,7 @@ const meldung = (gut, titel, text, huepfen) => `<div class="meldung ${gut ? 'gut
 const scheinChip = w => `<span class="geldchip" title="${geldName(w)}">${KirmesGeld.bild(inCent(w), 1.8)}</span>`;
 
 // Höhe der Kopfzeile für die Aufgabe ohne Scrollen (zwei Spalten)
-function kopfHoehe() { document.documentElement.style.setProperty('--kopf', document.querySelector('.markise').offsetHeight + 'px'); }
+function kopfHoehe() { document.documentElement.style.setProperty('--kopf', document.querySelector('.kopfzeile').offsetHeight + 'px'); }
 addEventListener('resize', kopfHoehe);
 function zeigeRunde() {
   $('spiel').hidden = false; $('ende').hidden = true;
@@ -4243,7 +4250,7 @@ function zeigeAlbumSeite() {
   const a = albumStand(), liste = AUFKLEBER[albumLaden], seite = albumSeite, n = albumZahl(a, albumLaden, seite);
   const gesperrt = m => SEITEN.indexOf(m) > 0 && albumZahl(a, albumLaden, SEITEN[SEITEN.indexOf(m) - 1]) < ALBUM_PLAETZE && albumZahl(a, albumLaden, m) === 0;
   $('album-reiter').innerHTML = LADEN_FOLGE.map(id => `<button style="--f:${LAEDEN[id].farbe}" aria-pressed="${id === albumLaden}" data-laden="${id}" data-scan-album>${LAEDEN[id].name}</button>`).join('');
-  $('album-seiten').innerHTML = SEITEN.map(m => `<button data-m="${m}" data-seite="${m}" aria-pressed="${m === seite}"${gesperrt(m) ? ' disabled' : ''} data-scan-album>${m === 'bunt' ? 'Seite 1' : '✦ ' + SEITE_NAME[m]}${albumZahl(a, albumLaden, m) >= ALBUM_PLAETZE ? ' ✓' : ''}${gesperrt(m) ? ' (noch zu)' : ''}</button>`).join('');
+  $('album-seiten').innerHTML = SEITEN.map(m => `<button data-m="${m}" data-seite="${m}" aria-pressed="${m === seite}"${gesperrt(m) ? ' disabled' : ''} data-scan-album>${m === 'bunt' ? 'Seite 1' : SEITE_NAME[m]}${albumZahl(a, albumLaden, m) >= ALBUM_PLAETZE ? ' ✓' : ''}${gesperrt(m) ? ' (noch zu)' : ''}</button>`).join('');
   $('album-seiten').style.setProperty('--f', LAEDEN[albumLaden].farbe);
   const pk = albumPokale(a, albumLaden);
   $('album-pokal').hidden = !pk;
@@ -4411,7 +4418,7 @@ function zeichneStufen() {
       if (!st.length) return `<div class="lk-thema leer"><span class="lk-zeichen">${ti + 1}</span>${name}<span class="lk-stand">folgt bald</span></div>`;
       const aktiv = jetzt.thema === ti, fertig = st.every(([x, n]) => n < nr && stand[x.id] !== 'schwierig'), pos = st.findIndex(([, n]) => n === nr) + 1;
       return `<details class="lk-thema${aktiv ? ' aktiv' : ''}${fertig ? ' fertig' : ''}"${aktiv ? ' open' : ''}>
-        <summary><span class="lk-zeichen">${fertig ? '✓' : ti + 1}</span>${name}<span class="lk-stand">${aktiv ? `Stufe ${pos} von ${st.length}` : fertig ? 'geschafft' : `${st.length} Stufen`}</span></summary>
+        <summary><span class="lk-zeichen">${fertig ? '<svg class="symbol" aria-hidden="true"><use href="#i-haken"/></svg>' : ti + 1}</span>${name}<span class="lk-stand">${aktiv ? `Stufe ${pos} von ${st.length}` : fertig ? 'geschafft' : `${st.length} Stufen`}</span></summary>
         <div class="lk-sk-stufen">${st.map(([x, n], k) =>
           `<div class="lk-stufe-zeile${stand[x.id] === 'ausgelassen' ? ' aus' : ''}"><button class="lk-stufe" data-laden="${id}" data-stufe="${n}" aria-pressed="${n === nr}"><b>${ti + 1}.${k + 1}</b><span>${x.titel}</span>${stand[x.id] !== 'offen' ? `<span class="lk-stand-punkt ${stand[x.id]}">${STAND_NAME[stand[x.id]]}</span>` : ''}</button>` +
           `<button class="lk-auslassen" data-laden="${id}" data-auslassen="${x.id}" aria-pressed="${stand[x.id] === 'ausgelassen'}" title="Stufe auslassen">${stand[x.id] === 'ausgelassen' ? 'wieder an' : 'auslassen'}</button></div>`).join('')}</div>

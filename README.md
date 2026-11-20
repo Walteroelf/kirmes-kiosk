@@ -20,7 +20,7 @@ Alles läuft im Browser: kein Server, kein Konto, keine KI-Dienste. Die Fotos ve
 | `symbole.js` | Die 12 Bilder, mit denen sich die Kinder auf einem Gerät erkennen (statt Namen) |
 | `aufkleber.js`, `werkzeuge/aufkleber.py` | Aufkleber für das Sammelalbum und das Skript, das sie zeichnet |
 | `laeden/`, `werkzeuge/laeden.py` | Die drei gezeichneten Läden (SVG) und das Skript, das sie erzeugt (`python3 werkzeuge/laeden.py`); Preise und Markierungen setzt die App selbst ein |
-| `schriften/` | Schriften Andika und Grandstander (SIL Open Font License), lokal eingebunden |
+| `schriften/` | Schrift Andika (SIL Open Font License), lokal eingebunden |
 | `tests/` | Automatischer Test mit künstlichen Szenen und eine Prüfseite für echte Fotos |
 
 ## Drei Läden
